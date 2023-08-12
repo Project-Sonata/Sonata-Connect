@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.controller;
 
+import com.odeyalo.sonata.connect.dto.ExceptionMessage;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.entity.InMemoryDevice;
 import com.odeyalo.sonata.connect.entity.InMemoryDevices;
@@ -16,14 +17,23 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Hooks;
 import testing.asserts.PlayerStateDtoAssert;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode.REMOTE;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureWebTestClient
+@AutoConfigureStubRunner(stubsMode = REMOTE,
+        repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
+        ids = "com.odeyalo.sonata:authorization:+")
 @TestPropertySource(locations = "classpath:application-test.properties")
 class PlayerControllerTest {
 
@@ -33,9 +43,15 @@ class PlayerControllerTest {
     @Autowired
     PlayerStateStorage playerStateStorage;
 
+    @BeforeAll
+    void prepare() {
+        Hooks.onOperatorDebug(); // DO NOT DELETE IT, VERY IMPORTANT LINE, WITHOUT IT FEIGN WITH WIREMOCK THROWS ILLEGAL STATE EXCEPTION, I DON'T FIND SOLUTION YET
+    }
+
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class ValidPlayerStateTests {
+        final String VALID_ACCESS_TOKEN = "Bearer mikunakanoisthebestgirl";
 
         @BeforeAll
         void prepareData() {
@@ -195,6 +211,56 @@ class PlayerControllerTest {
         private WebTestClient.ResponseSpec sendCurrentPlayerStateRequest() {
             return webTestClient.get()
                     .uri("/player/state")
+                    .header(HttpHeaders.AUTHORIZATION, VALID_ACCESS_TOKEN)
+                    .exchange();
+        }
+    }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    class UnauthorizedRequestTests {
+        final String INVALID_ACCESS_TOKEN = "Bearer invalidtoken";
+
+        @Test
+        void expect401() {
+            WebTestClient.ResponseSpec responseSpec = sendUnauthorizedRequest();
+
+            responseSpec.expectStatus().isUnauthorized();
+        }
+
+        @Test
+        void expectApplicationJson() {
+            WebTestClient.ResponseSpec responseSpec = sendUnauthorizedRequest();
+
+            responseSpec.expectHeader().contentType(MediaType.APPLICATION_JSON);
+        }
+
+        @Test
+        void expectNotNullBody() {
+            WebTestClient.ResponseSpec responseSpec = sendUnauthorizedRequest();
+
+            ExceptionMessage message = responseSpec.expectBody(ExceptionMessage.class).returnResult().getResponseBody();
+
+            assertThat(message)
+                    .as("Body must be not null")
+                    .isNotNull();
+        }
+
+        @Test
+        void expectMessageInBody() {
+            WebTestClient.ResponseSpec responseSpec = sendUnauthorizedRequest();
+
+            ExceptionMessage message = responseSpec.expectBody(ExceptionMessage.class).returnResult().getResponseBody();
+
+            assertThat(message.getDescription())
+                    .as("Body must contain message with description")
+                    .isEqualTo("Missing access token or token has been expired");
+        }
+
+        private WebTestClient.ResponseSpec sendUnauthorizedRequest() {
+            return webTestClient.get()
+                    .uri("/player/state")
+                    .header(HttpHeaders.AUTHORIZATION, INVALID_ACCESS_TOKEN)
                     .exchange();
         }
     }
