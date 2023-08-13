@@ -2,9 +2,7 @@ package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.connect.dto.ExceptionMessage;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
-import com.odeyalo.sonata.connect.entity.InMemoryDevice;
-import com.odeyalo.sonata.connect.entity.InMemoryDevices;
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.*;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
@@ -35,7 +33,7 @@ import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerPro
         repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
         ids = "com.odeyalo.sonata:authorization:+")
 @TestPropertySource(locations = "classpath:application-test.properties")
-class PlayerControllerTest {
+class CurrentPlayerStatePlayerControllerTest {
 
     @Autowired
     WebTestClient webTestClient;
@@ -52,6 +50,7 @@ class PlayerControllerTest {
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class ValidPlayerStateTests {
         final String VALID_ACCESS_TOKEN = "Bearer mikunakanoisthebestgirl";
+        final String VALID_USER_ID = "1";
 
         @BeforeAll
         void prepareData() {
@@ -72,6 +71,7 @@ class PlayerControllerTest {
                     .playingType(PlayingType.TRACK)
                     .repeatState(RepeatState.OFF)
                     .devices(devices)
+                    .user(InMemoryUserEntity.builder().id(VALID_USER_ID).build())
                     .build();
             playerStateStorage.save(playerState).block();
         }
@@ -217,7 +217,6 @@ class PlayerControllerTest {
     }
 
     @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class UnauthorizedRequestTests {
         final String INVALID_ACCESS_TOKEN = "Bearer invalidtoken";
 
