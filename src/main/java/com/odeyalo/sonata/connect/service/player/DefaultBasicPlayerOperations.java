@@ -50,16 +50,16 @@ public class DefaultBasicPlayerOperations implements BasicPlayerOperations {
                 .shuffleState(state.getShuffleState())
                 .progressMs(state.getProgressMs())
                 .repeatState(state.getRepeatState())
-                .devices(toDevicesDto(state.getDevices()))
+                .devices(toDevicesModel(state.getDevices()))
                 .build();
     }
 
-    private static DevicesModel toDevicesDto(Devices devices) {
-        List<DeviceModel> deviceModels = devices.stream().map(DefaultBasicPlayerOperations::toDeviceDto).toList();
+    private static DevicesModel toDevicesModel(Devices devices) {
+        List<DeviceModel> deviceModels = devices.stream().map(DefaultBasicPlayerOperations::toDeviceModel).toList();
         return DevicesModel.builder().devices(deviceModels).build();
     }
 
-    private static DeviceModel toDeviceDto(Device device) {
+    private static DeviceModel toDeviceModel(Device device) {
         return DeviceModel.builder()
                 .deviceId(device.getId())
                 .deviceName(device.getName())
