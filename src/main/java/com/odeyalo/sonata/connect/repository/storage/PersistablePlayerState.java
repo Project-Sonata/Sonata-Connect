@@ -2,6 +2,7 @@ package com.odeyalo.sonata.connect.repository.storage;
 
 import com.odeyalo.sonata.connect.entity.Devices;
 import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.UserEntity;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
@@ -24,6 +25,7 @@ public class PersistablePlayerState implements PlayerState {
     Long progressMs;
     PlayingType playingType;
     Devices devices;
+    UserEntity user;
 
     @Override
     public boolean getShuffleState() {

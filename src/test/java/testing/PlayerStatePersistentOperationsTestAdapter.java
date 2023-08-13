@@ -85,4 +85,14 @@ public class PlayerStatePersistentOperationsTestAdapter {
                 .as("The size should not be changed, if ID does not exist")
                 .isEqualTo(beforeDeletion);
     }
+
+    @Test
+    public void shouldFindByUserId() {
+        PlayerState result = this.testTarget.findByUserId(entity.getUser().getId()).block();
+
+        assertThat(result)
+                .as("Entity must be found by user id!")
+                .isNotNull()
+                .isEqualTo(entity);
+    }
 }

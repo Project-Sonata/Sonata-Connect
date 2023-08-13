@@ -1,12 +1,9 @@
 package com.odeyalo.sonata.connect.entity;
 
-import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.List;
 
 @Builder
 @Data
@@ -21,6 +18,8 @@ public class InMemoryPlayerState implements PlayerState {
     Long progressMs;
     PlayingType playingType;
     Devices devices;
+    UserEntity user;
+
     @Override
     public boolean getShuffleState() {
         return shuffleState;

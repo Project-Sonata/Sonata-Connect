@@ -3,7 +3,6 @@ package com.odeyalo.sonata.connect.repository.storage;
 import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.storage.support.PersistableEntityConverter;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 public class RepositoryDelegatePlayerStateStorage implements PlayerStateStorage {
@@ -42,5 +41,11 @@ public class RepositoryDelegatePlayerStateStorage implements PlayerStateStorage 
 
     private PersistablePlayerState toPersistableEntity(PlayerState type) {
         return converter.convertTo(type);
+    }
+
+    @Override
+    public Mono<PersistablePlayerState> findByUserId(String userId) {
+        return delegate.findByUserId(userId)
+                .map(converter::convertTo);
     }
 }

@@ -16,6 +16,7 @@ public class InMemory2PersistablePlayerStateConverter implements PersistableEnti
                 .shuffleState(type.getShuffleState())
                 .progressMs(type.getProgressMs())
                 .repeatState(type.getRepeatState())
+                .user(type.getUser())
                 .devices(type.getDevices())
                 .build();
     }
@@ -29,6 +30,7 @@ public class InMemory2PersistablePlayerStateConverter implements PersistableEnti
                 .shuffleState(type.getShuffleState())
                 .progressMs(type.getProgressMs())
                 .repeatState(type.getRepeatState())
+                .user(type.getUser())
                 .devices(type.getDevices())
                 .build();
     }

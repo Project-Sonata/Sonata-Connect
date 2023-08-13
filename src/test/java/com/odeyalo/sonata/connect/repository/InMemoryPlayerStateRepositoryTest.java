@@ -1,7 +1,10 @@
 package com.odeyalo.sonata.connect.repository;
 
 import com.odeyalo.sonata.connect.entity.InMemoryPlayerState;
+import com.odeyalo.sonata.connect.entity.InMemoryUserEntity;
 import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.model.PlayingType;
+import com.odeyalo.sonata.connect.model.RepeatState;
 import org.junit.jupiter.api.Test;
 import testing.PlayerStatePersistentOperationsTestAdapter;
 import testing.TestEntityGenerator;
@@ -28,6 +31,11 @@ class InMemoryPlayerStateRepositoryTest extends PlayerStatePersistentOperationsT
         public PlayerState generateValidEntity() {
             return InMemoryPlayerState.builder()
                     .id(1L)
+                    .repeatState(RepeatState.OFF)
+                    .shuffleState(false)
+                    .playing(true)
+                    .playingType(PlayingType.TRACK)
+                    .user(InMemoryUserEntity.builder().id("mikuuu").build())
                     .build();
         }
 
@@ -35,6 +43,11 @@ class InMemoryPlayerStateRepositoryTest extends PlayerStatePersistentOperationsT
         public PlayerState generateInvalidEntity() {
             return InMemoryPlayerState.builder()
                     .id(-1L)
+                    .repeatState(RepeatState.OFF)
+                    .shuffleState(false)
+                    .playing(true)
+                    .playingType(PlayingType.TRACK)
+                    .user(InMemoryUserEntity.builder().id("mikuuu").build())
                     .build();
         }
     }
