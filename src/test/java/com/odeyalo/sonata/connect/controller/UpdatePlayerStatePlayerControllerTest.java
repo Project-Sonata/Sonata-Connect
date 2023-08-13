@@ -5,11 +5,7 @@ import com.odeyalo.sonata.connect.dto.ExceptionMessage;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.entity.InMemoryDevice;
 import com.odeyalo.sonata.connect.entity.InMemoryDevices;
-import com.odeyalo.sonata.connect.entity.InMemoryUserEntity;
-import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.model.DeviceType;
-import com.odeyalo.sonata.connect.model.PlayingType;
-import com.odeyalo.sonata.connect.model.RepeatState;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
+import testing.faker.PlayerStateFaker;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode.REMOTE;
@@ -116,16 +113,9 @@ public class UpdatePlayerStatePlayerControllerTest {
                             .active(true)
                             .build())
                     .build();
-            PersistablePlayerState playerState = PersistablePlayerState.builder()
-                    .id(1L)
-                    .shuffleState(PlayerState.SHUFFLE_DISABLED)
-                    .progressMs(0L)
-                    .playing(true)
-                    .playingType(PlayingType.TRACK)
-                    .repeatState(RepeatState.OFF)
-                    .devices(devices)
-                    .user(InMemoryUserEntity.builder().id(VALID_USER_ID).build())
-                    .build();
+            PersistablePlayerState playerState = PlayerStateFaker.createWithCustomNumberOfDevices(1)
+                    .setDevices(devices)
+                    .asPersistablePlayerState();
             playerStateStorage.save(playerState).block();
         }
 

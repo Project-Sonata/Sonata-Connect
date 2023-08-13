@@ -1,6 +1,5 @@
 package com.odeyalo.sonata.connect.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
