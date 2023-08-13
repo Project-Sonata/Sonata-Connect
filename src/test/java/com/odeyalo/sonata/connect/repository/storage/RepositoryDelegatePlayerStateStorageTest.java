@@ -1,5 +1,8 @@
 package com.odeyalo.sonata.connect.repository.storage;
 
+import com.odeyalo.sonata.connect.entity.InMemoryUserEntity;
+import com.odeyalo.sonata.connect.model.PlayingType;
+import com.odeyalo.sonata.connect.model.RepeatState;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.storage.support.InMemory2PersistablePlayerStateConverter;
 import testing.PlayerStatePersistentOperationsTestAdapter;
@@ -17,6 +20,11 @@ class RepositoryDelegatePlayerStateStorageTest extends PlayerStatePersistentOper
         public PersistablePlayerState generateValidEntity() {
             return PersistablePlayerState.builder()
                     .id(1L)
+                    .repeatState(RepeatState.OFF)
+                    .shuffleState(false)
+                    .playing(true)
+                    .playingType(PlayingType.TRACK)
+                    .user(InMemoryUserEntity.builder().id("mikuuuu").build())
                     .build();
         }
 
@@ -24,6 +32,11 @@ class RepositoryDelegatePlayerStateStorageTest extends PlayerStatePersistentOper
         public PersistablePlayerState generateInvalidEntity() {
             return PersistablePlayerState.builder()
                     .id(-1L)
+                    .repeatState(RepeatState.OFF)
+                    .shuffleState(false)
+                    .playing(false)
+                    .playingType(PlayingType.TRACK)
+                    .user(InMemoryUserEntity.builder().id("mikuuuu").build())
                     .build();
         }
     }
