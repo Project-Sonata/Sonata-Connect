@@ -1,18 +1,13 @@
 package com.odeyalo.sonata.connect.entity;
 
-import com.odeyalo.sonata.connect.model.DeviceType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class InMemoryDevice implements Device {
+public class InMemoryUserEntity implements UserEntity {
     String id;
-    String name;
-    DeviceType deviceType;
-    int volume;
-    boolean active;
 }

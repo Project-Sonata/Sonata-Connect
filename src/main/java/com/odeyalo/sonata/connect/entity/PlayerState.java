@@ -20,4 +20,6 @@ public interface PlayerState {
     boolean isPlaying();
 
     Devices getDevices();
+
+    UserEntity getUser();
 }

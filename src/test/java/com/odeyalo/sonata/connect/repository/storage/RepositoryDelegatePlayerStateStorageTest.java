@@ -4,6 +4,7 @@ import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.storage.support.InMemory2PersistablePlayerStateConverter;
 import testing.PlayerStatePersistentOperationsTestAdapter;
 import testing.TestEntityGenerator;
+import testing.faker.PlayerStateFaker;
 
 class RepositoryDelegatePlayerStateStorageTest extends PlayerStatePersistentOperationsTestAdapter {
 
@@ -15,16 +16,15 @@ class RepositoryDelegatePlayerStateStorageTest extends PlayerStatePersistentOper
 
         @Override
         public PersistablePlayerState generateValidEntity() {
-            return PersistablePlayerState.builder()
-                    .id(1L)
-                    .build();
+            return PlayerStateFaker.create()
+                    .asPersistablePlayerState();
         }
 
         @Override
         public PersistablePlayerState generateInvalidEntity() {
-            return PersistablePlayerState.builder()
-                    .id(-1L)
-                    .build();
+            return PlayerStateFaker.create()
+                    .setId(-1L)
+                    .asPersistablePlayerState();
         }
     }
 }

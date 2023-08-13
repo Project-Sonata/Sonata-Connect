@@ -2,6 +2,7 @@ package com.odeyalo.sonata.connect;
 
 import com.odeyalo.sonata.connect.entity.InMemoryDevice;
 import com.odeyalo.sonata.connect.entity.InMemoryDevices;
+import com.odeyalo.sonata.connect.entity.InMemoryUserEntity;
 import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.model.PlayingType;
@@ -40,6 +41,7 @@ public class SonataConnectApplication {
                     .playing(true)
                     .playingType(PlayingType.TRACK)
                     .repeatState(RepeatState.OFF)
+                    .user(InMemoryUserEntity.builder().id("mikku").build())
                     .devices(devices)
                     .build();
             playerStateStorage.save(playerState).block();
