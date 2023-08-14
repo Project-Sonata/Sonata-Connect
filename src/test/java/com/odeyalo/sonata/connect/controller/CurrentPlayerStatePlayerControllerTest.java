@@ -22,6 +22,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
 import testing.asserts.PlayerStateDtoAssert;
+import testing.faker.DeviceFaker;
+import testing.faker.PlayerStateFaker;
+import testing.faker.UserEntityFaker;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode.REMOTE;
@@ -55,24 +58,26 @@ class CurrentPlayerStatePlayerControllerTest {
         @BeforeAll
         void prepareData() {
             InMemoryDevices devices = InMemoryDevices.builder()
-                    .device(InMemoryDevice.builder()
-                            .id("something")
-                            .name("Miku")
-                            .deviceType(DeviceType.COMPUTER)
-                            .volume(50)
-                            .active(true)
-                            .build())
+                    .device(DeviceFaker.create()
+                            .setDeviceId("something")
+                            .setDeviceName("Miku")
+                            .setDeviceType(DeviceType.COMPUTER)
+                            .setVolume(50)
+                            .setActive(true)
+                            .asInMemoryDevice())
                     .build();
-            PersistablePlayerState playerState = PersistablePlayerState.builder()
-                    .id(1L)
-                    .shuffleState(PlayerState.SHUFFLE_DISABLED)
-                    .progressMs(0L)
-                    .playing(true)
-                    .playingType(PlayingType.TRACK)
-                    .repeatState(RepeatState.OFF)
-                    .devices(devices)
-                    .user(InMemoryUserEntity.builder().id(VALID_USER_ID).build())
-                    .build();
+            UserEntity user = UserEntityFaker.create().setId(VALID_USER_ID).get();
+
+            PersistablePlayerState playerState = PlayerStateFaker.createWithCustomNumberOfDevices(1)
+                    .setId(1L)
+                    .setShuffleState(PlayerState.SHUFFLE_DISABLED)
+                    .setProgressMs(0L)
+                    .setPlaying(true)
+                    .setPlayingType(PlayingType.TRACK)
+                    .setRepeatState(RepeatState.OFF)
+                    .setDevices(devices)
+                    .setUser(user)
+                    .asPersistablePlayerState();
             playerStateStorage.save(playerState).block();
         }
 

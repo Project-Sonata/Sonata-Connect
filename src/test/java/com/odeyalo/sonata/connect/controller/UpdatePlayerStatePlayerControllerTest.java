@@ -22,6 +22,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
+import testing.faker.DeviceFaker;
+import testing.faker.DevicesFaker;
 import testing.faker.PlayerStateFaker;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -105,13 +107,13 @@ public class UpdatePlayerStatePlayerControllerTest {
         @BeforeAll
         void prepareData() {
             InMemoryDevices devices = InMemoryDevices.builder()
-                    .device(InMemoryDevice.builder()
-                            .id("something")
-                            .name("Miku")
-                            .deviceType(DeviceType.COMPUTER)
-                            .volume(50)
-                            .active(true)
-                            .build())
+                    .device(DeviceFaker.create()
+                            .setDeviceId("something")
+                            .setDeviceName("Miku")
+                            .setDeviceType(DeviceType.COMPUTER)
+                            .setVolume(50)
+                            .setActive(true)
+                            .asInMemoryDevice())
                     .build();
             PersistablePlayerState playerState = PlayerStateFaker.createWithCustomNumberOfDevices(1)
                     .setDevices(devices)

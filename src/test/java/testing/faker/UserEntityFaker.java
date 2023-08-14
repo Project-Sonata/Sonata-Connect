@@ -2,8 +2,12 @@ package testing.faker;
 
 import com.odeyalo.sonata.connect.entity.InMemoryUserEntity;
 import com.odeyalo.sonata.connect.entity.UserEntity;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.RandomStringUtils;
 
+@Setter
+@Accessors(chain = true)
 public class UserEntityFaker {
     String id;
 
