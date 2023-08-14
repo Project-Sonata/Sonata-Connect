@@ -31,9 +31,10 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityWebFilterChain defaultFilterChain(ServerHttpSecurity httpSecurity) {
-        return httpSecurity.authorizeExchange((spec) -> spec.anyExchange().authenticated())
-                .cors(ServerHttpSecurity.CorsSpec::disable)
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+        return httpSecurity.authorizeExchange(authorizeExchangeSpecCustomizer)
+                .cors(corsSpecCustomizer)
+                .csrf(csrfSpecCustomizer)
+                .exceptionHandling(exceptionHandlingSpecCustomizer)
                 .addFilterAt(authenticationManagerFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
     }
