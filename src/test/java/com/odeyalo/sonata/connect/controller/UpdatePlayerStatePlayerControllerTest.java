@@ -9,10 +9,7 @@ import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
+import testing.faker.DeviceFaker;
+import testing.faker.DevicesFaker;
 import testing.faker.PlayerStateFaker;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -105,13 +104,13 @@ public class UpdatePlayerStatePlayerControllerTest {
         @BeforeAll
         void prepareData() {
             InMemoryDevices devices = InMemoryDevices.builder()
-                    .device(InMemoryDevice.builder()
-                            .id("something")
-                            .name("Miku")
-                            .deviceType(DeviceType.COMPUTER)
-                            .volume(50)
-                            .active(true)
-                            .build())
+                    .device(DeviceFaker.create()
+                            .setDeviceId("something")
+                            .setDeviceName("Miku")
+                            .setDeviceType(DeviceType.COMPUTER)
+                            .setVolume(50)
+                            .setActive(true)
+                            .asInMemoryDevice())
                     .build();
             PersistablePlayerState playerState = PlayerStateFaker.createWithCustomNumberOfDevices(1)
                     .setDevices(devices)
@@ -179,5 +178,10 @@ public class UpdatePlayerStatePlayerControllerTest {
                     .header(HttpHeaders.AUTHORIZATION, VALID_ACCESS_TOKEN)
                     .exchange();
         }
+    }
+
+    @AfterAll
+    void afterAll() {
+        playerStateStorage.clear().block();
     }
 }

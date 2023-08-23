@@ -95,4 +95,13 @@ public class PlayerStatePersistentOperationsTestAdapter {
                 .isNotNull()
                 .isEqualTo(entity);
     }
+
+    @Test
+    void shouldClear() {
+        testTarget.clear().block();
+
+        Long afterClear = testTarget.count().block();
+
+        assertThat(afterClear).isEqualTo(0);
+    }
 }

@@ -4,7 +4,6 @@ import com.odeyalo.sonata.connect.entity.InMemoryPlayerState;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,8 +20,7 @@ public class InMemoryPlayerStateRepository implements PlayerStateRepository<InMe
         return Mono.fromRunnable(() -> {
                     cache.put(entity.getId(), entity);
                     cacheByUserId.put(entity.getUser().getId(), entity.getId());
-                })
-                .thenReturn(entity);
+                }).thenReturn(entity);
     }
 
     @Override
@@ -40,6 +38,14 @@ public class InMemoryPlayerStateRepository implements PlayerStateRepository<InMe
     public Mono<Long> count() {
         return Mono.just(cache.size())
                 .map(Long::valueOf);
+    }
+
+    @Override
+    public Mono<Void> clear() {
+        return Mono.fromRunnable(() -> {
+            cache.clear();
+            cacheByUserId.clear();
+        });
     }
 
     @Override
