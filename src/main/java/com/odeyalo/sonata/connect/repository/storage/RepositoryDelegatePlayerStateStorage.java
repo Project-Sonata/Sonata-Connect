@@ -32,6 +32,11 @@ public class RepositoryDelegatePlayerStateStorage implements PlayerStateStorage 
     }
 
     @Override
+    public Mono<Void> clear() {
+        return delegate.clear();
+    }
+
+    @Override
     public Mono<PersistablePlayerState> save(PersistablePlayerState playerState) {
         return Mono.just(playerState)
                 .map(state -> converter.convertFrom(playerState))
