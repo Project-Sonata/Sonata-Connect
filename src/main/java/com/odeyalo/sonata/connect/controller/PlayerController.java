@@ -1,16 +1,14 @@
 package com.odeyalo.sonata.connect.controller;
 
-import com.odeyalo.sonata.connect.dto.DeviceDto;
-import com.odeyalo.sonata.connect.dto.DevicesDto;
-import com.odeyalo.sonata.connect.dto.PlayerStateDto;
-import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.DeviceModel;
-import com.odeyalo.sonata.connect.model.DevicesModel;
-import com.odeyalo.sonata.connect.model.User;
+import com.odeyalo.sonata.connect.dto.*;
+import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
 import com.odeyalo.sonata.connect.service.player.BasicPlayerOperations;
 import com.odeyalo.suite.security.auth.AuthenticatedUser;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -36,23 +34,56 @@ public class PlayerController {
                 .map(PlayerController::convertToPlayerStateDto);
     }
 
+    @GetMapping("/currently-playing")
+    public Mono<ResponseEntity<CurrentlyPlayingPlayerStateDto>> currentlyPlaying(AuthenticatedUser user) {
+        return playerOperations.currentlyPlayingState(User.of(user.getDetails().getId()))
+                .map(state -> ResponseEntity.ok( convertToDto(state)) )
+                .defaultIfEmpty(ResponseEntity.noContent().build());
+    }
+
+    private static CurrentlyPlayingPlayerStateDto convertToDto(CurrentlyPlayingPlayerState state) {
+        return CurrentlyPlayingPlayerStateDto.of(state.getShuffleState());
+    }
+
     @PutMapping("/shuffle")
-    public Mono<ResponseEntity<?>> changeShuffleState(AuthenticatedUser user, @RequestParam("state") boolean state) {
+    public Mono<ResponseEntity<?>> changeShuffleState(AuthenticatedUser user,
+                                                      @RequestParam("state") boolean state) {
 
         return playerOperations.changeShuffle(User.of(user.getDetails().getId()), state)
                 .subscribeOn(Schedulers.boundedElastic())
                 .map(playerState -> ResponseEntity.noContent().build());
     }
 
+
+
+    @PutMapping(value = "/device/connect", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<ResponseEntity<?>> addDevice(AuthenticatedUser authenticatedUser, @RequestBody ConnectDeviceRequest body) {
+        return playerOperations.getDeviceOperations().addDevice(User.of(authenticatedUser.getDetails().getId()), convertToDeviceModel(body))
+                .thenReturn(ResponseEntity.noContent()
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .build());
+    }
+
+    private static DeviceModel convertToDeviceModel(ConnectDeviceRequest body) {
+        return DeviceModel.of(body.getId(), body.getName(), body.getDeviceType(), body.getVolume(), true);
+    }
+
     private static PlayerStateDto convertToPlayerStateDto(CurrentPlayerState state) {
         return PlayerStateDto.builder()
-                .currentlyPlayingType(state.getPlayingType().name().toLowerCase())
+                .currentlyPlayingType(playingTypeOrNull(state))
                 .isPlaying(state.isPlaying())
                 .repeatState(state.getRepeatState())
                 .progressMs(state.getProgressMs())
                 .devices(toDevicesDto(state.getDevices()))
                 .shuffleState(state.getShuffleState())
                 .build();
+    }
+
+    private static String playingTypeOrNull(CurrentPlayerState state) {
+
+        PlayingType playingType = state.getPlayingType();
+
+        return playingType != null ? playingType.name().toLowerCase() : null;
     }
 
     private static DevicesDto toDevicesDto(DevicesModel devices) {
