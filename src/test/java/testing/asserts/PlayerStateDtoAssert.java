@@ -37,12 +37,12 @@ public class PlayerStateDtoAssert extends AbstractAssert<PlayerStateDtoAssert, P
         return new RepeatStateAssertWrapper(actual.getRepeatState(), this);
     }
 
-    public ShuffleStateAsserts shuffleState() {
-        return new ShuffleStateAsserts(actual.getShuffleState(), this);
+    public ShuffleStateAssertsWrapper shuffleState() {
+        return new ShuffleStateAssertsWrapper(actual.getShuffleState(), this);
     }
 
-    public CurrentlyPlayingTypeAsserts currentlyPlayingType() {
-        return new CurrentlyPlayingTypeAsserts(actual.getCurrentlyPlayingType(), this);
+    public CurrentlyPlayingTypeAssertsWrapper currentlyPlayingType() {
+        return new CurrentlyPlayingTypeAssertsWrapper(actual.getCurrentlyPlayingType(), this);
     }
 
     public PlayerStateDtoAssert progressMs(long expectedMs) {
@@ -89,30 +89,12 @@ public class PlayerStateDtoAssert extends AbstractAssert<PlayerStateDtoAssert, P
         }
     }
 
-    public static class ShuffleStateAsserts extends AbstractAssert<ShuffleStateAsserts, Boolean> implements ParentAssertAware {
+    public static class ShuffleStateAssertsWrapper extends ShuffleStateAsserts implements ParentAssertAware {
         private final PlayerStateDtoAssert parent;
 
-        public static final boolean ON = true;
-        public static final boolean OFF = false;
-
-        public ShuffleStateAsserts(Boolean actual, PlayerStateDtoAssert parent) {
-            super(actual, ShuffleStateAsserts.class);
+        public ShuffleStateAssertsWrapper(Boolean actual, PlayerStateDtoAssert parent) {
+            super(actual);
             this.parent = parent;
-        }
-
-        public ShuffleStateAsserts on() {
-            return shuffleStateAssert(ON);
-        }
-
-        public ShuffleStateAsserts off() {
-            return shuffleStateAssert(OFF);
-        }
-
-        private ShuffleStateAsserts shuffleStateAssert(boolean expected) {
-            if (actual != expected) {
-                failWithActualExpectedAndMessage(actual, expected, "The player state should be: %s(%s)", expected ? "ON" : "OFF", expected);
-            }
-            return this;
         }
 
         @Override
@@ -121,29 +103,12 @@ public class PlayerStateDtoAssert extends AbstractAssert<PlayerStateDtoAssert, P
         }
     }
 
-    public static class CurrentlyPlayingTypeAsserts extends AbstractAssert<CurrentlyPlayingTypeAsserts, String> implements ParentAssertAware {
+    public static class CurrentlyPlayingTypeAssertsWrapper extends CurrentlyPlayingTypeAsserts implements ParentAssertAware {
         private final PlayerStateDtoAssert parent;
-        public static final String TRACK = "track";
-        public static final String PODCAST = "podcast";
 
-        private CurrentlyPlayingTypeAsserts(String actual, PlayerStateDtoAssert parent) {
-            super(actual, CurrentlyPlayingTypeAsserts.class);
+        private CurrentlyPlayingTypeAssertsWrapper(String actual, PlayerStateDtoAssert parent) {
+            super(actual);
             this.parent = parent;
-        }
-
-        public CurrentlyPlayingTypeAsserts track() {
-            return currentPlayingTypeAssert(TRACK);
-        }
-
-        public CurrentlyPlayingTypeAsserts podcast() {
-            return currentPlayingTypeAssert(PODCAST);
-        }
-
-        private CurrentlyPlayingTypeAsserts currentPlayingTypeAssert(String expected) {
-            if (!actual.equals(expected)) {
-                failWithActualExpectedAndMessage(actual, expected, "Expected the playing type to be:");
-            }
-            return this;
         }
 
         @Override
