@@ -9,10 +9,7 @@ import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -181,5 +178,10 @@ public class UpdatePlayerStatePlayerControllerTest {
                     .header(HttpHeaders.AUTHORIZATION, VALID_ACCESS_TOKEN)
                     .exchange();
         }
+    }
+
+    @AfterAll
+    void afterAll() {
+        playerStateStorage.clear().block();
     }
 }
