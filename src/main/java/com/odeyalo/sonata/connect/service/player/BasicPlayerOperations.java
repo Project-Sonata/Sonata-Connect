@@ -1,12 +1,12 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
+import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
 import com.odeyalo.sonata.connect.model.User;
 import reactor.core.publisher.Mono;
 
 /**
  * Base interface that provide basic methods for player, such current player state, state updating, etc.
- * This interface is also responsible for notification the subscribers(websockets, long pooling, etc.) on any player state update
  */
 public interface BasicPlayerOperations {
     boolean SHUFFLE_ENABLED = true;
@@ -14,11 +14,29 @@ public interface BasicPlayerOperations {
 
     /**
      * Return the current state for the user
+     * The method should create new state for the user if current is not created yet.
      *
      * @param user - user that owns the player state
-     * @return - mono wrapped with player state, empty mono if user owns nothing
+     * @return - mono wrapped with player state, never returns empty mono.
      */
     Mono<CurrentPlayerState> currentState(User user);
+
+    /**
+     * Return the currently playing state, if nothing is playing right now empty mono should be returned.
+     * @param user - user to get the current player state
+     * @return - currently playing state or  empty mono
+     */
+    Mono<CurrentlyPlayingPlayerState> currentlyPlayingState(User user);
+
+    /**
+     * Create or return the player state for the user.
+     * Associate it with user and add ability to access it in the future
+     * @param user - user to create state to
+     * @return - mono with created player state or state that already present
+     */
+    default Mono<CurrentPlayerState> createState(User user) {
+        return currentState(user);
+    }
 
     /**
      * Change the shuffle mode to provided in params.
@@ -29,6 +47,8 @@ public interface BasicPlayerOperations {
      * @return mono with updated player state
      */
     Mono<CurrentPlayerState> changeShuffle(User user, boolean shuffleMode);
+
+    DeviceOperations getDeviceOperations();
 
     /**
      * Alias for  #changeShuffle(User, true) method call
