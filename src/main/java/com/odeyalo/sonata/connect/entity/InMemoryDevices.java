@@ -3,6 +3,7 @@ package com.odeyalo.sonata.connect.entity;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -13,6 +14,10 @@ import java.util.List;
 public class InMemoryDevices implements Devices {
     @Singular
     List<Device> devices;
+
+    public static InMemoryDevices empty() {
+        return new InMemoryDevices(new ArrayList<>());
+    }
 
     @Override
     public List<Device> getDevices() {
