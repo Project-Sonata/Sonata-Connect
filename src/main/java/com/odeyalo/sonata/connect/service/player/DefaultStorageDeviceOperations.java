@@ -2,44 +2,42 @@ package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.entity.Device;
 import com.odeyalo.sonata.connect.entity.Devices;
+import com.odeyalo.sonata.connect.entity.InMemoryDevice;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.DeviceModel;
 import com.odeyalo.sonata.connect.model.DevicesModel;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 @Component
-public class DefaultBasicPlayerOperations implements BasicPlayerOperations {
+public class DefaultStorageDeviceOperations implements DeviceOperations {
     final PlayerStateStorage playerStateStorage;
 
-    public DefaultBasicPlayerOperations(PlayerStateStorage playerStateStorage) {
+    public DefaultStorageDeviceOperations(PlayerStateStorage playerStateStorage) {
         this.playerStateStorage = playerStateStorage;
     }
 
+
     @Override
-    public Mono<CurrentPlayerState> currentState(User user) {
+    public Mono<CurrentPlayerState> addDevice(User user, DeviceModel device) {
         return playerStateStorage.findByUserId(user.getId())
-                .map(DefaultBasicPlayerOperations::convertToState);
+                .doOnNext(state -> state.getDevices().addDevice(createDevice(device)))
+                .map(DefaultStorageDeviceOperations::convertToState);
     }
 
     @Override
-    public Mono<CurrentPlayerState> changeShuffle(User user, boolean shuffleMode) {
-        return playerStateStorage.findByUserId(user.getId())
-                .map(state -> negateShuffleMode(state, shuffleMode))
-                .flatMap(playerStateStorage::save)
-                .map(DefaultBasicPlayerOperations::convertToState);
+    public Mono<Boolean> containsById(User user, String deviceId) {
+        return null;
     }
 
-    @NotNull
-    private static PersistablePlayerState negateShuffleMode(PersistablePlayerState state, boolean shuffleMode) {
-        state.setShuffleState(shuffleMode);
-        return state;
+    @Override
+    public Mono<List<DeviceModel>> getConnectedDevices(User user) {
+        return null;
     }
 
     private static CurrentPlayerState convertToState(PersistablePlayerState state) {
@@ -55,7 +53,7 @@ public class DefaultBasicPlayerOperations implements BasicPlayerOperations {
     }
 
     private static DevicesModel toDevicesModel(Devices devices) {
-        List<DeviceModel> deviceModels = devices.stream().map(DefaultBasicPlayerOperations::toDeviceModel).toList();
+        List<DeviceModel> deviceModels = devices.stream().map(DefaultStorageDeviceOperations::toDeviceModel).toList();
         return DevicesModel.builder().devices(deviceModels).build();
     }
 
@@ -65,6 +63,16 @@ public class DefaultBasicPlayerOperations implements BasicPlayerOperations {
                 .deviceName(device.getName())
                 .deviceType(device.getDeviceType())
                 .volume(device.getVolume())
+                .active(device.isActive())
+                .build();
+    }
+
+    private static InMemoryDevice createDevice(DeviceModel device) {
+        return InMemoryDevice.builder()
+                .id(device.getDeviceId())
+                .name(device.getDeviceName())
+                .volume(device.getVolume())
+                .deviceType(device.getDeviceType())
                 .active(device.isActive())
                 .build();
     }
