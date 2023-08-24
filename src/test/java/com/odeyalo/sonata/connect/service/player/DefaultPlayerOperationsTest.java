@@ -2,11 +2,13 @@ package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.DeviceModel;
+import com.odeyalo.sonata.connect.model.DevicesModel;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.RepositoryDelegatePlayerStateStorage;
 import com.odeyalo.sonata.connect.repository.storage.support.InMemory2PersistablePlayerStateConverter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
@@ -113,17 +115,19 @@ class DefaultPlayerOperationsTest {
 
         @Override
         public Mono<CurrentPlayerState> addDevice(User user, DeviceModel device) {
-            return null;
+            return Mono.empty();
         }
 
+        @NotNull
         @Override
         public Mono<Boolean> containsById(User user, String deviceId) {
-            return null;
+            return Mono.empty();
         }
 
+        @NotNull
         @Override
-        public Mono<List<DeviceModel>> getConnectedDevices(User user) {
-            return null;
+        public Mono<DevicesModel> getConnectedDevices(User user) {
+            return Mono.empty();
         }
     }
 }
