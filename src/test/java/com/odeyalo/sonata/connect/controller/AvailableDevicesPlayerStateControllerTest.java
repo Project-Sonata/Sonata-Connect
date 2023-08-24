@@ -4,11 +4,9 @@ import com.odeyalo.sonata.connect.dto.AvailableDevicesResponseDto;
 import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
 import com.odeyalo.sonata.connect.entity.Device;
 import com.odeyalo.sonata.connect.entity.InMemoryDevice;
+import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,6 +33,9 @@ public class AvailableDevicesPlayerStateControllerTest {
     @Autowired
     WebTestClient webTestClient;
 
+    @Autowired
+    PlayerStateStorage playerStateStorage;
+
     final String VALID_ACCESS_TOKEN = "Bearer mikunakanoisthebestgirl";
     final String VALID_USER_ID = "1";
 
@@ -50,7 +51,12 @@ public class AvailableDevicesPlayerStateControllerTest {
 
         @BeforeAll
         void beforeAll() {
-            expectedDevice =connectSingleDevice();
+            expectedDevice = connectSingleDevice();
+        }
+
+        @AfterAll
+        void afterAll() {
+            playerStateStorage.clear().block();
         }
 
         @NotNull
@@ -69,6 +75,7 @@ public class AvailableDevicesPlayerStateControllerTest {
 
             responseSpec.expectStatus().isOk();
         }
+
         @Test
         void shouldReturnApplicationJson() {
             WebTestClient.ResponseSpec responseSpec = sendRequest();
