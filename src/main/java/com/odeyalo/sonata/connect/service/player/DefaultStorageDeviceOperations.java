@@ -9,6 +9,7 @@ import com.odeyalo.sonata.connect.model.DevicesModel;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -30,14 +31,24 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
                 .map(DefaultStorageDeviceOperations::convertToState);
     }
 
+    @NotNull
     @Override
     public Mono<Boolean> containsById(User user, String deviceId) {
         return null;
     }
 
+    @NotNull
     @Override
-    public Mono<List<DeviceModel>> getConnectedDevices(User user) {
-        return null;
+    public Mono<DevicesModel> getConnectedDevices(User user) {
+        return playerStateStorage.findByUserId(user.getId())
+                .map(PersistablePlayerState::getDevices)
+                .map(DefaultStorageDeviceOperations::toDeviceModels)
+                .map(DevicesModel::of);
+    }
+
+    @NotNull
+    private static List<DeviceModel> toDeviceModels(Devices devices) {
+        return devices.stream().map(device -> DeviceModel.of(device.getId(), device.getName(), device.getDeviceType(), device.getVolume(), true)).toList();
     }
 
     private static CurrentPlayerState convertToState(PersistablePlayerState state) {

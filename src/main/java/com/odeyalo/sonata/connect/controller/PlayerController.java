@@ -5,7 +5,6 @@ import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
 import com.odeyalo.sonata.connect.service.player.BasicPlayerOperations;
 import com.odeyalo.suite.security.auth.AuthenticatedUser;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -37,8 +36,16 @@ public class PlayerController {
     @GetMapping("/currently-playing")
     public Mono<ResponseEntity<CurrentlyPlayingPlayerStateDto>> currentlyPlaying(AuthenticatedUser user) {
         return playerOperations.currentlyPlayingState(User.of(user.getDetails().getId()))
-                .map(state -> ResponseEntity.ok( convertToDto(state)) )
+                .map(state -> ResponseEntity.ok(convertToDto(state)))
                 .defaultIfEmpty(ResponseEntity.noContent().build());
+    }
+
+    @GetMapping("/devices")
+    public Mono<ResponseEntity<?>> getAvailableDevices(AuthenticatedUser user) {
+        return playerOperations.getDeviceOperations()
+                .getConnectedDevices(User.of(user.getDetails().getId()))
+                .map(devices -> AvailableDevicesResponseDto.of(toDevicesDto(devices)))
+                .map(body -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(body));
     }
 
     private static CurrentlyPlayingPlayerStateDto convertToDto(CurrentlyPlayingPlayerState state) {
@@ -53,7 +60,6 @@ public class PlayerController {
                 .subscribeOn(Schedulers.boundedElastic())
                 .map(playerState -> ResponseEntity.noContent().build());
     }
-
 
 
     @PutMapping(value = "/device/connect", produces = MediaType.APPLICATION_JSON_VALUE)
