@@ -14,9 +14,9 @@ import java.util.List;
 
 @Component
 public class DefaultPlayerOperations implements BasicPlayerOperations {
-    final PlayerStateStorage playerStateStorage;
-    final DeviceOperations deviceOperations;
-    final Logger logger = LoggerFactory.getLogger(DefaultPlayerOperations.class);
+    private final PlayerStateStorage playerStateStorage;
+    private final DeviceOperations deviceOperations;
+    private final Logger logger = LoggerFactory.getLogger(DefaultPlayerOperations.class);
 
     public DefaultPlayerOperations(PlayerStateStorage playerStateStorage, DeviceOperations deviceOperations) {
         this.playerStateStorage = playerStateStorage;
@@ -37,7 +37,7 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     @Override
     public Mono<CurrentlyPlayingPlayerState> currentlyPlayingState(User user) {
         return currentState(user)
-                .filter(state -> state.isPlaying())
+                .filter(CurrentPlayerState::isPlaying)
                 .map(state -> CurrentlyPlayingPlayerState.of(state.getShuffleState()));
     }
 
