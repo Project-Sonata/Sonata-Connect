@@ -5,6 +5,7 @@ import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
 import com.odeyalo.sonata.connect.service.player.BasicPlayerOperations;
 import com.odeyalo.suite.security.auth.AuthenticatedUser;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -63,7 +64,8 @@ public class PlayerController {
 
 
     @PutMapping(value = "/device/connect", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<?>> addDevice(AuthenticatedUser authenticatedUser, @RequestBody ConnectDeviceRequest body) {
+    public Mono<ResponseEntity<?>> addDevice(AuthenticatedUser authenticatedUser,
+                                             @Valid @RequestBody ConnectDeviceRequest body) {
         return playerOperations.getDeviceOperations().addDevice(User.of(authenticatedUser.getDetails().getId()), convertToDeviceModel(body))
                 .thenReturn(ResponseEntity.noContent()
                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
