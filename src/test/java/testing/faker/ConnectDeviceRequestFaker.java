@@ -22,8 +22,8 @@ public class ConnectDeviceRequestFaker {
     final Faker faker = Faker.instance();
 
     protected ConnectDeviceRequestFaker() {
-        this.deviceId = RandomStringUtils.randomAlphanumeric(10);
-        this.deviceName = RandomStringUtils.randomAlphabetic(15);
+        this.deviceId = RandomStringUtils.randomAlphanumeric(16);
+        this.deviceName = RandomStringUtils.randomAlphabetic(16);
         this.deviceType = faker.options().option(DeviceType.class);
         this.volume = faker.random().nextInt(0, 100);
     }
