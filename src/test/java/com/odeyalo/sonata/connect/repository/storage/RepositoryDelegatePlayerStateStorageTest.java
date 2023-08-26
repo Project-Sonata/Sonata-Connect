@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.repository.storage;
 
+import com.odeyalo.sonata.connect.model.TrackItem;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.storage.support.InMemory2PersistablePlayerStateConverter;
 import testing.PlayerStatePersistentOperationsTestAdapter;

@@ -8,10 +8,14 @@ import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.RepositoryDelegatePlayerStateStorage;
 import com.odeyalo.sonata.connect.repository.storage.support.InMemory2PersistablePlayerStateConverter;
+import com.odeyalo.sonata.connect.service.support.factory.PersistablePlayerStateFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
+import testing.asserts.PlayerStateAssert;
 import testing.faker.PlayerStateFaker;
 
 import java.util.List;
@@ -29,6 +33,10 @@ class DefaultPlayerOperationsTest {
             new NullDeviceOperations()
     );
 
+    @AfterEach
+    void afterEach() {
+        storage.clear().block();
+    }
 
     @Test
     void getStateForUser_andExpectStateToBeCreated() {
@@ -87,8 +95,27 @@ class DefaultPlayerOperationsTest {
         assertThat(updatedState.getShuffleState()).isEqualTo(state.getShuffleState());
     }
 
+    @Test
+    @Disabled
+    void shouldCreateEmptyStateIfUserNotAssociated() {
+
+        User user = User.of("NakanoMiku");
+
+        PersistablePlayerState expectedState = PersistablePlayerStateFactory.createEmpty(user);
+
+        CurrentPlayerState playerState = playerOperations.createState(user).block();
+
+        assertThat(playerState)
+                .isEqualTo(expectedState);
+    }
+
     private static User createUser(PersistablePlayerState playerState) {
         return User.of(playerState.getUser().getId());
+    }
+
+    @Nullable
+    private PersistablePlayerState saveState(PersistablePlayerState playerState) {
+        return storage.save(playerState).block();
     }
 
     private PersistablePlayerState createEnabledState() {
@@ -96,11 +123,6 @@ class DefaultPlayerOperationsTest {
                 .create()
                 .setShuffleState(SHUFFLE_ENABLED)
                 .asPersistablePlayerState();
-    }
-
-    @Nullable
-    private PersistablePlayerState saveState(PersistablePlayerState playerState) {
-        return storage.save(playerState).block();
     }
 
     private static PersistablePlayerState createDisabledState() {

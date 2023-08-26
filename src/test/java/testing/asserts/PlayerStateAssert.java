@@ -56,6 +56,10 @@ public class PlayerStateAssert extends AbstractAssert<PlayerStateAssert, PlayerS
         return new DevicesEntityAssertWrapper(actual.getDevices(), this);
     }
 
+    public PlayableItemEntityAssert playingItem() {
+        return new PlayableItemEntityAssert(actual.getCurrentlyPlayingItem());
+    }
+
     interface ParentAssertAware {
         PlayerStateAssert and();
     }

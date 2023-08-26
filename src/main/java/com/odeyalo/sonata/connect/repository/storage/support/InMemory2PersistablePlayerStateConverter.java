@@ -18,6 +18,7 @@ public class InMemory2PersistablePlayerStateConverter implements PersistableEnti
                 .repeatState(type.getRepeatState())
                 .user(type.getUser())
                 .devices(type.getDevices())
+                .currentlyPlayingItem(type.getCurrentlyPlayingItem())
                 .build();
     }
 
@@ -32,6 +33,7 @@ public class InMemory2PersistablePlayerStateConverter implements PersistableEnti
                 .repeatState(type.getRepeatState())
                 .user(type.getUser())
                 .devices(type.getDevices())
+                .currentlyPlayingItem(type.getCurrentlyPlayingItem())
                 .build();
     }
 }

@@ -2,8 +2,10 @@ package testing.asserts;
 
 import com.odeyalo.sonata.connect.dto.DevicesDto;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
+import com.odeyalo.sonata.connect.dto.TrackItemDto;
 import com.odeyalo.sonata.connect.model.RepeatState;
 import org.assertj.core.api.AbstractAssert;
+import org.junit.jupiter.api.RepeatedTest;
 import org.springframework.util.Assert;
 
 import static org.apache.commons.lang.BooleanUtils.isFalse;
@@ -54,6 +56,10 @@ public class PlayerStateDtoAssert extends AbstractAssert<PlayerStateDtoAssert, P
 
     public DevicesDtoAssertWrapper devices() {
         return new DevicesDtoAssertWrapper(actual.getDevices(), this);
+    }
+
+    public TrackItemDtoAssert track() {
+        return new TrackItemDtoAssert((TrackItemDto) actual.getPlayingItem());
     }
 
     interface ParentAssertAware {

@@ -15,8 +15,13 @@ public class CurrentPlayerState {
     Long progressMs;
     PlayingType playingType;
     DevicesModel devices;
+    PlayableItem playableItem;
 
     public boolean getShuffleState() {
         return shuffleState;
+    }
+
+    public PlayableItem getPlayingItem() {
+        return playableItem;
     }
 }

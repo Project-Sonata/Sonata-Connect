@@ -22,4 +22,5 @@ public interface PlayerState {
     Devices getDevices();
 
     UserEntity getUser();
+    PlayableItemEntity getCurrentlyPlayingItem();
 }

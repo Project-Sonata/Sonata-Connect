@@ -19,6 +19,7 @@ public class InMemoryPlayerState implements PlayerState {
     PlayingType playingType;
     Devices devices;
     UserEntity user;
+    PlayableItemEntity currentlyPlayingItem;
 
     @Override
     public boolean getShuffleState() {
@@ -33,5 +34,10 @@ public class InMemoryPlayerState implements PlayerState {
     @Override
     public Devices getDevices() {
         return devices;
+    }
+
+    @Override
+    public PlayableItemEntity getCurrentlyPlayingItem() {
+        return currentlyPlayingItem;
     }
 }

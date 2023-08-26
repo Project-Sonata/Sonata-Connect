@@ -4,6 +4,7 @@ import com.odeyalo.sonata.connect.entity.*;
 import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
+import com.odeyalo.sonata.connect.service.support.factory.PersistablePlayerStateFactory;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,18 +56,8 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     }
 
 
-
     private static PersistablePlayerState emptyState(User user) {
-        return PersistablePlayerState.builder()
-                .user(new InMemoryUserEntity(user.getId()))
-                .id(1L)
-                .repeatState(RepeatState.OFF)
-                .shuffleState(false)
-                .progressMs(-1L)
-                .playingType(null)
-                .playing(false)
-                .devices(InMemoryDevices.empty())
-                .build();
+        return PersistablePlayerStateFactory.createEmpty(user);
     }
 
     @NotNull
@@ -84,7 +75,19 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
                 .progressMs(state.getProgressMs())
                 .repeatState(state.getRepeatState())
                 .devices(toDevicesModel(state.getDevices()))
+                .playableItem(toPlayableItem(state))
                 .build();
+    }
+
+    private static TrackItem toPlayableItem(PersistablePlayerState state) {
+        if (state.getCurrentlyPlayingItem() == null) return null;
+
+        PlayableItemEntity item = state.getCurrentlyPlayingItem();
+        if (item.getType() == PlayableItemType.TRACK) {
+            return TrackItem.of(item.getId());
+        }
+
+        throw new UnsupportedOperationException(String.format("%s does not supported", state.getCurrentlyPlayingItem().getType()));
     }
 
     private static DevicesModel toDevicesModel(Devices devices) {
