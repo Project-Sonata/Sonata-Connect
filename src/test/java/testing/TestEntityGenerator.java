@@ -1,7 +1,5 @@
 package testing;
 
-import com.odeyalo.sonata.connect.entity.PlayerState;
-
 /**
  * Used to generate the test object
  */
