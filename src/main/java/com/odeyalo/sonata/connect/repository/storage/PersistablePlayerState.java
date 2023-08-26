@@ -1,6 +1,7 @@
 package com.odeyalo.sonata.connect.repository.storage;
 
 import com.odeyalo.sonata.connect.entity.Devices;
+import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
 import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.entity.UserEntity;
 import com.odeyalo.sonata.connect.model.DeviceType;
@@ -26,6 +27,7 @@ public class PersistablePlayerState implements PlayerState {
     PlayingType playingType;
     Devices devices;
     UserEntity user;
+    PlayableItemEntity currentlyPlayingItem;
 
     @Override
     public boolean getShuffleState() {
@@ -40,5 +42,10 @@ public class PersistablePlayerState implements PlayerState {
     @Override
     public Devices getDevices() {
         return devices;
+    }
+
+    @Override
+    public PlayableItemEntity getCurrentlyPlayingItem() {
+        return currentlyPlayingItem;
     }
 }

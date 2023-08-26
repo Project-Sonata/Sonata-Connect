@@ -1,6 +1,5 @@
 package testing;
 
-import com.odeyalo.sonata.connect.entity.InMemoryPlayerState;
 import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.repository.PlayerStatePersistentOperations;
 import org.junit.jupiter.api.BeforeAll;
@@ -38,6 +37,15 @@ public class PlayerStatePersistentOperationsTestAdapter {
         PlayerState result = testTarget.save(validEntity).block();
 
         assertThat(result).isNotNull();
+    }
+
+    @Test
+    void shouldSavePlayableItem() {
+        PlayerState validEntity = entityGenerator.generateValidEntity();
+
+        PlayerState result = testTarget.save(validEntity).block();
+
+        assertThat(result.getCurrentlyPlayingItem()).isNotNull();
     }
 
     @Test

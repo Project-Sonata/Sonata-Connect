@@ -6,6 +6,7 @@ import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
 import com.odeyalo.sonata.connect.service.player.BasicPlayerOperations;
 import com.odeyalo.suite.security.auth.AuthenticatedUser;
 import jakarta.validation.Valid;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -84,7 +85,15 @@ public class PlayerController {
                 .progressMs(state.getProgressMs())
                 .devices(toDevicesDto(state.getDevices()))
                 .shuffleState(state.getShuffleState())
+                .playingItem(toPlayableItemOrNull(state))
                 .build();
+    }
+
+    private static TrackItemDto toPlayableItemOrNull(CurrentPlayerState state) {
+        if (state.getPlayableItem() == null) {
+            return null;
+        }
+        return TrackItemDto.of(state.getPlayingItem().getId());
     }
 
     private static String playingTypeOrNull(CurrentPlayerState state) {

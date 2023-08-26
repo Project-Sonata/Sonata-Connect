@@ -6,6 +6,7 @@ import com.odeyalo.sonata.connect.entity.*;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
+import com.odeyalo.sonata.connect.model.TrackItem;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
 import org.junit.jupiter.api.*;
@@ -74,6 +75,7 @@ class CurrentPlayerStatePlayerControllerTest {
                     .setRepeatState(RepeatState.OFF)
                     .setDevices(devices)
                     .setUser(user)
+                    .setPlayingItem(TrackItemEntity.of("mikuyouaremyqueen"))
                     .asPersistablePlayerState();
             playerStateStorage.save(playerState).block();
         }
@@ -208,6 +210,16 @@ class CurrentPlayerStatePlayerControllerTest {
 
             PlayerStateDtoAssert.forState(body)
                     .devices().peekFirst().active();
+        }
+
+        @Test
+        void currentPlayingTrackMustBeReturned() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .track().id().isEqualTo("mikuyouaremyqueen");
         }
 
         private WebTestClient.ResponseSpec sendCurrentPlayerStateRequest() {

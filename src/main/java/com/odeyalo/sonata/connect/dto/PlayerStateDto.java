@@ -22,11 +22,17 @@ public class PlayerStateDto {
     @JsonProperty("currently_playing_type")
     String currentlyPlayingType;
     @JsonProperty("progress_ms")
-    private long progressMs;
+    long progressMs;
     @JsonUnwrapped
-    private DevicesDto devices;
+    DevicesDto devices;
+    @JsonProperty("playing_item")
+    PlayableItemDto playingItem;
 
     public boolean getShuffleState() {
         return shuffleState;
+    }
+
+    public PlayableItemDto getPlayingItem() {
+        return playingItem;
     }
 }

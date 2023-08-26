@@ -1,17 +1,19 @@
 package testing.faker;
 
 import com.github.javafaker.Faker;
-import com.odeyalo.sonata.connect.entity.Devices;
-import com.odeyalo.sonata.connect.entity.InMemoryPlayerState;
-import com.odeyalo.sonata.connect.entity.PlayerState;
-import com.odeyalo.sonata.connect.entity.UserEntity;
+import com.odeyalo.sonata.connect.entity.*;
+import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
+import com.odeyalo.sonata.connect.model.TrackItem;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
+import org.apache.commons.lang3.RandomStringUtils;
+
+import java.util.function.Function;
 
 @Setter
 @Accessors(chain = true)
@@ -25,6 +27,7 @@ public class PlayerStateFaker {
     PlayingType playingType;
     Devices devices;
     UserEntity user;
+    PlayableItemEntity playingItem;
 
     final Faker faker = Faker.instance();
 
@@ -50,6 +53,7 @@ public class PlayerStateFaker {
         } else {
             this.devices = DevicesFaker.create(numberOfDevices).get();
         }
+        this.playingItem = TrackItemEntity.of(RandomStringUtils.randomAlphanumeric(16));
     }
 
     public static PlayerStateFaker create() {
@@ -58,6 +62,11 @@ public class PlayerStateFaker {
 
     public static PlayerStateFaker createWithCustomNumberOfDevices(int deviceNumber) {
         return new PlayerStateFaker(deviceNumber);
+    }
+
+    public PlayerStateFaker setPlayableItem(Function<PlayableItemEntity, PlayableItemEntity> modifier) {
+        this.playingItem = modifier.apply(playingItem);
+        return this;
     }
 
     public PlayerState get() {
@@ -74,6 +83,7 @@ public class PlayerStateFaker {
                 .playingType(playingType)
                 .progressMs(progressMs)
                 .user(user)
+                .currentlyPlayingItem(playingItem)
                 .build();
     }
 
@@ -87,6 +97,7 @@ public class PlayerStateFaker {
                 .playingType(playingType)
                 .progressMs(progressMs)
                 .user(user)
+                .currentlyPlayingItem(playingItem)
                 .build();
     }
 }
