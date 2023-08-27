@@ -1,27 +1,32 @@
 package com.odeyalo.sonata.connect.service.player;
 
-import com.odeyalo.sonata.connect.entity.*;
-import com.odeyalo.sonata.connect.model.*;
+import com.odeyalo.sonata.connect.model.CurrentPlayerState;
+import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
+import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
 import com.odeyalo.sonata.connect.service.support.factory.PersistablePlayerStateFactory;
+import com.odeyalo.sonata.connect.service.support.mapper.PersistablePlayerState2CurrentPlayerStateConverter;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 @Component
 public class DefaultPlayerOperations implements BasicPlayerOperations {
     private final PlayerStateStorage playerStateStorage;
     private final DeviceOperations deviceOperations;
+    private final PersistablePlayerState2CurrentPlayerStateConverter playerStateConverterSupport;
+
     private final Logger logger = LoggerFactory.getLogger(DefaultPlayerOperations.class);
 
-    public DefaultPlayerOperations(PlayerStateStorage playerStateStorage, DeviceOperations deviceOperations) {
+    public DefaultPlayerOperations(PlayerStateStorage playerStateStorage,
+                                   DeviceOperations deviceOperations,
+                                   PersistablePlayerState2CurrentPlayerStateConverter playerStateConverterSupport) {
         this.playerStateStorage = playerStateStorage;
         this.deviceOperations = deviceOperations;
+        this.playerStateConverterSupport = playerStateConverterSupport;
     }
 
     @Override
@@ -32,7 +37,7 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
                     logger.info("Created new empty player state due to missing for the user: {}", user);
                     return playerStateStorage.save(state);
                 }))
-                .map(DefaultPlayerOperations::convertToState);
+                .map(playerStateConverterSupport::convertTo);
     }
 
     @Override
@@ -45,9 +50,9 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     @Override
     public Mono<CurrentPlayerState> changeShuffle(User user, boolean shuffleMode) {
         return playerStateStorage.findByUserId(user.getId())
-                .map(state -> negateShuffleMode(state, shuffleMode))
+                .map(state -> doChangeShuffleMode(state, shuffleMode))
                 .flatMap(playerStateStorage::save)
-                .map(DefaultPlayerOperations::convertToState);
+                .map(playerStateConverterSupport::convertTo);
     }
 
     @Override
@@ -61,47 +66,8 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     }
 
     @NotNull
-    private static PersistablePlayerState negateShuffleMode(PersistablePlayerState state, boolean shuffleMode) {
+    private static PersistablePlayerState doChangeShuffleMode(PersistablePlayerState state, boolean shuffleMode) {
         state.setShuffleState(shuffleMode);
         return state;
-    }
-
-    private static CurrentPlayerState convertToState(PersistablePlayerState state) {
-        return CurrentPlayerState.builder()
-                .id(state.getId())
-                .playingType(state.getPlayingType())
-                .playing(state.isPlaying())
-                .shuffleState(state.getShuffleState())
-                .progressMs(state.getProgressMs())
-                .repeatState(state.getRepeatState())
-                .devices(toDevicesModel(state.getDevices()))
-                .playableItem(toPlayableItem(state))
-                .build();
-    }
-
-    private static TrackItem toPlayableItem(PersistablePlayerState state) {
-        if (state.getCurrentlyPlayingItem() == null) return null;
-
-        PlayableItemEntity item = state.getCurrentlyPlayingItem();
-        if (item.getType() == PlayableItemType.TRACK) {
-            return TrackItem.of(item.getId());
-        }
-
-        throw new UnsupportedOperationException(String.format("%s does not supported", state.getCurrentlyPlayingItem().getType()));
-    }
-
-    private static DevicesModel toDevicesModel(Devices devices) {
-        List<DeviceModel> deviceModels = devices.stream().map(DefaultPlayerOperations::toDeviceModel).toList();
-        return DevicesModel.builder().devices(deviceModels).build();
-    }
-
-    private static DeviceModel toDeviceModel(Device device) {
-        return DeviceModel.builder()
-                .deviceId(device.getId())
-                .deviceName(device.getName())
-                .deviceType(device.getDeviceType())
-                .volume(device.getVolume())
-                .active(device.isActive())
-                .build();
     }
 }
