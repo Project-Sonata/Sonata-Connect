@@ -5,7 +5,7 @@ import reactor.core.publisher.Mono;
 /**
  * Represent basic operations that can be done for entity
  * @param <T> - entity type
- * @param <ID> - id of the enity
+ * @param <ID> - id of the entity
  */
 public interface BasicPersistentOperations<T, ID> {
     /**
