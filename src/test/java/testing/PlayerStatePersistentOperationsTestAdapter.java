@@ -40,6 +40,78 @@ public class PlayerStatePersistentOperationsTestAdapter {
     }
 
     @Test
+    void shouldSaveId() {
+        PlayerState validEntity = entityGenerator.generateValidEntity();
+
+        PlayerState result = testTarget.save(validEntity).block();
+
+        assertThat(result.getId()).isEqualTo(validEntity.getId());
+    }
+
+    @Test
+    void shouldSavePlayingFlag() {
+        PlayerState validEntity = entityGenerator.generateValidEntity();
+
+        PlayerState result = testTarget.save(validEntity).block();
+
+        assertThat(result.isPlaying()).isEqualTo(validEntity.isPlaying());
+    }
+
+    @Test
+    void shouldSaveShuffleState() {
+        PlayerState validEntity = entityGenerator.generateValidEntity();
+
+        PlayerState result = testTarget.save(validEntity).block();
+
+        assertThat(result.getShuffleState()).isEqualTo(validEntity.getShuffleState());
+    }
+
+    @Test
+    void shouldSaveRepeatState() {
+        PlayerState validEntity = entityGenerator.generateValidEntity();
+
+        PlayerState result = testTarget.save(validEntity).block();
+
+        assertThat(result.getRepeatState()).isEqualTo(validEntity.getRepeatState());
+    }
+
+    @Test
+    void shouldSaveCurrentlyPlayingType() {
+        PlayerState validEntity = entityGenerator.generateValidEntity();
+
+        PlayerState result = testTarget.save(validEntity).block();
+
+        assertThat(result.getCurrentlyPlayingType()).isEqualTo(validEntity.getCurrentlyPlayingType());
+    }
+
+    @Test
+    void shouldSaveProgressMs() {
+        PlayerState validEntity = entityGenerator.generateValidEntity();
+
+        PlayerState result = testTarget.save(validEntity).block();
+
+        assertThat(result.getProgressMs()).isEqualTo(validEntity.getProgressMs());
+    }
+
+    @Test
+    void shouldSaveUser() {
+        PlayerState validEntity = entityGenerator.generateValidEntity();
+
+        PlayerState result = testTarget.save(validEntity).block();
+
+        assertThat(result.getUser()).isEqualTo(validEntity.getUser());
+    }
+
+    @Test
+    void shouldSaveDevices() {
+        PlayerState validEntity = entityGenerator.generateValidEntity();
+
+        PlayerState result = testTarget.save(validEntity).block();
+
+        assertThat(result.getDevices()).isEqualTo(validEntity.getDevices());
+    }
+
+    @Test
     void shouldSavePlayableItem() {
         PlayerState validEntity = entityGenerator.generateValidEntity();
 
