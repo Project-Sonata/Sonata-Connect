@@ -50,7 +50,7 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     @Override
     public Mono<CurrentPlayerState> changeShuffle(User user, boolean shuffleMode) {
         return playerStateStorage.findByUserId(user.getId())
-                .map(state -> negateShuffleMode(state, shuffleMode))
+                .map(state -> doChangeShuffleMode(state, shuffleMode))
                 .flatMap(playerStateStorage::save)
                 .map(playerStateConverterSupport::convertTo);
     }
@@ -66,7 +66,7 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     }
 
     @NotNull
-    private static PersistablePlayerState negateShuffleMode(PersistablePlayerState state, boolean shuffleMode) {
+    private static PersistablePlayerState doChangeShuffleMode(PersistablePlayerState state, boolean shuffleMode) {
         state.setShuffleState(shuffleMode);
         return state;
     }
