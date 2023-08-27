@@ -86,18 +86,59 @@ class DefaultPlayerOperationsTest {
         assertThat(updatedState.getShuffleState()).isEqualTo(state.getShuffleState());
     }
 
-    @Test
-    @Disabled
-    void shouldCreateEmptyStateIfUserNotAssociated() {
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    class EmptyPlayerStateTests {
+        @AfterEach
+        void clear() {
+            storage.clear().block();
+        }
 
-        User user = User.of("NakanoMiku");
+        @Test
+        void shouldReturnNotNull() {
+            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual).isNotNull());
+        }
 
-        PersistablePlayerState expectedState = PersistablePlayerStateFactory.createEmpty(user);
+        @Test
+        void shouldReturnId() {
+            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getId()).isEqualTo(expected.getId()));
+        }
 
-        CurrentPlayerState playerState = playerOperations.createState(user).block();
+        @Test
+        void shouldReturnRepeatState() {
+            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getRepeatState()).isEqualTo(expected.getRepeatState()));
+        }
 
-        assertThat(playerState)
-                .isEqualTo(expectedState);
+        @Test
+        void shouldReturnShuffleState() {
+            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getShuffleState()).isEqualTo(expected.getShuffleState()));
+        }
+
+        @Test
+        void shouldReturnProgressMs() {
+            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getProgressMs()).isEqualTo(expected.getProgressMs()));
+        }
+
+        @Test
+        void shouldReturnPlayingType() {
+            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getPlayingType()).isEqualTo(expected.getPlayingType()));
+        }
+
+        @Test
+        void shouldReturnPlayingItem() {
+            // We assume that empty state should not contain any track, episode, podcast, so on.
+            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getPlayingItem()).isNull());
+        }
+
+        private void createEmptyPlayerStateAndAssert(BiConsumer<PersistablePlayerState, CurrentPlayerState> predicateConsumer) {
+            User user = User.of("NakanoMiku");
+
+            PersistablePlayerState expected = PersistablePlayerStateFactory.createEmpty(user);
+
+            CurrentPlayerState actual = playerOperations.createState(user).block();
+
+            predicateConsumer.accept(expected, actual);
+        }
     }
 
     @Nested
