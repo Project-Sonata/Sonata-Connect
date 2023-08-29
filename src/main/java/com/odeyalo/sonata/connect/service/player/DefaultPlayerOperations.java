@@ -5,6 +5,7 @@ import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
+import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.support.factory.PersistablePlayerStateFactory;
 import com.odeyalo.sonata.connect.service.support.mapper.PersistablePlayerState2CurrentPlayerStateConverter;
 import org.jetbrains.annotations.NotNull;
@@ -18,15 +19,17 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     private final PlayerStateStorage playerStateStorage;
     private final DeviceOperations deviceOperations;
     private final PersistablePlayerState2CurrentPlayerStateConverter playerStateConverterSupport;
+    private final PlayCommandHandlerDelegate playCommandHandlerDelegate;
 
     private final Logger logger = LoggerFactory.getLogger(DefaultPlayerOperations.class);
 
     public DefaultPlayerOperations(PlayerStateStorage playerStateStorage,
                                    DeviceOperations deviceOperations,
-                                   PersistablePlayerState2CurrentPlayerStateConverter playerStateConverterSupport) {
+                                   PersistablePlayerState2CurrentPlayerStateConverter playerStateConverterSupport, PlayCommandHandlerDelegate playCommandHandlerDelegate) {
         this.playerStateStorage = playerStateStorage;
         this.deviceOperations = deviceOperations;
         this.playerStateConverterSupport = playerStateConverterSupport;
+        this.playCommandHandlerDelegate = playCommandHandlerDelegate;
     }
 
     @Override
@@ -60,6 +63,10 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
         return deviceOperations;
     }
 
+    @Override
+    public Mono<CurrentPlayerState> playOrResume(User user, PlayCommandContext context, TargetDevice targetDevice) {
+        return playCommandHandlerDelegate.playOrResume(user, context, targetDevice);
+    }
 
     private static PersistablePlayerState emptyState(User user) {
         return PersistablePlayerStateFactory.createEmpty(user);

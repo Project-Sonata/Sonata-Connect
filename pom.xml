@@ -19,6 +19,7 @@
         <spring-cloud.version>2022.0.4</spring-cloud.version>
         <suite.security.version>0.0.1-SNAPSHOT</suite.security.version>
         <suite.reactive.version>1.0.5</suite.reactive.version>
+        <suite.version>0.0.7</suite.version>
         <javafaker.version>1.0.2</javafaker.version>
     </properties>
 
@@ -36,6 +37,12 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.odeyalo.sonata</groupId>
+            <artifactId>suite</artifactId>
+            <version>${suite.version}</version>
         </dependency>
 
         <dependency>
