@@ -6,6 +6,7 @@ import com.odeyalo.sonata.connect.model.DeviceModel;
 import com.odeyalo.sonata.connect.model.DevicesModel;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.BasicPlayerOperations;
+import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.ConnectDeviceRequest2DeviceModelConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.CurrentPlayerState2PlayerStateDtoConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.DevicesModel2DevicesDtoConverter;
@@ -63,10 +64,10 @@ public class PlayerController {
                 .map(body -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(body));
     }
 
-    @NotNull
-    private AvailableDevicesResponseDto convertToAvailableDevicesResponseDto(DevicesModel devices) {
-        DevicesDto devicesDto = devicesDtoConverter.convertTo(devices);
-        return AvailableDevicesResponseDto.of(devicesDto);
+    @PutMapping("/play")
+    public Mono<ResponseEntity<?>> resumePlayback(@RequestBody PlayResumePlaybackRequest body, AuthenticatedUser user) {
+        return playerOperations.playOrResume(resolveUser(user), PlayCommandContext.of(body.getContextUri()), null)
+                .thenReturn(default204Response());
     }
 
     @PutMapping("/shuffle")
@@ -75,7 +76,7 @@ public class PlayerController {
 
         return playerOperations.changeShuffle(resolveUser(user), state)
                 .subscribeOn(Schedulers.boundedElastic())
-                .map(playerState -> ResponseEntity.noContent().build());
+                .map(playerState -> default204Response());
     }
 
     @PutMapping(value = "/device/connect", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -86,6 +87,12 @@ public class PlayerController {
 
         return playerOperations.getDeviceOperations().addDevice(user, device)
                 .thenReturn(default204Response());
+    }
+
+    @NotNull
+    private AvailableDevicesResponseDto convertToAvailableDevicesResponseDto(DevicesModel devices) {
+        DevicesDto devicesDto = devicesDtoConverter.convertTo(devices);
+        return AvailableDevicesResponseDto.of(devicesDto);
     }
 
     @NotNull
