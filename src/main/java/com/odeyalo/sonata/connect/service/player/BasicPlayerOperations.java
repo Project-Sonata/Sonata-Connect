@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 public interface BasicPlayerOperations {
     boolean SHUFFLE_ENABLED = true;
     boolean SHUFFLE_DISABLED = false;
+    TargetDevice CURRENT_DEVICE = null;
 
     /**
      * Return the current state for the user
@@ -49,6 +50,16 @@ public interface BasicPlayerOperations {
     Mono<CurrentPlayerState> changeShuffle(User user, boolean shuffleMode);
 
     DeviceOperations getDeviceOperations();
+
+    /**
+     * Start or resume the track. If track not specified then currently playing track start to play
+     * @param user - owner of the player state
+     * @param context - context to start playing, if null then current context should be used
+     * @param targetDevice - device to start playing to, if null then current active device will be targeted
+     * @throws IllegalStateException - if the state is empty and PlayableItem is null and nothing was specified in PlayContext
+     * @return - mono with CurrentPlayerState
+     */
+    Mono<CurrentPlayerState> playOrResume(User user, PlayCommandContext context, TargetDevice targetDevice);
 
     /**
      * Alias for  #changeShuffle(User, true) method call
