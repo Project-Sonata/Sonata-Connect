@@ -1,13 +1,15 @@
 package com.odeyalo.sonata.connect.exception;
 
 import com.odeyalo.sonata.common.context.MalformedContextUriException;
+import lombok.ToString;
 
 /**
- * MalformedContextUriException extension that also implement ReasonCodeAware interface
+ * MalformedContextUriException extension that also implements ReasonCodeAware interface
  *
  * @see MalformedContextUriException
  * @see ReasonCodeAware
  */
+@ToString
 public class ReasonCodeAwareMalformedContextUriException extends MalformedContextUriException implements ReasonCodeAware {
     public ReasonCodeAwareMalformedContextUriException(String uriString) {
         super(uriString);
