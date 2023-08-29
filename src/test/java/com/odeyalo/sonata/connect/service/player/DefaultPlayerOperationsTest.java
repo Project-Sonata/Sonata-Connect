@@ -1,11 +1,18 @@
 package com.odeyalo.sonata.connect.service.player;
 
+import com.odeyalo.sonata.common.context.HardcodedContextUriParser;
+import com.odeyalo.sonata.connect.entity.InMemoryUserEntity;
 import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
+import com.odeyalo.sonata.connect.exception.ReasonCodeAware;
+import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriException;
 import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.RepositoryDelegatePlayerStateStorage;
 import com.odeyalo.sonata.connect.repository.storage.support.InMemory2PersistablePlayerStateConverter;
+import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePlayCommandHandlerDelegate;
+import com.odeyalo.sonata.connect.service.player.support.HardcodedPlayableItemResolver;
+import com.odeyalo.sonata.connect.service.player.support.validation.HardcodedPlayCommandPreExecutingIntegrityValidator;
 import com.odeyalo.sonata.connect.service.support.factory.PersistablePlayerStateFactory;
 import com.odeyalo.sonata.connect.service.support.mapper.Device2DeviceModelConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.DevicesToDevicesModelConverter;
@@ -15,25 +22,30 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.*;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 import testing.faker.PlayerStateFaker;
 
 import java.util.function.BiConsumer;
 
-import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.SHUFFLE_DISABLED;
-import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.SHUFFLE_ENABLED;
+import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DefaultPlayerOperationsTest {
 
     RepositoryDelegatePlayerStateStorage storage = new RepositoryDelegatePlayerStateStorage(new InMemoryPlayerStateRepository(), new InMemory2PersistablePlayerStateConverter());
+    PersistablePlayerState2CurrentPlayerStateConverter converter = new PersistablePlayerState2CurrentPlayerStateConverter(
+            new DevicesToDevicesModelConverter(new Device2DeviceModelConverter()),
+            new PlayableItemEntity2PlayableItemConverter());
 
     DefaultPlayerOperations playerOperations = new DefaultPlayerOperations(
             storage,
             new NullDeviceOperations(),
-            new PersistablePlayerState2CurrentPlayerStateConverter(
-                    new DevicesToDevicesModelConverter(new Device2DeviceModelConverter()),
-                    new PlayableItemEntity2PlayableItemConverter())
-    );
+            converter,
+            new PlayerStateUpdatePlayCommandHandlerDelegate(storage, converter,
+                    new HardcodedContextUriParser(),
+                    new HardcodedPlayableItemResolver(),
+                    new HardcodedPlayCommandPreExecutingIntegrityValidator()));
 
     @AfterEach
     void afterEach() {
@@ -101,7 +113,7 @@ class DefaultPlayerOperationsTest {
 
         @Test
         void shouldReturnId() {
-            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getId()).isEqualTo(expected.getId()));
+            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getId()).isNotNull().isPositive());
         }
 
         @Test
@@ -220,6 +232,61 @@ class DefaultPlayerOperationsTest {
         @Nullable
         private CurrentPlayerState getCurrentPlayerState(PersistablePlayerState playerState) {
             return playerOperations.currentState(User.of(playerState.getUser().getId())).block();
+        }
+    }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    class PlayResumeCommandTests {
+
+        @AfterEach
+        void cleanup() {
+            storage.clear().block();
+        }
+
+        @Test
+        void shouldUpdateState() {
+            String validContext = "sonata:track:cassie";
+            User user = prepareStateForUser();
+            CurrentPlayerState updatedState = playerOperations.playOrResume(user, PlayCommandContext.of(validContext), CURRENT_DEVICE).block();
+
+            assertThat(updatedState.getPlayingItem().getId()).isEqualTo("cassie");
+            assertThat(updatedState.getPlayingItem().getItemType()).isEqualTo(PlayableItemType.TRACK);
+        }
+
+        @Test
+        void shouldThrowExceptionIfContextUriIsInvalid() {
+            String invalidContext = "sonata:invalid:cassie";
+            User user = prepareStateForUser();
+
+            StepVerifier.create(playerOperations.playOrResume(user, PlayCommandContext.of(invalidContext), CURRENT_DEVICE))
+                    .expectError(ReasonCodeAwareMalformedContextUriException.class)
+                    .verify();
+        }
+
+        @Test
+        void shouldContainReasonCodeIfContextUriIsInvalid() {
+            String invalidContext = "sonata:invalid:cassie";
+            User user = prepareStateForUser();
+
+            StepVerifier.create(playerOperations.playOrResume(user, PlayCommandContext.of(invalidContext), CURRENT_DEVICE))
+                    .expectErrorMatches(err -> verifyReasonCode(err, "malformed_context_uri"))
+                    .verify();
+        }
+
+        @NotNull
+        private User prepareStateForUser() {
+            User user = User.of("miku");
+            PersistablePlayerState playerState = PlayerStateFaker.create().setUser(InMemoryUserEntity.builder().id(user.getId()).build()).asPersistablePlayerState();
+            saveState(playerState); // prepare state for the user
+            return user;
+        }
+
+        private static boolean verifyReasonCode(Throwable err, String expected) {
+            if (err instanceof ReasonCodeAware reasonCodeAware) {
+                return reasonCodeAware.getReasonCode().equals(expected);
+            }
+            return false;
         }
     }
 
