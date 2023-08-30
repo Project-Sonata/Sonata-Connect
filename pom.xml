@@ -17,8 +17,8 @@
     <properties>
         <java.version>20</java.version>
         <spring-cloud.version>2022.0.4</spring-cloud.version>
-        <suite.security.version>0.0.1-SNAPSHOT</suite.security.version>
-        <suite.reactive.version>1.0.5</suite.reactive.version>
+        <suite.security.version>1.0.1</suite.security.version>
+        <suite.reactive.version>1.0.6</suite.reactive.version>
         <suite.version>0.0.7</suite.version>
         <javafaker.version>1.0.2</javafaker.version>
     </properties>

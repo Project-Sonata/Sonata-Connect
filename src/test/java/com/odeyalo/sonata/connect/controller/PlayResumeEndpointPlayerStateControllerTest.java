@@ -76,6 +76,20 @@ public class PlayResumeEndpointPlayerStateControllerTest {
     }
 
     @Test
+    void shouldSetTrueToPlayingField() {
+        connectDevice();
+
+        String trackUri = "sonata:track:cassie";
+
+        WebTestClient.ResponseSpec responseSpec = sendResumeEndpointRequest(PlayResumePlaybackRequest.of(trackUri));
+
+        PlayerStateDto updatedState = getCurrentState();
+
+        PlayerStateDtoAssert.forState(updatedState)
+                .shouldPlay();
+    }
+
+    @Test
     void shouldReturn400BadRequestIfContextUriMalformed() {
         connectDevice();
         String invalidContextUri = "sonata:somethinginvalid:mikuuuu";

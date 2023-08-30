@@ -66,6 +66,7 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
     private Mono<PersistablePlayerState> updateAndSave(PersistablePlayerState state, ContextUri contextUri) {
         String trackId = contextUri.getEntityId();
         state.setCurrentlyPlayingItem(TrackItemEntity.of(trackId));
+        state.setPlaying(true);
         return playerStateStorage.save(state);
     }
 
