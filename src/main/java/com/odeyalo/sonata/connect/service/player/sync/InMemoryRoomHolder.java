@@ -26,7 +26,7 @@ public class InMemoryRoomHolder implements RoomHolder {
         String userId = user.getDetails().getId();
         return fromCallable(() -> rooms.computeIfAbsent(userId, (key) -> {
             logger.info("User: {} does not contain ROOM. Creating a new one", user.getDetails().getId());
-            return new Room();
+            return new SinkRoom();
         }));
     }
 }
