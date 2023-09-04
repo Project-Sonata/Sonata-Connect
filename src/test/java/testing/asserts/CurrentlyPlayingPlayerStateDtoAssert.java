@@ -17,4 +17,27 @@ public class CurrentlyPlayingPlayerStateDtoAssert extends AbstractAssert<Current
     public ShuffleStateAsserts shuffleState() {
         return new ShuffleStateAsserts(actual.getShuffleState());
     }
+
+    public CurrentlyPlayingPlayerStateDtoAssert shouldPlay() {
+        if (!actual.isPlaying()) {
+            failWithMessage("Expected playing to be 'true'!");
+        }
+        return this;
+    }
+
+    public PlayingTypeAssert currentlyPlayingType() {
+        return new PlayingTypeAssert(actual.getCurrentlyPlayingType());
+    }
+
+    public RepeatStateAssert repeatState() {
+        return new RepeatStateAssert(actual.getRepeatState());
+    }
+
+    public PlayableItemDtoAssert currentlyPlayingItem() {
+        return new PlayableItemDtoAssert(actual.getCurrentlyPlayingItem());
+    }
+
+    public DevicesDtoAssert devices() {
+        return new DevicesDtoAssert(actual.getDevices());
+    }
 }

@@ -7,6 +7,7 @@ import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
 import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.support.factory.PersistablePlayerStateFactory;
+import com.odeyalo.sonata.connect.service.support.mapper.CurrentPlayerState2CurrentlyPlayingPlayerStateConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.PersistablePlayerState2CurrentPlayerStateConverter;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -20,16 +21,17 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     private final DeviceOperations deviceOperations;
     private final PersistablePlayerState2CurrentPlayerStateConverter playerStateConverterSupport;
     private final PlayCommandHandlerDelegate playCommandHandlerDelegate;
-
+    private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter;
     private final Logger logger = LoggerFactory.getLogger(DefaultPlayerOperations.class);
 
     public DefaultPlayerOperations(PlayerStateStorage playerStateStorage,
                                    DeviceOperations deviceOperations,
-                                   PersistablePlayerState2CurrentPlayerStateConverter playerStateConverterSupport, PlayCommandHandlerDelegate playCommandHandlerDelegate) {
+                                   PersistablePlayerState2CurrentPlayerStateConverter playerStateConverterSupport, PlayCommandHandlerDelegate playCommandHandlerDelegate, CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter) {
         this.playerStateStorage = playerStateStorage;
         this.deviceOperations = deviceOperations;
         this.playerStateConverterSupport = playerStateConverterSupport;
         this.playCommandHandlerDelegate = playCommandHandlerDelegate;
+        this.playerStateConverter = playerStateConverter;
     }
 
     @Override
@@ -47,7 +49,7 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     public Mono<CurrentlyPlayingPlayerState> currentlyPlayingState(User user) {
         return currentState(user)
                 .filter(CurrentPlayerState::isPlaying)
-                .map(state -> CurrentlyPlayingPlayerState.of(state.getShuffleState()));
+                .map(playerStateConverter::convertTo);
     }
 
     @Override

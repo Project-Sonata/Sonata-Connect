@@ -1,9 +1,15 @@
 package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.connect.dto.CurrentlyPlayingPlayerStateDto;
+import com.odeyalo.sonata.connect.dto.DevicesDto;
+import com.odeyalo.sonata.connect.entity.Devices;
 import com.odeyalo.sonata.connect.entity.InMemoryUserEntity;
+import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
+import com.odeyalo.sonata.connect.model.DevicesModel;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
+import com.odeyalo.sonata.connect.service.support.mapper.DevicesToDevicesModelConverter;
+import com.odeyalo.sonata.connect.service.support.mapper.dto.DevicesModel2DevicesDtoConverter;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -17,6 +23,7 @@ import reactor.core.publisher.Hooks;
 import testing.asserts.CurrentlyPlayingPlayerStateDtoAssert;
 import testing.faker.PlayerStateFaker;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode.REMOTE;
 
 @SpringBootTest
@@ -33,6 +40,11 @@ public class CurrentlyPlayingPlayerStateControllerTest {
 
     @Autowired
     PlayerStateStorage playerStateStorage;
+
+    @Autowired
+    DevicesToDevicesModelConverter devicesToDevicesModelConverter;
+    @Autowired
+    DevicesModel2DevicesDtoConverter devicesDtoConverter;
 
     final String VALID_ACCESS_TOKEN = "Bearer mikunakanoisthebestgirl";
     final String VALID_USER_ID = "1";
@@ -61,16 +73,10 @@ public class CurrentlyPlayingPlayerStateControllerTest {
         }
 
         @Test
-        void shouldReturnCurrentlyPlayingState() {
-            CurrentlyPlayingPlayerStateDto body = sendAndGetBody();
-
-            CurrentlyPlayingPlayerStateDtoAssert.forBody(body)
-                    .shuffleState().isEqualTo(expectedState.getShuffleState());
-        }
-
-        private CurrentlyPlayingPlayerStateDto sendAndGetBody() {
+        void shouldReturn200StatusCode() {
             WebTestClient.ResponseSpec responseSpec = sendRequest();
-            return responseSpec.expectBody(CurrentlyPlayingPlayerStateDto.class).returnResult().getResponseBody();
+
+            responseSpec.expectStatus().isOk();
         }
 
         @Test
@@ -78,6 +84,73 @@ public class CurrentlyPlayingPlayerStateControllerTest {
             WebTestClient.ResponseSpec responseSpec = sendRequest();
 
             responseSpec.expectHeader().contentType(MediaType.APPLICATION_JSON);
+        }
+
+        @Test
+        void shouldReturnCurrentlyShuffleState() {
+            CurrentlyPlayingPlayerStateDto body = sendAndGetBody();
+
+            CurrentlyPlayingPlayerStateDtoAssert.forBody(body)
+                    .shuffleState().isEqualTo(expectedState.getShuffleState());
+        }
+
+        @Test
+        void shouldReturnRepeatState() {
+            CurrentlyPlayingPlayerStateDto body = sendAndGetBody();
+            CurrentlyPlayingPlayerStateDtoAssert.forBody(body)
+                    .repeatState().isEqualTo(expectedState.getRepeatState());
+        }
+
+        @Test
+        void shouldReturnTrueInIsPlayingField() {
+            CurrentlyPlayingPlayerStateDto body = sendAndGetBody();
+
+            CurrentlyPlayingPlayerStateDtoAssert.forBody(body)
+                    .shouldPlay();
+        }
+
+        @Test
+        void shouldReturnCurrentlyPlayingType() {
+            CurrentlyPlayingPlayerStateDto body = sendAndGetBody();
+
+            CurrentlyPlayingPlayerStateDtoAssert.forBody(body)
+                    .currentlyPlayingType().isEqualTo(expectedState.getPlayingType());
+        }
+
+        @Test
+        void shouldReturnPlayingItem() {
+            CurrentlyPlayingPlayerStateDto body = sendAndGetBody();
+
+            PlayableItemEntity expectedItem = expectedState.getCurrentlyPlayingItem();
+
+            CurrentlyPlayingPlayerStateDtoAssert.forBody(body)
+                    .currentlyPlayingItem().id().isEqualTo(expectedItem.getId());
+
+
+            CurrentlyPlayingPlayerStateDtoAssert.forBody(body)
+                    .currentlyPlayingItem().itemType().isEqualTo(expectedItem.getType());
+        }
+
+        @Test
+        void shouldReturnAvailableDevices() {
+            Devices expectedDevices = expectedState.getDevices();
+
+            CurrentlyPlayingPlayerStateDto body = sendAndGetBody();
+
+            CurrentlyPlayingPlayerStateDtoAssert.forBody(body)
+                            .devices().length(expectedDevices.size());
+
+            DevicesModel model = devicesToDevicesModelConverter.convertTo(expectedDevices);
+
+            DevicesDto dto = devicesDtoConverter.convertTo(model);
+
+            DevicesDto devices = body.getDevices();
+            assertThat(devices.getDevices()).containsAll(dto.getDevices());
+        }
+
+        private CurrentlyPlayingPlayerStateDto sendAndGetBody() {
+            WebTestClient.ResponseSpec responseSpec = sendRequest();
+            return responseSpec.expectBody(CurrentlyPlayingPlayerStateDto.class).returnResult().getResponseBody();
         }
 
         private PersistablePlayerState createPlayingState() {
@@ -116,7 +189,7 @@ public class CurrentlyPlayingPlayerStateControllerTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class CurrentlyPlayingForUnathorizedRequest {
+    class CurrentlyPlayingForUnauthorizedRequest {
 
         @Test
         void shouldReturn401Status() {

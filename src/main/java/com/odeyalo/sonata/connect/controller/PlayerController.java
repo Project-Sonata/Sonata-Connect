@@ -7,6 +7,7 @@ import com.odeyalo.sonata.connect.model.DevicesModel;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.BasicPlayerOperations;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
+import com.odeyalo.sonata.connect.service.support.mapper.Converter;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.ConnectDeviceRequest2DeviceModelConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.CurrentPlayerState2PlayerStateDtoConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.DevicesModel2DevicesDtoConverter;
@@ -28,18 +29,20 @@ public class PlayerController {
     private final CurrentPlayerState2PlayerStateDtoConverter playerState2PlayerStateDtoConverter;
     private final DevicesModel2DevicesDtoConverter devicesDtoConverter;
     private final ConnectDeviceRequest2DeviceModelConverter deviceModelConverter;
+    private final Converter<CurrentlyPlayingPlayerState, CurrentlyPlayingPlayerStateDto> currentlyPlayingPlayerStateDtoConverter;
 
     @Autowired
     public PlayerController(
             BasicPlayerOperations playerOperations,
             CurrentPlayerState2PlayerStateDtoConverter playerState2PlayerStateDtoConverter,
             DevicesModel2DevicesDtoConverter devicesDtoConverter,
-            ConnectDeviceRequest2DeviceModelConverter deviceModelConverter
-    ) {
+            ConnectDeviceRequest2DeviceModelConverter deviceModelConverter,
+            Converter<CurrentlyPlayingPlayerState, CurrentlyPlayingPlayerStateDto> currentlyPlayingPlayerStateDtoConverter) {
         this.playerOperations = playerOperations;
         this.playerState2PlayerStateDtoConverter = playerState2PlayerStateDtoConverter;
         this.devicesDtoConverter = devicesDtoConverter;
         this.deviceModelConverter = deviceModelConverter;
+        this.currentlyPlayingPlayerStateDtoConverter = currentlyPlayingPlayerStateDtoConverter;
     }
 
     @GetMapping("/state")
@@ -89,6 +92,11 @@ public class PlayerController {
                 .thenReturn(default204Response());
     }
 
+
+    private CurrentlyPlayingPlayerStateDto convertToDto(CurrentlyPlayingPlayerState state) {
+        return currentlyPlayingPlayerStateDtoConverter.convertTo(state);
+    }
+
     @NotNull
     private AvailableDevicesResponseDto convertToAvailableDevicesResponseDto(DevicesModel devices) {
         DevicesDto devicesDto = devicesDtoConverter.convertTo(devices);
@@ -100,10 +108,6 @@ public class PlayerController {
         return ResponseEntity.noContent()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
-    }
-
-    private static CurrentlyPlayingPlayerStateDto convertToDto(CurrentlyPlayingPlayerState state) {
-        return CurrentlyPlayingPlayerStateDto.of(state.getShuffleState());
     }
 
     private static User resolveUser(AuthenticatedUser user) {
