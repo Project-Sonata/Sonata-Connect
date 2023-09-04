@@ -5,6 +5,8 @@ import com.odeyalo.sonata.connect.dto.DevicesDto;
 import org.assertj.core.api.AbstractAssert;
 import org.springframework.util.Assert;
 
+import static java.lang.String.format;
+
 public class DevicesDtoAssert extends AbstractAssert<DevicesDtoAssert, DevicesDto> {
 
     protected DevicesDtoAssert(DevicesDto actual) {
@@ -35,6 +37,13 @@ public class DevicesDtoAssert extends AbstractAssert<DevicesDtoAssert, DevicesDt
             failWithMessage("Devices must be not empty!");
         }
         return this;
+    }
+
+    public DeviceDtoAssert peekById(String id) {
+        DeviceDto deviceDto = actual.getDevices().stream().filter(device -> device.getDeviceId().equals(id)).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(format("Expected device with ID: %s but nothing was found", id)));
+
+        return DeviceDtoAssert.forDevice(deviceDto);
     }
 
     public DeviceDtoAssert peekFirst() {
