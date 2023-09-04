@@ -27,7 +27,7 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
     @Override
     public Mono<CurrentPlayerState> addDevice(User user, DeviceModel device) {
         return playerStateStorage.findByUserId(user.getId())
-                .doOnNext(state -> state.getDevices().addDevice(createDevice(device)))
+                .doOnNext(state -> state.getDevices().addDevice(createDevice(device, state)))
                 .map(DefaultStorageDeviceOperations::convertToState);
     }
 
@@ -48,7 +48,7 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
 
     @NotNull
     private static List<DeviceModel> toDeviceModels(Devices devices) {
-        return devices.stream().map(device -> DeviceModel.of(device.getId(), device.getName(), device.getDeviceType(), device.getVolume(), true)).toList();
+        return devices.stream().map(device -> DeviceModel.of(device.getId(), device.getName(), device.getDeviceType(), device.getVolume(), device.isActive())).toList();
     }
 
     private static CurrentPlayerState convertToState(PersistablePlayerState state) {
@@ -78,13 +78,17 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
                 .build();
     }
 
-    private static InMemoryDevice createDevice(DeviceModel device) {
+    private static InMemoryDevice createDevice(DeviceModel device, PersistablePlayerState state) {
         return InMemoryDevice.builder()
                 .id(device.getDeviceId())
                 .name(device.getDeviceName())
                 .volume(device.getVolume())
+                .active(anyActiveDevice(state))
                 .deviceType(device.getDeviceType())
-                .active(device.isActive())
                 .build();
+    }
+
+    private static boolean anyActiveDevice(PersistablePlayerState state) {
+        return state.getDevices().stream().anyMatch(Device::isActive);
     }
 }
