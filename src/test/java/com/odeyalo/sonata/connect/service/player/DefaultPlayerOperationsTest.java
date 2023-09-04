@@ -14,22 +14,21 @@ import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePlayCo
 import com.odeyalo.sonata.connect.service.player.support.HardcodedPlayableItemResolver;
 import com.odeyalo.sonata.connect.service.player.support.validation.HardcodedPlayCommandPreExecutingIntegrityValidator;
 import com.odeyalo.sonata.connect.service.support.factory.PersistablePlayerStateFactory;
-import com.odeyalo.sonata.connect.service.support.mapper.Device2DeviceModelConverter;
-import com.odeyalo.sonata.connect.service.support.mapper.DevicesToDevicesModelConverter;
-import com.odeyalo.sonata.connect.service.support.mapper.PersistablePlayerState2CurrentPlayerStateConverter;
-import com.odeyalo.sonata.connect.service.support.mapper.PlayableItemEntity2PlayableItemConverter;
+import com.odeyalo.sonata.connect.service.support.mapper.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.*;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import testing.asserts.PlayableItemEntityAssert;
 import testing.faker.PlayerStateFaker;
 
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.TestInstance.*;
 
 class DefaultPlayerOperationsTest {
 
@@ -45,7 +44,8 @@ class DefaultPlayerOperationsTest {
             new PlayerStateUpdatePlayCommandHandlerDelegate(storage, converter,
                     new HardcodedContextUriParser(),
                     new HardcodedPlayableItemResolver(),
-                    new HardcodedPlayCommandPreExecutingIntegrityValidator()));
+                    new HardcodedPlayCommandPreExecutingIntegrityValidator()),
+            new CurrentPlayerState2CurrentlyPlayingPlayerStateConverter());
 
     @AfterEach
     void afterEach() {
@@ -99,7 +99,7 @@ class DefaultPlayerOperationsTest {
     }
 
     @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @TestInstance(Lifecycle.PER_CLASS)
     class EmptyPlayerStateTests {
         @AfterEach
         void clear() {
@@ -154,7 +154,7 @@ class DefaultPlayerOperationsTest {
     }
 
     @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @TestInstance(Lifecycle.PER_CLASS)
     class CurrentPlayerStateTest {
         @Test
         void shouldReturnNotNullExistedState() {
@@ -236,7 +236,7 @@ class DefaultPlayerOperationsTest {
     }
 
     @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @TestInstance(Lifecycle.PER_CLASS)
     class PlayResumeCommandTests {
 
         @AfterEach
@@ -290,13 +290,65 @@ class DefaultPlayerOperationsTest {
         }
     }
 
+    @Nested
+    @TestInstance(Lifecycle.PER_CLASS)
+    class CurrentlyPlayingPlayerStateTests {
+
+        @Test
+        void shouldReturnShuffleState() {
+            saveAndAssert((expected, actual) -> assertThat(expected.getShuffleState()).isEqualTo(actual.getShuffleState()));
+        }
+
+        @Test
+        void shouldReturnRepeatState() {
+            saveAndAssert((expected, actual) -> assertThat(expected.getRepeatState()).isEqualTo(actual.getRepeatState()));
+        }
+
+        @Test
+        void shouldReturnPlayableItem() {
+            saveAndAssert((expected, actual) -> {
+
+                PlayableItemEntityAssert.forEntity(expected.getCurrentlyPlayingItem())
+                        .id().isEqualTo(actual.getPlayableItem().getId());
+
+                PlayableItemEntityAssert.forEntity(expected.getCurrentlyPlayingItem())
+                        .entityType().isEqualTo(actual.getPlayableItem().getItemType());
+            });
+        }
+
+        @Test
+        void shouldReturnPlayingType() {
+            saveAndAssert((expected, actual) -> assertThat(expected.getPlayingType()).isEqualTo(actual.getCurrentlyPlayingType()));
+        }
+
+        private void saveAndAssert(BiConsumer<PersistablePlayerState, CurrentlyPlayingPlayerState> predicateConsumer) {
+            PersistablePlayerState expected = PlayerStateFaker.create().setPlaying(true).asPersistablePlayerState();
+
+            PersistablePlayerState playerState = saveState(expected);
+
+            CurrentlyPlayingPlayerState currentlyPlayingState = getCurrentlyPlayingState(playerState);
+
+            predicateConsumer.accept(playerState, currentlyPlayingState);
+        }
+
+        @Nullable
+        private CurrentlyPlayingPlayerState getCurrentlyPlayingState(PersistablePlayerState playerState) {
+            return getCurrentlyPlayingPlayerState(User.of(playerState.getUser().getId()));
+        }
+
+        @Nullable
+        private CurrentlyPlayingPlayerState getCurrentlyPlayingPlayerState(User user) {
+            return playerOperations.currentlyPlayingState(user).block();
+        }
+    }
+
     private static User createUser(PersistablePlayerState playerState) {
         return User.of(playerState.getUser().getId());
     }
 
-    @Nullable
+    @NotNull
     private PersistablePlayerState saveState(PersistablePlayerState playerState) {
-        return storage.save(playerState).block();
+        return Objects.requireNonNull(storage.save(playerState).block());
     }
 
     private PersistablePlayerState createEnabledState() {
@@ -314,7 +366,6 @@ class DefaultPlayerOperationsTest {
     }
 
     static class NullDeviceOperations implements DeviceOperations {
-
 
         @Override
         public Mono<CurrentPlayerState> addDevice(User user, DeviceModel device) {
