@@ -324,6 +324,29 @@ public class ConnectDevicePlayerStateControllerTest {
         }
     }
 
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    class MultipleDeviceRegistrationTests {
+
+        @Test
+        void registerTwoDevices_andExpectFirstToBeActive_andSecondInactive() {
+            ConnectDeviceRequest firstDevice = ConnectDeviceRequestFaker.create().get();
+            sendRequest(firstDevice);
+
+            ConnectDeviceRequest secondDevice = ConnectDeviceRequestFaker.create().get();
+
+            sendRequest(secondDevice);
+
+            PlayerStateDto playerState = getCurrentPlayerState();
+
+            PlayerStateDtoAssert.forState(playerState)
+                    .devices().peekById(firstDevice.getId()).active();
+
+            PlayerStateDtoAssert.forState(playerState)
+                    .devices().peekById(secondDevice.getId()).inactive();
+        }
+    }
+
     @NotNull
     private WebTestClient.ResponseSpec prepareValidAndSend() {
         ConnectDeviceRequest body = ConnectDeviceRequestFaker.create().get();
