@@ -20,18 +20,29 @@ public class DeviceFaker {
     boolean active;
 
 
-    final Faker faker = Faker.instance();
+    static final Faker faker = Faker.instance();
 
     protected DeviceFaker() {
+        this(faker.random().nextBoolean());
+    }
+
+    protected DeviceFaker(boolean active) {
         this.deviceId = RandomStringUtils.randomAlphanumeric(10);
         this.deviceName = RandomStringUtils.randomAlphabetic(15);
         this.deviceType = faker.options().option(DeviceType.class);
         this.volume = faker.random().nextInt(0, 100);
-        this.active = faker.random().nextBoolean();
+        this.active = active;
     }
 
     public static DeviceFaker create() {
         return new DeviceFaker();
+    }
+
+    public static DeviceFaker createActiveDevice() {
+        return new DeviceFaker(true);
+    }
+    public static DeviceFaker createInactiveDevice() {
+        return new DeviceFaker(false);
     }
 
     public Device get() {
