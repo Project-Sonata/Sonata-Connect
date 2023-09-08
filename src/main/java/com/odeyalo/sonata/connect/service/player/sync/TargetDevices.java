@@ -22,12 +22,36 @@ import java.util.stream.Stream;
 public class TargetDevices implements Iterable<TargetDevice> {
     List<TargetDevice> devices;
 
+    public static TargetDevices multiple(TargetDevice... devices) {
+        return of(List.of(devices));
+    }
+
+    public static TargetDevices single(TargetDevice device) {
+        return of(List.of(device));
+    }
+
+    public static TargetDevices empty() {
+        return of(List.of());
+    }
+
     public TargetDevice get(int index) {
         return devices.get(index);
     }
 
     public int size() {
         return devices.size();
+    }
+
+    public TargetDevice peekFirst() {
+        return get(0);
+    }
+
+    public TargetDevice peekSecond() {
+        return get(1);
+    }
+
+    public TargetDevice peekThird() {
+        return get(2);
     }
 
     public boolean isEmpty() {
