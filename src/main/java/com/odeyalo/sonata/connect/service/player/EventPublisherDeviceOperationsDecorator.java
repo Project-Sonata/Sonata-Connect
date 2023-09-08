@@ -5,6 +5,7 @@ import com.odeyalo.sonata.connect.model.DeviceModel;
 import com.odeyalo.sonata.connect.model.DevicesModel;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.sync.PlayerSynchronizationManager;
+import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import com.odeyalo.sonata.connect.service.player.sync.event.DeviceConnectedPlayerEvent;
 import com.odeyalo.suite.security.auth.AuthenticatedUser;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,7 @@ public class EventPublisherDeviceOperationsDecorator implements DeviceOperations
         this.synchronizationManager = synchronizationManager;
     }
 
+    @NotNull
     @Override
     public Mono<CurrentPlayerState> addDevice(User user, DeviceModel device) {
         return delegate.addDevice(user, device)
@@ -40,6 +42,12 @@ public class EventPublisherDeviceOperationsDecorator implements DeviceOperations
     @Override
     public Mono<Boolean> containsById(User user, String deviceId) {
         return delegate.containsById(user, deviceId);
+    }
+
+    @NotNull
+    @Override
+    public Mono<CurrentPlayerState> transferPlayback(User user, SwitchDeviceCommandArgs args, TargetDeactivationDevices deactivationDevices, TargetDevices targetDevices) {
+        return delegate.transferPlayback(user, args, deactivationDevices, targetDevices);
     }
 
     @NotNull
