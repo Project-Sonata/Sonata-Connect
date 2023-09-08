@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
 
-import static org.springframework.http.ResponseEntity.badRequest;
-import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.*;
 
 @RestControllerAdvice
 public class GlobalExceptionHandlerController {
@@ -36,6 +35,17 @@ public class GlobalExceptionHandlerController {
     @ExceptionHandler(NoActiveDeviceException.class)
     public ResponseEntity<ReasonCodeAwareExceptionMessage> handleNoActiveDeviceException(NoActiveDeviceException ex) {
         return badRequest().body(ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), ex.getMessage()));
+    }
+
+
+    @ExceptionHandler(MultipleTargetDevicesNotSupportedException.class)
+    public ResponseEntity<ReasonCodeAwareExceptionMessage> handleMultipleTargetDevicesNotSupportedException(MultipleTargetDevicesNotSupportedException ex) {
+        return badRequest().body(ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), ex.getMessage()));
+    }
+
+    @ExceptionHandler(DeviceNotFoundException.class)
+    public ResponseEntity<ReasonCodeAwareExceptionMessage> handleDeviceNotFoundException(DeviceNotFoundException ex) {
+        return unprocessableEntity().body(ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), ex.getMessage()));
     }
 
     @ExceptionHandler(MalformedContextUriException.class)
