@@ -48,6 +48,11 @@ public class GlobalExceptionHandlerController {
         return unprocessableEntity().body(ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), ex.getMessage()));
     }
 
+    @ExceptionHandler(TargetDeviceRequiredException.class)
+    public ResponseEntity<ReasonCodeAwareExceptionMessage> handleTargetDeviceRequiredException(TargetDeviceRequiredException ex) {
+        return badRequest().body(ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), ex.getMessage()));
+    }
+
     @ExceptionHandler(MalformedContextUriException.class)
     public ResponseEntity<?> handleMalformedContextUriException(MalformedContextUriException ex) {
         if (ex instanceof ReasonCodeAware) {
