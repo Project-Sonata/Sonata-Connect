@@ -9,7 +9,7 @@ import static org.apache.commons.lang.BooleanUtils.isFalse;
 public class DeviceModelAssert extends AbstractAssert<DeviceModelAssert, DeviceModel> {
 
     public DeviceModelAssert(DeviceModel actual) {
-        super(actual, DevicesModelAssert.class);
+        super(actual, DeviceModelAssert.class);
     }
 
     public static DeviceModelAssert forDevice(DeviceModel actual) {
@@ -46,7 +46,7 @@ public class DeviceModelAssert extends AbstractAssert<DeviceModelAssert, DeviceM
 
     public DeviceModelAssert active() {
         if (isFalse(actual.isActive())) {
-            failWithMessage("Expected device to be in 'inactive' state!");
+            failWithMessage("Expected device to be in 'active' state!");
         }
         return this;
     }
