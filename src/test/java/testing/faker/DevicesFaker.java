@@ -12,25 +12,21 @@ public class DevicesFaker {
     List<Device> devices = new ArrayList<>();
 
     Faker faker = Faker.instance();
+    boolean containActiveDevice = false;
 
     public DevicesFaker() {
         int numberOfDevices = faker.random().nextInt(1, 7);
-        for (int i = 0; i < numberOfDevices; i++) {
-            Device device = DeviceFaker.create().get();
-            this.devices.add(device);
-        }
+        fulfillDevices(numberOfDevices);
     }
 
     public DevicesFaker(int numberOfDevices) {
-        for (int i = 0; i < numberOfDevices; i++) {
-            Device device = DeviceFaker.create().get();
-            this.devices.add(device);
-        }
+        fulfillDevices(numberOfDevices);
     }
 
     public static DevicesFaker create() {
         return new DevicesFaker();
     }
+
     public static DevicesFaker create(int numberOfDevices) {
         return new DevicesFaker(numberOfDevices);
     }
@@ -47,5 +43,23 @@ public class DevicesFaker {
         return InMemoryDevices.builder()
                 .devices(devices)
                 .build();
+    }
+
+    private void fulfillDevices(int numberOfDevices) {
+        for (int i = 0; i < numberOfDevices; i++) {
+            Device device = getDevice();
+            this.devices.add(device);
+        }
+    }
+
+    private Device getDevice() {
+        Device device;
+        if (containActiveDevice) {
+            device = DeviceFaker.createInactiveDevice().asInMemoryDevice();
+        } else {
+            device = DeviceFaker.createActiveDevice().asInMemoryDevice();
+            this.containActiveDevice = true;
+        }
+        return device;
     }
 }

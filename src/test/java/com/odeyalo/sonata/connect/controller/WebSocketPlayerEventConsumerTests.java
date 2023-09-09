@@ -100,17 +100,17 @@ public class WebSocketPlayerEventConsumerTests {
 //
         Mono.fromRunnable(() -> {
             System.out.println("Send message");
-            resumePlayback();
-            System.out.println("Sent message");
-        }).and(
-        webSocketClient.execute(wsUri,
-                        readOnlyHttpHeaders(headers),
-                        messageConsumer(1, receivedMessagesClient1)
-                ).doOnSuccess(sub -> System.out.println("Сompleted subcriber 1"))
-                .zipWith(webSocketClient.execute(wsUri,
-                                readOnlyHttpHeaders(headers),
-                                messageConsumer(1, receivedMessagesClient2))
-                        .doOnSuccess(sub -> System.out.println("Сompleted subcriber 2"))))
+                    resumePlayback();
+                    System.out.println("Sent message");
+                }).and(
+                        webSocketClient.execute(wsUri,
+                                        readOnlyHttpHeaders(headers),
+                                        messageConsumer(1, receivedMessagesClient1)
+                                ).doOnSuccess(sub -> System.out.println("Сompleted subcriber 1"))
+                                .zipWith(webSocketClient.execute(wsUri,
+                                                readOnlyHttpHeaders(headers),
+                                                messageConsumer(1, receivedMessagesClient2))
+                                        .doOnSuccess(sub -> System.out.println("Сompleted subcriber 2"))))
                 .block(Duration.ofSeconds(5));
 
         assertThat(receivedMessagesClient2.get()).hasSize(1);

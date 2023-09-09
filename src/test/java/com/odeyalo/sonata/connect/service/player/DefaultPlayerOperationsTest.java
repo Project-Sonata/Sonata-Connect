@@ -13,6 +13,7 @@ import com.odeyalo.sonata.connect.repository.storage.support.InMemory2Persistabl
 import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.support.HardcodedPlayableItemResolver;
 import com.odeyalo.sonata.connect.service.player.support.validation.HardcodedPlayCommandPreExecutingIntegrityValidator;
+import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import com.odeyalo.sonata.connect.service.support.factory.PersistablePlayerStateFactory;
 import com.odeyalo.sonata.connect.service.support.mapper.*;
 import org.jetbrains.annotations.NotNull;
@@ -367,6 +368,7 @@ class DefaultPlayerOperationsTest {
 
     static class NullDeviceOperations implements DeviceOperations {
 
+        @NotNull
         @Override
         public Mono<CurrentPlayerState> addDevice(User user, DeviceModel device) {
             return Mono.empty();
@@ -375,6 +377,12 @@ class DefaultPlayerOperationsTest {
         @NotNull
         @Override
         public Mono<Boolean> containsById(User user, String deviceId) {
+            return Mono.empty();
+        }
+
+        @NotNull
+        @Override
+        public Mono<CurrentPlayerState> transferPlayback(User user, SwitchDeviceCommandArgs args, TargetDeactivationDevices deactivationDevices, TargetDevices targetDevices) {
             return Mono.empty();
         }
 

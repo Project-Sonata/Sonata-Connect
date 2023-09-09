@@ -1,9 +1,6 @@
 package testing.shared;
 
-import com.odeyalo.sonata.connect.dto.AvailableDevicesResponseDto;
-import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
-import com.odeyalo.sonata.connect.dto.PlayResumePlaybackRequest;
-import com.odeyalo.sonata.connect.dto.PlayerStateDto;
+import com.odeyalo.sonata.connect.dto.*;
 
 /**
  * Provide all up-to-update http endpoints that can be done for this microservice.
@@ -22,4 +19,6 @@ public interface SonataTestHttpOperations {
     void playOrResumePlayback(String authorizationHeaderValue, PlayResumePlaybackRequest body);
 
     void changeShuffle(String authorizationHeaderValue, boolean shuffleMode);
+
+    void switchDevices(String authorizationHeaderValue, DeviceSwitchRequest body);
 }

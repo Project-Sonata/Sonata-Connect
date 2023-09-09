@@ -5,8 +5,8 @@ import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
 import com.odeyalo.sonata.connect.model.DeviceModel;
 import com.odeyalo.sonata.connect.model.DevicesModel;
 import com.odeyalo.sonata.connect.model.User;
-import com.odeyalo.sonata.connect.service.player.BasicPlayerOperations;
-import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
+import com.odeyalo.sonata.connect.service.player.*;
+import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import com.odeyalo.sonata.connect.service.support.mapper.Converter;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.ConnectDeviceRequest2DeviceModelConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.CurrentPlayerState2PlayerStateDtoConverter;
@@ -21,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/player")
@@ -92,6 +94,14 @@ public class PlayerController {
                 .thenReturn(default204Response());
     }
 
+    @PutMapping(value = "/device/switch", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<ResponseEntity<?>> switchDevices(AuthenticatedUser authenticatedUser, @RequestBody DeviceSwitchRequest body) {
+        return playerOperations.getDeviceOperations().transferPlayback(resolveUser(authenticatedUser),
+                        SwitchDeviceCommandArgs.noMatter(),
+                        TargetDeactivationDevices.empty(),
+                        TargetDevices.of(Arrays.stream(body.getDeviceIds()).map(TargetDevice::of).toList()))
+                .thenReturn(default204Response());
+    }
 
     private CurrentlyPlayingPlayerStateDto convertToDto(CurrentlyPlayingPlayerState state) {
         return currentlyPlayingPlayerStateDtoConverter.convertTo(state);
