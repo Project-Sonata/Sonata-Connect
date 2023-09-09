@@ -9,21 +9,27 @@ import com.odeyalo.sonata.connect.model.DevicesModel;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
+import com.odeyalo.sonata.connect.service.player.handler.TransferPlaybackCommandHandlerDelegate;
+import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import static org.apache.commons.lang.BooleanUtils.negate;
+
 @Component
 public class DefaultStorageDeviceOperations implements DeviceOperations {
-    final PlayerStateStorage playerStateStorage;
+    private final PlayerStateStorage playerStateStorage;
+    private final TransferPlaybackCommandHandlerDelegate transferPlaybackCommandHandlerDelegate;
 
-    public DefaultStorageDeviceOperations(PlayerStateStorage playerStateStorage) {
+    public DefaultStorageDeviceOperations(PlayerStateStorage playerStateStorage, TransferPlaybackCommandHandlerDelegate transferPlaybackCommandHandlerDelegate) {
         this.playerStateStorage = playerStateStorage;
+        this.transferPlaybackCommandHandlerDelegate = transferPlaybackCommandHandlerDelegate;
     }
 
-
+    @NotNull
     @Override
     public Mono<CurrentPlayerState> addDevice(User user, DeviceModel device) {
         return playerStateStorage.findByUserId(user.getId())
@@ -35,6 +41,12 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
     @Override
     public Mono<Boolean> containsById(User user, String deviceId) {
         return null;
+    }
+
+    @NotNull
+    @Override
+    public Mono<CurrentPlayerState> transferPlayback(User user, SwitchDeviceCommandArgs args, TargetDeactivationDevices deactivationDevices, TargetDevices targetDevices) {
+        return transferPlaybackCommandHandlerDelegate.transferPlayback(user, args, deactivationDevices, targetDevices);
     }
 
     @NotNull
@@ -79,16 +91,17 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
     }
 
     private static InMemoryDevice createDevice(DeviceModel device, PersistablePlayerState state) {
+        Boolean isActive = negate(containAnyActiveDevice(state));
         return InMemoryDevice.builder()
                 .id(device.getDeviceId())
                 .name(device.getDeviceName())
                 .volume(device.getVolume())
-                .active(anyActiveDevice(state))
+                .active(isActive)
                 .deviceType(device.getDeviceType())
                 .build();
     }
 
-    private static boolean anyActiveDevice(PersistablePlayerState state) {
+    private static boolean containAnyActiveDevice(PersistablePlayerState state) {
         return state.getDevices().stream().anyMatch(Device::isActive);
     }
 }
