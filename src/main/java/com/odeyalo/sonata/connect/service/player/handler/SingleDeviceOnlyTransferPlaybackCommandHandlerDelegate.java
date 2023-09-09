@@ -6,6 +6,7 @@ import com.odeyalo.sonata.connect.entity.InMemoryDeviceEntity;
 import com.odeyalo.sonata.connect.exception.*;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.User;
+import com.odeyalo.sonata.connect.repository.storage.PersistableDevicesEntity;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
 import com.odeyalo.sonata.connect.service.player.SwitchDeviceCommandArgs;
@@ -82,8 +83,7 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
     }
 
     private static DevicesEntity updateCurrentlyConnectedDevices(DevicesEntity connectedDevicesEntity, DeviceEntity activatedDeviceEntity, DeviceEntity deactivatedDeviceEntity) {
-
-        InMemoryDevicesEntity currentDevices = new InMemoryDevicesEntity(connectedDevicesEntity.getDevices());
+        PersistableDevicesEntity currentDevices = PersistableDevicesEntity.copyFrom(connectedDevicesEntity);
 
         if (deactivatedDeviceEntity != null) {
             currentDevices.removeIf((device) -> device.getId().equals(deactivatedDeviceEntity.getId()));

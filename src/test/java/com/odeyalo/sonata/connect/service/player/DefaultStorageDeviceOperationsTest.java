@@ -33,7 +33,7 @@ import static java.util.function.Predicate.not;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static testing.condition.Conditions.reasonCodeEqual;
 
-class DefaultStorageDeviceOperationsTestEntity {
+class DefaultStorageDeviceOperationsTest {
 
     PlayerStateStorage storage = new RepositoryDelegatePlayerStateStorage(
             new InMemoryPlayerStateRepository(),
@@ -45,7 +45,7 @@ class DefaultStorageDeviceOperationsTestEntity {
                     new PlayableItemEntity2PlayableItemConverter());
 
     DefaultStorageDeviceOperations operations = new DefaultStorageDeviceOperations(storage,
-            new SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate(storage, playerStateConverter));
+            new SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate(storage, playerStateConverter), playerStateConverter);
 
     User user;
     DeviceEntity activeDeviceEntity;
