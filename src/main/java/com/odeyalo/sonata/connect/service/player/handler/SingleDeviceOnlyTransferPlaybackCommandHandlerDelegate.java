@@ -4,10 +4,7 @@ import com.odeyalo.sonata.connect.entity.Device;
 import com.odeyalo.sonata.connect.entity.Devices;
 import com.odeyalo.sonata.connect.entity.InMemoryDevice;
 import com.odeyalo.sonata.connect.entity.InMemoryDevices;
-import com.odeyalo.sonata.connect.exception.DeviceNotFoundException;
-import com.odeyalo.sonata.connect.exception.MultipleTargetDevicesNotSupportedException;
-import com.odeyalo.sonata.connect.exception.NeverHappeningException;
-import com.odeyalo.sonata.connect.exception.TargetDeviceRequiredException;
+import com.odeyalo.sonata.connect.exception.*;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
@@ -41,6 +38,9 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
     @NotNull
     @Override
     public Mono<CurrentPlayerState> transferPlayback(User user, SwitchDeviceCommandArgs args, TargetDeactivationDevices deactivationDevices, TargetDevices targetDevices) {
+        if (deactivationDevices.size() > 1) {
+            return Mono.error(SingleTargetDeactivationDeviceRequiredException.defaultException());
+        }
         if (targetDevices.size() < 1) {
             return Mono.error(TargetDeviceRequiredException.defaultException());
         }
@@ -65,29 +65,33 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
     }
 
     private Mono<PersistablePlayerState> doTransferPlayback(PersistablePlayerState state, TargetDevice deviceData, Devices connectedDevices) {
-        Device deviceToActivate = findDevice(deviceData, connectedDevices);
+        Device activatedDevice = findAndActivate(deviceData, connectedDevices);
 
         Device deactivatedDevice = deativateCurrentlyActiveDevice(connectedDevices);
 
-        Device activatedDevice = activeDevice(deviceToActivate);
-
-        Devices updatedDevices = updateCurrentlyConnectedDevices(connectedDevices, deactivatedDevice, activatedDevice);
+        Devices updatedDevices = updateCurrentlyConnectedDevices(connectedDevices, activatedDevice, deactivatedDevice);
 
         state.setDevices(updatedDevices);
 
         return playerStateStorage.save(state);
     }
 
-    private static Devices updateCurrentlyConnectedDevices(Devices connectedDevices, Device deactivatedDevice, Device activatedDevice) {
+    @NotNull
+    private static Device findAndActivate(TargetDevice deviceData, Devices connectedDevices) {
+        Device deviceToActivate = findDevice(deviceData, connectedDevices);
+        return activateDevice(deviceToActivate);
+    }
+
+    private static Devices updateCurrentlyConnectedDevices(Devices connectedDevices, Device activatedDevice, Device deactivatedDevice) {
 
         InMemoryDevices currentDevices = new InMemoryDevices(connectedDevices.getDevices());
 
         if (deactivatedDevice != null) {
-            currentDevices.getDevices().removeIf((device) -> device.getId().equals(deactivatedDevice.getId()));
+            currentDevices.removeIf((device) -> device.getId().equals(deactivatedDevice.getId()));
             currentDevices.addDevice(deactivatedDevice);
         }
 
-        currentDevices.getDevices().removeIf((device) -> device.getId().equals(activatedDevice.getId()));
+        currentDevices.removeIf((device) -> device.getId().equals(activatedDevice.getId()));
 
         currentDevices.addDevice(activatedDevice);
 
@@ -101,7 +105,7 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
     }
 
     @NotNull
-    private static InMemoryDevice activeDevice(Device targetDevice) {
+    private static InMemoryDevice activateDevice(Device targetDevice) {
         return InMemoryDevice.copy(targetDevice).toBuilder().active(true).build();
     }
 
