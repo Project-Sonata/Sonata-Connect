@@ -32,6 +32,14 @@ public class TargetDeactivationDevices implements Iterable<TargetDeactivationDev
         return of(List.of(devices));
     }
 
+    public int size() {
+        return devices.size();
+    }
+
+    public boolean isEmpty() {
+        return devices.isEmpty();
+    }
+
     public TargetDeactivationDevice get(int index) {
         return devices.get(index);
     }
