@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class CurrentlyPlayingPlayerStateDtoConverter implements Converter<CurrentlyPlayingPlayerState, CurrentlyPlayingPlayerStateDto> {
     private final PlayableItem2PlayableItemDtoConverter playableItemDtoConverterSupport;
-    private final DevicesModel2DevicesDtoConverter devicesDtoConverterSupport;
+    private final Devices2DevicesDtoConverter devicesDtoConverterSupport;
 
     @Autowired
-    public CurrentlyPlayingPlayerStateDtoConverter(PlayableItem2PlayableItemDtoConverter playableItemDtoConverterSupport, DevicesModel2DevicesDtoConverter devicesDtoConverterSupport) {
+    public CurrentlyPlayingPlayerStateDtoConverter(PlayableItem2PlayableItemDtoConverter playableItemDtoConverterSupport, Devices2DevicesDtoConverter devicesDtoConverterSupport) {
         this.playableItemDtoConverterSupport = playableItemDtoConverterSupport;
         this.devicesDtoConverterSupport = devicesDtoConverterSupport;
     }

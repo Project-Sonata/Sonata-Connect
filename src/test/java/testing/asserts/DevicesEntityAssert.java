@@ -1,17 +1,17 @@
 package testing.asserts;
 
-import com.odeyalo.sonata.connect.entity.Device;
-import com.odeyalo.sonata.connect.entity.Devices;
+import com.odeyalo.sonata.connect.entity.DeviceEntity;
+import com.odeyalo.sonata.connect.entity.DevicesEntity;
 import org.assertj.core.api.AbstractAssert;
 import org.springframework.util.Assert;
 
-public class DevicesEntityAssert extends AbstractAssert<DevicesEntityAssert, Devices> {
+public class DevicesEntityAssert extends AbstractAssert<DevicesEntityAssert, DevicesEntity> {
 
-    protected DevicesEntityAssert(Devices actual) {
+    protected DevicesEntityAssert(DevicesEntity actual) {
         super(actual, DevicesEntityAssert.class);
     }
 
-    public static DevicesEntityAssert forDevices(Devices actual) {
+    public static DevicesEntityAssert forDevices(DevicesEntity actual) {
         Assert.notNull(actual, "The actual must be not null!");
         return new DevicesEntityAssert(actual);
     }
@@ -53,7 +53,7 @@ public class DevicesEntityAssert extends AbstractAssert<DevicesEntityAssert, Dev
         if (actual.size() <= index) {
             failWithMessage("The devices length is: %s, but the index was: %s", actual.size(), index);
         }
-        Device actual = this.actual.getDevice(index);
+        DeviceEntity actual = this.actual.getDevice(index);
         return new DeviceEntityAssert(actual);
     }
 }

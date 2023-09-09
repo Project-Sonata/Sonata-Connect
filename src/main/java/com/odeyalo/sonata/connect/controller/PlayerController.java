@@ -2,15 +2,15 @@ package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.connect.dto.*;
 import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
-import com.odeyalo.sonata.connect.model.DeviceModel;
-import com.odeyalo.sonata.connect.model.DevicesModel;
+import com.odeyalo.sonata.connect.model.Device;
+import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.*;
 import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import com.odeyalo.sonata.connect.service.support.mapper.Converter;
-import com.odeyalo.sonata.connect.service.support.mapper.dto.ConnectDeviceRequest2DeviceModelConverter;
+import com.odeyalo.sonata.connect.service.support.mapper.dto.ConnectDeviceRequest2DeviceConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.CurrentPlayerState2PlayerStateDtoConverter;
-import com.odeyalo.sonata.connect.service.support.mapper.dto.DevicesModel2DevicesDtoConverter;
+import com.odeyalo.sonata.connect.service.support.mapper.dto.Devices2DevicesDtoConverter;
 import com.odeyalo.suite.security.auth.AuthenticatedUser;
 import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
@@ -29,16 +29,16 @@ import java.util.Arrays;
 public class PlayerController {
     private final BasicPlayerOperations playerOperations;
     private final CurrentPlayerState2PlayerStateDtoConverter playerState2PlayerStateDtoConverter;
-    private final DevicesModel2DevicesDtoConverter devicesDtoConverter;
-    private final ConnectDeviceRequest2DeviceModelConverter deviceModelConverter;
+    private final Devices2DevicesDtoConverter devicesDtoConverter;
+    private final ConnectDeviceRequest2DeviceConverter deviceModelConverter;
     private final Converter<CurrentlyPlayingPlayerState, CurrentlyPlayingPlayerStateDto> currentlyPlayingPlayerStateDtoConverter;
 
     @Autowired
     public PlayerController(
             BasicPlayerOperations playerOperations,
             CurrentPlayerState2PlayerStateDtoConverter playerState2PlayerStateDtoConverter,
-            DevicesModel2DevicesDtoConverter devicesDtoConverter,
-            ConnectDeviceRequest2DeviceModelConverter deviceModelConverter,
+            Devices2DevicesDtoConverter devicesDtoConverter,
+            ConnectDeviceRequest2DeviceConverter deviceModelConverter,
             Converter<CurrentlyPlayingPlayerState, CurrentlyPlayingPlayerStateDto> currentlyPlayingPlayerStateDtoConverter) {
         this.playerOperations = playerOperations;
         this.playerState2PlayerStateDtoConverter = playerState2PlayerStateDtoConverter;
@@ -88,7 +88,7 @@ public class PlayerController {
     public Mono<ResponseEntity<?>> addDevice(AuthenticatedUser authenticatedUser,
                                              @Valid @RequestBody ConnectDeviceRequest body) {
         User user = resolveUser(authenticatedUser);
-        DeviceModel device = deviceModelConverter.convertTo(body);
+        Device device = deviceModelConverter.convertTo(body);
 
         return playerOperations.getDeviceOperations().addDevice(user, device)
                 .thenReturn(default204Response());
@@ -108,7 +108,7 @@ public class PlayerController {
     }
 
     @NotNull
-    private AvailableDevicesResponseDto convertToAvailableDevicesResponseDto(DevicesModel devices) {
+    private AvailableDevicesResponseDto convertToAvailableDevicesResponseDto(Devices devices) {
         DevicesDto devicesDto = devicesDtoConverter.convertTo(devices);
         return AvailableDevicesResponseDto.of(devicesDto);
     }

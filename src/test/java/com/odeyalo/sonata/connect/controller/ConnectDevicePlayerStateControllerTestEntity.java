@@ -28,7 +28,7 @@ import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerPro
         repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
         ids = "com.odeyalo.sonata:authorization:+")
 @TestPropertySource(locations = "classpath:application-test.properties")
-public class ConnectDevicePlayerStateControllerTest {
+public class ConnectDevicePlayerStateControllerTestEntity {
 
     @Autowired
     WebTestClient webTestClient;
@@ -223,7 +223,7 @@ public class ConnectDevicePlayerStateControllerTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class PlainJsonForDeviceTypeTests {
+    class PlainJsonForDeviceTypeTestsEntity {
 
         @Test
         void sendWithInvalidDeviceTypeJsonKeyName_andExpect400Status() {
@@ -326,7 +326,7 @@ public class ConnectDevicePlayerStateControllerTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class MultipleDeviceRegistrationTests {
+    class MultipleDeviceRegistrationTestsEntity {
 
         @Test
         void registerTwoDevices_andExpectFirstToBeActive_andSecondInactive() {

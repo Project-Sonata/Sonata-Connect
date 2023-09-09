@@ -2,8 +2,8 @@ package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.connect.dto.AvailableDevicesResponseDto;
 import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
-import com.odeyalo.sonata.connect.entity.Device;
-import com.odeyalo.sonata.connect.entity.InMemoryDevice;
+import com.odeyalo.sonata.connect.entity.DeviceEntity;
+import com.odeyalo.sonata.connect.entity.InMemoryDeviceEntity;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -28,7 +28,7 @@ import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerPro
         repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
         ids = "com.odeyalo.sonata:authorization:+")
 @TestPropertySource(locations = "classpath:application-test.properties")
-public class AvailableDevicesPlayerStateControllerTest {
+public class AvailableDevicesPlayerStateControllerTestEntity {
 
     @Autowired
     WebTestClient webTestClient;
@@ -46,12 +46,12 @@ public class AvailableDevicesPlayerStateControllerTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class SingleAvailableDevicePlayerStateControllerTest {
-        Device expectedDevice;
+    class SingleAvailableDevicePlayerStateControllerTestEntity {
+        DeviceEntity expectedDeviceEntity;
 
         @BeforeAll
         void beforeAll() {
-            expectedDevice = connectSingleDevice();
+            expectedDeviceEntity = connectSingleDevice();
         }
 
         @AfterAll
@@ -93,17 +93,17 @@ public class AvailableDevicesPlayerStateControllerTest {
             AvailableDevicesResponseDtoAssert.forBody(body)
                     .devices().length(1)
                     .peekFirst()
-                    .id(expectedDevice.getId())
-                    .name(expectedDevice.getName())
-                    .volume(expectedDevice.getVolume())
-                    .type(expectedDevice.getDeviceType());
+                    .id(expectedDeviceEntity.getId())
+                    .name(expectedDeviceEntity.getName())
+                    .volume(expectedDeviceEntity.getVolume())
+                    .type(expectedDeviceEntity.getDeviceType());
 
         }
 
-        private Device connectSingleDevice() {
+        private DeviceEntity connectSingleDevice() {
             ConnectDeviceRequest request = ConnectDeviceRequestFaker.create().get();
             sendConnectDeviceRequest(request);
-            return InMemoryDevice.builder()
+            return InMemoryDeviceEntity.builder()
                     .id(request.getId())
                     .name(request.getName())
                     .active(true)

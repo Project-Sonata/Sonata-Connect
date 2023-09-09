@@ -2,10 +2,8 @@ package testing.faker;
 
 import com.github.javafaker.Faker;
 import com.odeyalo.sonata.connect.entity.*;
-import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
-import com.odeyalo.sonata.connect.model.TrackItem;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -25,7 +23,7 @@ public class PlayerStateFaker {
     boolean shuffleState;
     Long progressMs;
     PlayingType playingType;
-    Devices devices;
+    DevicesEntity devicesEntity;
     UserEntity user;
     PlayableItemEntity playingItem;
 
@@ -49,9 +47,9 @@ public class PlayerStateFaker {
         this.user = UserEntityFaker.create().get();
 
         if (numberOfDevices <= 0) {
-            this.devices = DevicesFaker.create().get();
+            this.devicesEntity = DevicesEntityFaker.create().get();
         } else {
-            this.devices = DevicesFaker.create(numberOfDevices).get();
+            this.devicesEntity = DevicesEntityFaker.create(numberOfDevices).get();
         }
         this.playingItem = TrackItemEntity.of(RandomStringUtils.randomAlphanumeric(16));
     }
@@ -78,7 +76,7 @@ public class PlayerStateFaker {
                 .id(id)
                 .repeatState(repeatState)
                 .shuffleState(shuffleState)
-                .devices(devices)
+                .devicesEntity(devicesEntity)
                 .playing(playing)
                 .playingType(playingType)
                 .progressMs(progressMs)
@@ -92,7 +90,7 @@ public class PlayerStateFaker {
                 .id(id)
                 .repeatState(repeatState)
                 .shuffleState(shuffleState)
-                .devices(devices)
+                .devicesEntity(devicesEntity)
                 .playing(playing)
                 .playingType(playingType)
                 .progressMs(progressMs)

@@ -1,11 +1,11 @@
 package com.odeyalo.sonata.connect.service.player;
 
-import com.odeyalo.sonata.connect.entity.Device;
-import com.odeyalo.sonata.connect.entity.Devices;
-import com.odeyalo.sonata.connect.entity.InMemoryDevice;
+import com.odeyalo.sonata.connect.entity.DeviceEntity;
+import com.odeyalo.sonata.connect.entity.DevicesEntity;
+import com.odeyalo.sonata.connect.entity.InMemoryDeviceEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.DeviceModel;
-import com.odeyalo.sonata.connect.model.DevicesModel;
+import com.odeyalo.sonata.connect.model.Device;
+import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
@@ -31,9 +31,9 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
 
     @NotNull
     @Override
-    public Mono<CurrentPlayerState> addDevice(User user, DeviceModel device) {
+    public Mono<CurrentPlayerState> addDevice(User user, Device device) {
         return playerStateStorage.findByUserId(user.getId())
-                .doOnNext(state -> state.getDevices().addDevice(createDevice(device, state)))
+                .doOnNext(state -> state.getDevicesEntity().addDevice(createDevice(device, state)))
                 .map(DefaultStorageDeviceOperations::convertToState);
     }
 
@@ -51,16 +51,16 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
 
     @NotNull
     @Override
-    public Mono<DevicesModel> getConnectedDevices(User user) {
+    public Mono<Devices> getConnectedDevices(User user) {
         return playerStateStorage.findByUserId(user.getId())
-                .map(PersistablePlayerState::getDevices)
+                .map(PersistablePlayerState::getDevicesEntity)
                 .map(DefaultStorageDeviceOperations::toDeviceModels)
-                .map(DevicesModel::of);
+                .map(Devices::of);
     }
 
     @NotNull
-    private static List<DeviceModel> toDeviceModels(Devices devices) {
-        return devices.stream().map(device -> DeviceModel.of(device.getId(), device.getName(), device.getDeviceType(), device.getVolume(), device.isActive())).toList();
+    private static List<Device> toDeviceModels(DevicesEntity devicesEntity) {
+        return devicesEntity.stream().map(device -> Device.of(device.getId(), device.getName(), device.getDeviceType(), device.getVolume(), device.isActive())).toList();
     }
 
     private static CurrentPlayerState convertToState(PersistablePlayerState state) {
@@ -71,28 +71,28 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
                 .shuffleState(state.getShuffleState())
                 .progressMs(state.getProgressMs())
                 .repeatState(state.getRepeatState())
-                .devices(toDevicesModel(state.getDevices()))
+                .devices(toDevicesModel(state.getDevicesEntity()))
                 .build();
     }
 
-    private static DevicesModel toDevicesModel(Devices devices) {
-        List<DeviceModel> deviceModels = devices.stream().map(DefaultStorageDeviceOperations::toDeviceModel).toList();
-        return DevicesModel.builder().devices(deviceModels).build();
+    private static Devices toDevicesModel(DevicesEntity devicesEntity) {
+        List<Device> deviceModels = devicesEntity.stream().map(DefaultStorageDeviceOperations::toDeviceModel).toList();
+        return Devices.builder().devices(deviceModels).build();
     }
 
-    private static DeviceModel toDeviceModel(Device device) {
-        return DeviceModel.builder()
-                .deviceId(device.getId())
-                .deviceName(device.getName())
-                .deviceType(device.getDeviceType())
-                .volume(device.getVolume())
-                .active(device.isActive())
+    private static Device toDeviceModel(DeviceEntity deviceEntity) {
+        return Device.builder()
+                .deviceId(deviceEntity.getId())
+                .deviceName(deviceEntity.getName())
+                .deviceType(deviceEntity.getDeviceType())
+                .volume(deviceEntity.getVolume())
+                .active(deviceEntity.isActive())
                 .build();
     }
 
-    private static InMemoryDevice createDevice(DeviceModel device, PersistablePlayerState state) {
+    private static InMemoryDeviceEntity createDevice(Device device, PersistablePlayerState state) {
         Boolean isActive = negate(containAnyActiveDevice(state));
-        return InMemoryDevice.builder()
+        return InMemoryDeviceEntity.builder()
                 .id(device.getDeviceId())
                 .name(device.getDeviceName())
                 .volume(device.getVolume())
@@ -102,6 +102,6 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
     }
 
     private static boolean containAnyActiveDevice(PersistablePlayerState state) {
-        return state.getDevices().stream().anyMatch(Device::isActive);
+        return state.getDevicesEntity().stream().anyMatch(DeviceEntity::isActive);
     }
 }

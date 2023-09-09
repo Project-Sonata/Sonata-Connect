@@ -1,7 +1,7 @@
 package com.odeyalo.sonata.connect;
 
-import com.odeyalo.sonata.connect.entity.InMemoryDevice;
-import com.odeyalo.sonata.connect.entity.InMemoryDevices;
+import com.odeyalo.sonata.connect.entity.InMemoryDeviceEntity;
+import com.odeyalo.sonata.connect.entity.InMemoryDevicesEntity;
 import com.odeyalo.sonata.connect.entity.InMemoryUserEntity;
 import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.model.DeviceType;
@@ -25,8 +25,8 @@ public class SonataConnectApplication {
     @Bean
     public ApplicationRunner runner(PlayerStateStorage playerStateStorage) {
         return args -> {
-            InMemoryDevices devices = InMemoryDevices.builder()
-                    .device(InMemoryDevice.builder()
+            InMemoryDevicesEntity devices = InMemoryDevicesEntity.builder()
+                    .device(InMemoryDeviceEntity.builder()
                             .id("something")
                             .name("Miku")
                             .deviceType(DeviceType.COMPUTER)
@@ -42,7 +42,7 @@ public class SonataConnectApplication {
                     .playingType(PlayingType.TRACK)
                     .repeatState(RepeatState.OFF)
                     .user(InMemoryUserEntity.builder().id("mikku").build())
-                    .devices(devices)
+                    .devicesEntity(devices)
                     .build();
             playerStateStorage.save(playerState).block();
         };

@@ -2,7 +2,7 @@ package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
-import com.odeyalo.sonata.connect.model.DeviceModel;
+import com.odeyalo.sonata.connect.model.Device;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.sync.PlayerSynchronizationManager;
 import com.odeyalo.sonata.connect.service.player.sync.event.PlayerStateUpdatedPlayerEvent;
@@ -58,7 +58,7 @@ public class EventPublisherPlayerOperationsDecorator implements BasicPlayerOpera
     private Mono<CurrentPlayerState> publishEvent(Tuple2<CurrentPlayerState, AuthenticatedUser> tuple) {
         CurrentPlayerState currentPlayerState = tuple.getT1();
         AuthenticatedUser authenticatedUser = tuple.getT2();
-        DeviceModel activeDevice = getActiveDevice(currentPlayerState);
+        Device activeDevice = getActiveDevice(currentPlayerState);
         if (activeDevice == null) {
             return Mono.just(currentPlayerState);
         }
@@ -66,7 +66,7 @@ public class EventPublisherPlayerOperationsDecorator implements BasicPlayerOpera
                 PlayerStateUpdatedPlayerEvent.of(currentPlayerState, activeDevice.getDeviceId())).thenReturn(currentPlayerState);
     }
 
-    private static DeviceModel getActiveDevice(CurrentPlayerState state) {
-        return state.getDevices().getDevices().stream().filter(DeviceModel::isActive).findFirst().orElse(null);
+    private static Device getActiveDevice(CurrentPlayerState state) {
+        return state.getDevices().getDevices().stream().filter(Device::isActive).findFirst().orElse(null);
     }
 }

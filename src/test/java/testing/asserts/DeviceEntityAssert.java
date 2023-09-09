@@ -1,19 +1,19 @@
 package testing.asserts;
 
-import com.odeyalo.sonata.connect.entity.Device;
+import com.odeyalo.sonata.connect.entity.DeviceEntity;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import org.assertj.core.api.AbstractAssert;
 import org.springframework.util.Assert;
 
 import static org.apache.commons.lang.BooleanUtils.isFalse;
 
-public class DeviceEntityAssert extends AbstractAssert<DeviceEntityAssert, Device> {
+public class DeviceEntityAssert extends AbstractAssert<DeviceEntityAssert, DeviceEntity> {
 
-    public DeviceEntityAssert(Device actual) {
+    public DeviceEntityAssert(DeviceEntity actual) {
         super(actual, DeviceEntityAssert.class);
     }
 
-    public static DeviceEntityAssert forDevice(Device actual) {
+    public static DeviceEntityAssert forDevice(DeviceEntity actual) {
         Assert.notNull(actual, "Actual must be not null");
         return new DeviceEntityAssert(actual);
     }

@@ -1,10 +1,9 @@
 package com.odeyalo.sonata.connect.repository.storage;
 
-import com.odeyalo.sonata.connect.entity.Devices;
+import com.odeyalo.sonata.connect.entity.DevicesEntity;
 import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
 import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.entity.UserEntity;
-import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
 import lombok.*;
@@ -25,7 +24,7 @@ public class PersistablePlayerState implements PlayerState {
     boolean shuffleState;
     Long progressMs;
     PlayingType playingType;
-    Devices devices;
+    DevicesEntity devicesEntity;
     UserEntity user;
     PlayableItemEntity currentlyPlayingItem;
 
@@ -39,13 +38,17 @@ public class PersistablePlayerState implements PlayerState {
         return playingType;
     }
 
-    @Override
-    public Devices getDevices() {
-        return devices;
+    public DevicesEntity getDevicesEntity() {
+        return devicesEntity;
     }
 
     @Override
     public PlayableItemEntity getCurrentlyPlayingItem() {
         return currentlyPlayingItem;
+    }
+
+    @Override
+    public DevicesEntity getDevices() {
+        return devicesEntity;
     }
 }

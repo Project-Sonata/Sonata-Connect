@@ -148,7 +148,7 @@ public class PlayResumeEndpointPlayerStateControllerTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class EmptyDeviceListTests {
+    class EmptyDeviceListTestsEntity {
 
         @Test
         void shouldReturnBadRequest() {

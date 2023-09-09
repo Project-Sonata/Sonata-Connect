@@ -32,7 +32,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
         repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
         ids = "com.odeyalo.sonata:authorization:+")
 @ActiveProfiles("test")
-public class DeviceSwitchPlayerControllerTests {
+public class DeviceEntitySwitchPlayerControllerTests {
     public static final String DEVICE_SWITCH_ENDPOINT = "/player/device/switch";
 
     @Autowired
@@ -54,7 +54,7 @@ public class DeviceSwitchPlayerControllerTests {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class EmptyDeviceListRequestTests {
+    class EmptyDeviceListRequestTestsEntity {
 
         @Test
         void shouldReturnBadRequest() {
@@ -90,7 +90,7 @@ public class DeviceSwitchPlayerControllerTests {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class NotExistingDeviceRegistryTests {
+    class NotExistingDeviceRegistryTestsEntity {
 
         @Test
         void shouldReturnUnprocessableEntityStatus() {
@@ -125,7 +125,7 @@ public class DeviceSwitchPlayerControllerTests {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class SingleDeviceSwitchTests {
+    class SingleDeviceSwitchTestsEntity {
         String activeDeviceId;
         String inactiveDeviceId;
 
@@ -192,7 +192,7 @@ public class DeviceSwitchPlayerControllerTests {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class MultipleDeviceIdsInBodyTests {
+    class MultipleDeviceIdsInBodyTestsEntity {
 
         @Test
         void shouldReturn400BadRequestStatusCode() {
