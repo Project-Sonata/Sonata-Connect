@@ -1,9 +1,6 @@
 package testing.shared;
 
-import com.odeyalo.sonata.connect.dto.AvailableDevicesResponseDto;
-import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
-import com.odeyalo.sonata.connect.dto.PlayResumePlaybackRequest;
-import com.odeyalo.sonata.connect.dto.PlayerStateDto;
+import com.odeyalo.sonata.connect.dto.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -65,5 +62,13 @@ public class WebTestClientSonataTestHttpOperations implements SonataTestHttpOper
                 })
                 .header(HttpHeaders.AUTHORIZATION, authorizationHeaderValue)
                 .exchange();
+    }
+
+    @Override
+    public void switchDevices(String authorizationHeaderValue, DeviceSwitchRequest body) {
+        webTestClient.put()
+                .uri("/player/device/switch")
+                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderValue)
+                .bodyValue(body);
     }
 }
