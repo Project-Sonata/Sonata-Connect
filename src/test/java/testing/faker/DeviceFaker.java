@@ -1,10 +1,8 @@
 package testing.faker;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.javafaker.Faker;
 import com.odeyalo.sonata.connect.entity.Device;
 import com.odeyalo.sonata.connect.entity.InMemoryDevice;
-import com.odeyalo.sonata.connect.entity.InMemoryPlayerState;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -41,6 +39,7 @@ public class DeviceFaker {
     public static DeviceFaker createActiveDevice() {
         return new DeviceFaker(true);
     }
+
     public static DeviceFaker createInactiveDevice() {
         return new DeviceFaker(false);
     }
