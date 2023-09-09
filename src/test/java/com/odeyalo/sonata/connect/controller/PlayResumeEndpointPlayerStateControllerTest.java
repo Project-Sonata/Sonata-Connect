@@ -51,7 +51,7 @@ public class PlayResumeEndpointPlayerStateControllerTest {
     }
 
     @Test
-    void shouldReturn204StatusWithBody() {
+    void shouldReturn204Status() {
         connectDevice();
 
         String trackUri = "sonata:track:cassie";
@@ -87,6 +87,20 @@ public class PlayResumeEndpointPlayerStateControllerTest {
 
         PlayerStateDtoAssert.forState(updatedState)
                 .shouldPlay();
+    }
+
+    @Test
+    void shouldUpdateCurrentlyPlayingType() {
+        connectDevice();
+
+        String trackUri = "sonata:track:cassie";
+
+        WebTestClient.ResponseSpec responseSpec = sendResumeEndpointRequest(PlayResumePlaybackRequest.of(trackUri));
+
+        PlayerStateDto updatedState = getCurrentState();
+
+        PlayerStateDtoAssert.forState(updatedState)
+                .currentlyPlayingType().track();
     }
 
     @Test

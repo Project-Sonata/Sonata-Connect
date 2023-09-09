@@ -1,6 +1,7 @@
 package com.odeyalo.sonata.connect.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
 import lombok.*;
@@ -26,5 +27,6 @@ public class CurrentlyPlayingPlayerStateDto {
     @JsonProperty("playing_item")
     PlayableItemDto currentlyPlayingItem;
     @JsonProperty("devices")
+    @JsonUnwrapped
     DevicesDto devices;
 }

@@ -3,9 +3,13 @@ package com.odeyalo.sonata.connect.service.player.handler;
 import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.common.context.ContextUriParser;
 import com.odeyalo.sonata.common.context.MalformedContextUriException;
+import com.odeyalo.sonata.connect.entity.CommonPlayableItemEntity;
+import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
 import com.odeyalo.sonata.connect.entity.TrackItemEntity;
 import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
+import com.odeyalo.sonata.connect.model.PlayableItem;
+import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
@@ -60,12 +64,13 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
     private Mono<PersistablePlayerState> save(PlayCommandContext context, PersistablePlayerState state) throws MalformedContextUriException {
         ContextUri contextUri = contextUriParser.parse(context.getContextUri());
         return playableItemResolver.resolveItem(contextUri, context, state)
-                .flatMap(item -> updateAndSave(state, contextUri));
+                .flatMap(item -> updateAndSave(state, item));
     }
 
-    private Mono<PersistablePlayerState> updateAndSave(PersistablePlayerState state, ContextUri contextUri) {
-        String trackId = contextUri.getEntityId();
-        state.setCurrentlyPlayingItem(TrackItemEntity.of(trackId));
+    private Mono<PersistablePlayerState> updateAndSave(PersistablePlayerState state, PlayableItem item) {
+        CommonPlayableItemEntity playingItem = CommonPlayableItemEntity.of(item.getId(), item.getItemType());
+        state.setCurrentlyPlayingItem(playingItem);
+        state.setPlayingType(PlayingType.valueOf(item.getItemType().name()));
         state.setPlaying(true);
         return playerStateStorage.save(state);
     }
