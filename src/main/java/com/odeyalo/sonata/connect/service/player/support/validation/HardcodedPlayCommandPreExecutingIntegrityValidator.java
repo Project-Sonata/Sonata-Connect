@@ -16,7 +16,7 @@ public class HardcodedPlayCommandPreExecutingIntegrityValidator implements PlayC
 
     @Override
     public Mono<PlayCommandIntegrityValidationResult> validate(PlayCommandContext context, PersistablePlayerState currentState) {
-        if (currentState.getDevices().size() == 0) {
+        if (currentState.getDevicesEntity().size() == 0) {
             NoActiveDeviceException ex = new NoActiveDeviceException("There is no active device");
             return Mono.just(PlayCommandIntegrityValidationResult.invalid(ex));
         }

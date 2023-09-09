@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public interface Devices extends Iterable<Device> {
+public interface DevicesEntity extends Iterable<DeviceEntity> {
 
-    List<Device> getDevices();
+    List<DeviceEntity> getDevices();
 
-    default List<Device> getActiveDevices() {
-        return new ArrayList<>(getDevices().stream().filter(Device::isActive).toList());
+    default List<DeviceEntity> getActiveDevices() {
+        return new ArrayList<>(getDevices().stream().filter(DeviceEntity::isActive).toList());
     }
 
     default boolean isEmpty() {
@@ -22,11 +22,11 @@ public interface Devices extends Iterable<Device> {
         return getDevices().size();
     }
 
-    default void addDevice(Device device) {
-        getDevices().add(device);
+    default void addDevice(DeviceEntity deviceEntity) {
+        getDevices().add(deviceEntity);
     }
 
-    default Device getDevice(int index) {
+    default DeviceEntity getDevice(int index) {
         return getDevices().get(index);
     }
 
@@ -34,16 +34,16 @@ public interface Devices extends Iterable<Device> {
         getDevices().remove(index);
     }
 
-    default void removeIf(Predicate<Device> predicate) {
+    default void removeIf(Predicate<DeviceEntity> predicate) {
         getDevices().removeIf(predicate);
     }
 
-    default Stream<Device> stream() {
+    default Stream<DeviceEntity> stream() {
         return getDevices().stream();
     }
 
     @Override
-    default Iterator<Device> iterator() {
+    default Iterator<DeviceEntity> iterator() {
         return getDevices().iterator();
     }
 }

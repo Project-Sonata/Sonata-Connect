@@ -1,6 +1,6 @@
 ## Sonata-Connect
 
-Synchronize all your devices, control playback and switch between devices in one click!
+Synchronize all your devicesEntity, control playback and switch between devicesEntity in one click!
 
 # How it works?
 
@@ -13,9 +13,9 @@ Available endpoints:
 
 ``GET /player/state - get the current playback state``
 
-``PUT /player/playback/change - transfer playback to the another device``
+``PUT /player/playback/change - transfer playback to the another deviceEntity``
 
-``GET /player/devices - get the devices that available now``
+``GET /player/devicesEntity - get the devicesEntity that available now``
 
 ``GET /player/currently-playing - get the currently playing track``
 

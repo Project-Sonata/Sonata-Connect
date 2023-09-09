@@ -1,6 +1,6 @@
 package com.odeyalo.sonata.connect.service.support.factory;
 
-import com.odeyalo.sonata.connect.entity.InMemoryDevices;
+import com.odeyalo.sonata.connect.entity.InMemoryDevicesEntity;
 import com.odeyalo.sonata.connect.entity.InMemoryUserEntity;
 import com.odeyalo.sonata.connect.model.RepeatState;
 import com.odeyalo.sonata.connect.model.User;
@@ -19,7 +19,7 @@ public class PersistablePlayerStateFactory {
                 .progressMs(-1L)
                 .playingType(null)
                 .playing(false)
-                .devices(InMemoryDevices.empty())
+                .devicesEntity(InMemoryDevicesEntity.empty())
                 .currentlyPlayingItem(null)
                 .build();
     }

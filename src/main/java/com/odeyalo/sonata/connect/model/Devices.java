@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 @Value
 @AllArgsConstructor(staticName = "of")
 @Builder
-public class DevicesModel {
-    List<DeviceModel> devices;
+public class Devices {
+    List<Device> devices;
 
     public boolean isEmpty() {
         return devices.isEmpty();
@@ -21,15 +21,15 @@ public class DevicesModel {
         return devices.size();
     }
 
-    public DeviceModel get(int index) {
+    public Device get(int index) {
         return devices.get(index);
     }
 
-    public void addDevice(DeviceModel device) {
+    public void addDevice(Device device) {
         this.devices.add(device);
     }
 
-    public Stream<DeviceModel> stream() {
+    public Stream<Device> stream() {
         return devices.stream();
     }
 }

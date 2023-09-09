@@ -9,14 +9,14 @@ import lombok.experimental.FieldDefaults;
 @Data
 @Builder(toBuilder = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class InMemoryDevice implements Device {
+public class InMemoryDeviceEntity implements DeviceEntity {
     String id;
     String name;
     DeviceType deviceType;
     int volume;
     boolean active;
 
-    public static InMemoryDevice copy(Device device) {
-        return new InMemoryDevice(device.getId(), device.getName(), device.getDeviceType(), device.getVolume(), device.isActive());
+    public static InMemoryDeviceEntity copy(DeviceEntity deviceEntity) {
+        return new InMemoryDeviceEntity(deviceEntity.getId(), deviceEntity.getName(), deviceEntity.getDeviceType(), deviceEntity.getVolume(), deviceEntity.isActive());
     }
 }

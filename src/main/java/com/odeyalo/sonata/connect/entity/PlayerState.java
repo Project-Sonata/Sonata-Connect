@@ -49,7 +49,7 @@ public interface PlayerState {
     /**
      * @return Devices associated with current player
      */
-    Devices getDevices();
+    DevicesEntity getDevices();
 
     /**
      * @return Owner of the player

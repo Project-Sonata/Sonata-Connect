@@ -1,6 +1,6 @@
 package testing.asserts;
 
-import com.odeyalo.sonata.connect.entity.Devices;
+import com.odeyalo.sonata.connect.entity.DevicesEntity;
 import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.model.RepeatState;
 import org.assertj.core.api.AbstractAssert;
@@ -82,7 +82,7 @@ public class PlayerStateAssert extends AbstractAssert<PlayerStateAssert, PlayerS
     public static class DevicesEntityAssertWrapper extends DevicesEntityAssert implements ParentAssertAware {
         private final PlayerStateAssert parent;
 
-        protected DevicesEntityAssertWrapper(Devices actual, PlayerStateAssert parent) {
+        protected DevicesEntityAssertWrapper(DevicesEntity actual, PlayerStateAssert parent) {
             super(actual);
             this.parent = parent;
         }

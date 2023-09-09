@@ -35,7 +35,7 @@ class DefaultPlayerOperationsTest {
 
     RepositoryDelegatePlayerStateStorage storage = new RepositoryDelegatePlayerStateStorage(new InMemoryPlayerStateRepository(), new InMemory2PersistablePlayerStateConverter());
     PersistablePlayerState2CurrentPlayerStateConverter converter = new PersistablePlayerState2CurrentPlayerStateConverter(
-            new DevicesToDevicesModelConverter(new Device2DeviceModelConverter()),
+            new DevicesEntity2DevicesConverter(new DeviceEntity2DeviceConverter()),
             new PlayableItemEntity2PlayableItemConverter());
 
     DefaultPlayerOperations playerOperations = new DefaultPlayerOperations(
@@ -215,7 +215,7 @@ class DefaultPlayerOperationsTest {
         @Disabled("Disabled because I am too lazy to assert it now, will do it later")
         void shouldReturnDevices() {
             saveAndCompareActualWithExpected(
-                    (expected, actual) -> assertThat(expected.getDevices()).isEqualTo(actual.getDevices())
+                    (expected, actual) -> assertThat(expected.getDevicesEntity()).isEqualTo(actual.getDevices())
             );
         }
 
@@ -370,7 +370,7 @@ class DefaultPlayerOperationsTest {
 
         @NotNull
         @Override
-        public Mono<CurrentPlayerState> addDevice(User user, DeviceModel device) {
+        public Mono<CurrentPlayerState> addDevice(User user, Device device) {
             return Mono.empty();
         }
 
@@ -388,7 +388,7 @@ class DefaultPlayerOperationsTest {
 
         @NotNull
         @Override
-        public Mono<DevicesModel> getConnectedDevices(User user) {
+        public Mono<Devices> getConnectedDevices(User user) {
             return Mono.empty();
         }
     }

@@ -2,14 +2,14 @@ package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.connect.dto.CurrentlyPlayingPlayerStateDto;
 import com.odeyalo.sonata.connect.dto.DevicesDto;
-import com.odeyalo.sonata.connect.entity.Devices;
+import com.odeyalo.sonata.connect.entity.DevicesEntity;
 import com.odeyalo.sonata.connect.entity.InMemoryUserEntity;
 import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
-import com.odeyalo.sonata.connect.model.DevicesModel;
+import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
-import com.odeyalo.sonata.connect.service.support.mapper.DevicesToDevicesModelConverter;
-import com.odeyalo.sonata.connect.service.support.mapper.dto.DevicesModel2DevicesDtoConverter;
+import com.odeyalo.sonata.connect.service.support.mapper.DevicesEntity2DevicesConverter;
+import com.odeyalo.sonata.connect.service.support.mapper.dto.Devices2DevicesDtoConverter;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -42,9 +42,9 @@ public class CurrentlyPlayingPlayerStateControllerTest {
     PlayerStateStorage playerStateStorage;
 
     @Autowired
-    DevicesToDevicesModelConverter devicesToDevicesModelConverter;
+    DevicesEntity2DevicesConverter devicesEntity2DevicesConverter;
     @Autowired
-    DevicesModel2DevicesDtoConverter devicesDtoConverter;
+    Devices2DevicesDtoConverter devicesDtoConverter;
 
     final String VALID_ACCESS_TOKEN = "Bearer mikunakanoisthebestgirl";
     final String VALID_USER_ID = "1";
@@ -133,14 +133,14 @@ public class CurrentlyPlayingPlayerStateControllerTest {
 
         @Test
         void shouldReturnAvailableDevices() {
-            Devices expectedDevices = expectedState.getDevices();
+            DevicesEntity expectedDevicesEntity = expectedState.getDevicesEntity();
 
             CurrentlyPlayingPlayerStateDto body = sendAndGetBody();
 
             CurrentlyPlayingPlayerStateDtoAssert.forBody(body)
-                            .devices().length(expectedDevices.size());
+                            .devices().length(expectedDevicesEntity.size());
 
-            DevicesModel model = devicesToDevicesModelConverter.convertTo(expectedDevices);
+            Devices model = devicesEntity2DevicesConverter.convertTo(expectedDevicesEntity);
 
             DevicesDto dto = devicesDtoConverter.convertTo(model);
 

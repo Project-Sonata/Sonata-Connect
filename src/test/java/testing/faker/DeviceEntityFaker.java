@@ -1,8 +1,8 @@
 package testing.faker;
 
 import com.github.javafaker.Faker;
-import com.odeyalo.sonata.connect.entity.Device;
-import com.odeyalo.sonata.connect.entity.InMemoryDevice;
+import com.odeyalo.sonata.connect.entity.DeviceEntity;
+import com.odeyalo.sonata.connect.entity.InMemoryDeviceEntity;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -10,7 +10,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 @Setter
 @Accessors(chain = true)
-public class DeviceFaker {
+public class DeviceEntityFaker {
     String deviceId;
     String deviceName;
     DeviceType deviceType;
@@ -20,11 +20,11 @@ public class DeviceFaker {
 
     static final Faker faker = Faker.instance();
 
-    protected DeviceFaker() {
+    protected DeviceEntityFaker() {
         this(faker.random().nextBoolean());
     }
 
-    protected DeviceFaker(boolean active) {
+    protected DeviceEntityFaker(boolean active) {
         this.deviceId = RandomStringUtils.randomAlphanumeric(10);
         this.deviceName = RandomStringUtils.randomAlphabetic(15);
         this.deviceType = faker.options().option(DeviceType.class);
@@ -32,28 +32,28 @@ public class DeviceFaker {
         this.active = active;
     }
 
-    public static DeviceFaker create() {
-        return new DeviceFaker();
+    public static DeviceEntityFaker create() {
+        return new DeviceEntityFaker();
     }
 
-    public static DeviceFaker createActiveDevice() {
-        return new DeviceFaker(true);
+    public static DeviceEntityFaker createActiveDevice() {
+        return new DeviceEntityFaker(true);
     }
 
-    public static DeviceFaker createInactiveDevice() {
-        return new DeviceFaker(false);
+    public static DeviceEntityFaker createInactiveDevice() {
+        return new DeviceEntityFaker(false);
     }
 
-    public Device get() {
+    public DeviceEntity get() {
         return buildInMemoryDevice();
     }
 
-    public Device asInMemoryDevice() {
+    public DeviceEntity asInMemoryDevice() {
         return buildInMemoryDevice();
     }
 
-    private InMemoryDevice buildInMemoryDevice() {
-        return InMemoryDevice
+    private InMemoryDeviceEntity buildInMemoryDevice() {
+        return InMemoryDeviceEntity
                 .builder()
                 .id(deviceId)
                 .name(deviceName)

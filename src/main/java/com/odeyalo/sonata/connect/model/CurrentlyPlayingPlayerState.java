@@ -16,5 +16,5 @@ public class CurrentlyPlayingPlayerState {
     PlayingType currentlyPlayingType;
     RepeatState repeatState;
     PlayableItem playableItem;
-    DevicesModel devices;
+    Devices devices;
 }

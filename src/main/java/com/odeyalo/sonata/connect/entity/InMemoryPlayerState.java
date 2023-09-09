@@ -17,7 +17,7 @@ public class InMemoryPlayerState implements PlayerState {
     boolean shuffleState;
     Long progressMs;
     PlayingType playingType;
-    Devices devices;
+    DevicesEntity devicesEntity;
     UserEntity user;
     PlayableItemEntity currentlyPlayingItem;
 
@@ -31,13 +31,17 @@ public class InMemoryPlayerState implements PlayerState {
         return playingType;
     }
 
-    @Override
-    public Devices getDevices() {
-        return devices;
+    public DevicesEntity getDevicesEntity() {
+        return devicesEntity;
     }
 
     @Override
     public PlayableItemEntity getCurrentlyPlayingItem() {
         return currentlyPlayingItem;
+    }
+
+    @Override
+    public DevicesEntity getDevices() {
+        return devicesEntity;
     }
 }

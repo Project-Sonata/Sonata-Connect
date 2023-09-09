@@ -6,7 +6,6 @@ import com.odeyalo.sonata.connect.entity.*;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
-import com.odeyalo.sonata.connect.model.TrackItem;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
 import org.junit.jupiter.api.*;
@@ -20,7 +19,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
 import testing.asserts.PlayerStateDtoAssert;
-import testing.faker.DeviceFaker;
+import testing.faker.DeviceEntityFaker;
 import testing.faker.PlayerStateFaker;
 import testing.faker.UserEntityFaker;
 
@@ -55,8 +54,8 @@ class CurrentPlayerStatePlayerControllerTest {
 
         @BeforeAll
         void prepareData() {
-            InMemoryDevices devices = InMemoryDevices.builder()
-                    .device(DeviceFaker.create()
+            InMemoryDevicesEntity devices = InMemoryDevicesEntity.builder()
+                    .device(DeviceEntityFaker.create()
                             .setDeviceId("something")
                             .setDeviceName("Miku")
                             .setDeviceType(DeviceType.COMPUTER)
@@ -73,7 +72,7 @@ class CurrentPlayerStatePlayerControllerTest {
                     .setPlaying(true)
                     .setPlayingType(PlayingType.TRACK)
                     .setRepeatState(RepeatState.OFF)
-                    .setDevices(devices)
+                    .setDevicesEntity(devices)
                     .setUser(user)
                     .setPlayingItem(TrackItemEntity.of("mikuyouaremyqueen"))
                     .asPersistablePlayerState();

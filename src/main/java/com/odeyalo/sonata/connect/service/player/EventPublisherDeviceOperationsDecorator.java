@@ -1,8 +1,8 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.DeviceModel;
-import com.odeyalo.sonata.connect.model.DevicesModel;
+import com.odeyalo.sonata.connect.model.Device;
+import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.sync.PlayerSynchronizationManager;
 import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
@@ -27,7 +27,7 @@ public class EventPublisherDeviceOperationsDecorator implements DeviceOperations
 
     @NotNull
     @Override
-    public Mono<CurrentPlayerState> addDevice(User user, DeviceModel device) {
+    public Mono<CurrentPlayerState> addDevice(User user, Device device) {
         return delegate.addDevice(user, device)
                 .zipWith(ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication).cast(AuthenticatedUser.class))
                 .flatMap(tuple -> {
@@ -52,7 +52,7 @@ public class EventPublisherDeviceOperationsDecorator implements DeviceOperations
 
     @NotNull
     @Override
-    public Mono<DevicesModel> getConnectedDevices(User user) {
+    public Mono<Devices> getConnectedDevices(User user) {
         return delegate.getConnectedDevices(user);
     }
 }

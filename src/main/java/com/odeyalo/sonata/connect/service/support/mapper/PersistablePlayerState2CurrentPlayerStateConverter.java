@@ -1,9 +1,9 @@
 package com.odeyalo.sonata.connect.service.support.mapper;
 
-import com.odeyalo.sonata.connect.entity.Devices;
+import com.odeyalo.sonata.connect.entity.DevicesEntity;
 import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.DevicesModel;
+import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import org.springframework.stereotype.Component;
@@ -13,10 +13,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class PersistablePlayerState2CurrentPlayerStateConverter implements Converter<PersistablePlayerState, CurrentPlayerState> {
-    private final DevicesToDevicesModelConverter devicesConverterSupport;
+    private final DevicesEntity2DevicesConverter devicesConverterSupport;
     private final PlayableItemEntity2PlayableItemConverter playableItemConverterSupport;
 
-    public PersistablePlayerState2CurrentPlayerStateConverter(DevicesToDevicesModelConverter devicesConverter,
+    public PersistablePlayerState2CurrentPlayerStateConverter(DevicesEntity2DevicesConverter devicesConverter,
                                                               PlayableItemEntity2PlayableItemConverter playableItemConverter) {
         this.devicesConverterSupport = devicesConverter;
         this.playableItemConverterSupport = playableItemConverter;
@@ -31,7 +31,7 @@ public class PersistablePlayerState2CurrentPlayerStateConverter implements Conve
                 .shuffleState(state.getShuffleState())
                 .progressMs(state.getProgressMs())
                 .repeatState(state.getRepeatState())
-                .devices(toDevicesModel(state.getDevices()))
+                .devices(toDevicesModel(state.getDevicesEntity()))
                 .playableItem(toPlayableItem(state))
                 .build();
     }
@@ -41,7 +41,7 @@ public class PersistablePlayerState2CurrentPlayerStateConverter implements Conve
         return item != null ? playableItemConverterSupport.convertTo(item) : null;
     }
 
-    private DevicesModel toDevicesModel(Devices devices) {
-        return devicesConverterSupport.convertTo(devices);
+    private Devices toDevicesModel(DevicesEntity devicesEntity) {
+        return devicesConverterSupport.convertTo(devicesEntity);
     }
 }
