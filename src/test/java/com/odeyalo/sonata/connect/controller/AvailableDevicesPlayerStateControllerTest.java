@@ -28,7 +28,7 @@ import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerPro
         repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
         ids = "com.odeyalo.sonata:authorization:+")
 @TestPropertySource(locations = "classpath:application-test.properties")
-public class AvailableDevicesPlayerStateControllerTestEntity {
+public class AvailableDevicesPlayerStateControllerTest {
 
     @Autowired
     WebTestClient webTestClient;
