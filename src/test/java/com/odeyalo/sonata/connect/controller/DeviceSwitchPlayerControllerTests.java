@@ -14,7 +14,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
 import testing.asserts.AvailableDevicesResponseDtoAssert;
 import testing.asserts.ExceptionMessageAssert;
-import testing.asserts.PlayerStateDtoAssert;
+import testing.asserts.ReasonCodeAwareExceptionMessageAssert;
 import testing.faker.ConnectDeviceRequestFaker;
 import testing.shared.SonataTestHttpOperations;
 import testing.spring.autoconfigure.AutoConfigureSonataHttpClient;
@@ -33,8 +33,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
         ids = "com.odeyalo.sonata:authorization:+")
 @ActiveProfiles("test")
 public class DeviceSwitchPlayerControllerTests {
-
     public static final String DEVICE_SWITCH_ENDPOINT = "/player/device/switch";
+
     @Autowired
     WebTestClient webTestClient;
 
@@ -50,6 +50,42 @@ public class DeviceSwitchPlayerControllerTests {
     @BeforeAll
     void setup() {
         Hooks.onOperatorDebug(); // DO NOT DELETE IT, VERY IMPORTANT LINE, WITHOUT IT FEIGN WITH WIREMOCK THROWS ILLEGAL STATE EXCEPTION, I DON'T FIND SOLUTION YET
+    }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    class EmptyDeviceListRequestTests {
+
+        @Test
+        void shouldReturnBadRequest() {
+            WebTestClient.ResponseSpec responseSpec = prepareAndSend();
+            responseSpec.expectStatus().isBadRequest();
+        }
+
+        @Test
+        void shouldReturnExceptionReason() {
+            WebTestClient.ResponseSpec responseSpec = prepareAndSend();
+
+            ReasonCodeAwareExceptionMessage body = responseSpec.expectBody(ReasonCodeAwareExceptionMessage.class).returnResult().getResponseBody();
+
+            ReasonCodeAwareExceptionMessageAssert.forMessage(body).reasonCode().isEqualTo("target_device_required");
+        }
+
+        @Test
+        void shouldReturnMessage() {
+            WebTestClient.ResponseSpec responseSpec = prepareAndSend();
+
+            ReasonCodeAwareExceptionMessage body = responseSpec.expectBody(ReasonCodeAwareExceptionMessage.class).returnResult().getResponseBody();
+
+            ReasonCodeAwareExceptionMessageAssert.forMessage(body).description().isEqualTo("Target device is required!");
+        }
+
+        @NotNull
+        private WebTestClient.ResponseSpec prepareAndSend() {
+            DeviceSwitchRequest body = DeviceSwitchRequest.of(new String[0]);
+
+            return sendRequest(body, VALID_ACCESS_TOKEN);
+        }
     }
 
     @Nested
@@ -76,7 +112,7 @@ public class DeviceSwitchPlayerControllerTests {
 
             ExceptionMessage message = responseSpec.expectBody(ExceptionMessage.class).returnResult().getResponseBody();
 
-            ExceptionMessageAssert.forMessage(message).isDescriptionEqualTo("Device not found");
+            ExceptionMessageAssert.forMessage(message).isDescriptionEqualTo("Device with provided ID was not found!");
         }
 
         @NotNull
@@ -153,7 +189,7 @@ public class DeviceSwitchPlayerControllerTests {
             return sendRequest(body, VALID_ACCESS_TOKEN);
         }
     }
-    // TODO: tests are done, implement logic
+
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class MultipleDeviceIdsInBodyTests {
@@ -165,6 +201,18 @@ public class DeviceSwitchPlayerControllerTests {
             WebTestClient.ResponseSpec responseSpec = sendRequest(body, VALID_ACCESS_TOKEN);
 
             responseSpec.expectStatus().isBadRequest();
+        }
+
+        @Test
+        void shouldContainMessage() {
+            DeviceSwitchRequest body = DeviceSwitchRequest.of(
+                    new String[]{"something", "ilovemiku", "thirddeviceid"});
+            WebTestClient.ResponseSpec responseSpec = sendRequest(body, VALID_ACCESS_TOKEN);
+
+            ExceptionMessage message = responseSpec.expectBody(ExceptionMessage.class).returnResult().getResponseBody();
+
+            ExceptionMessageAssert.forMessage(message)
+                    .isDescriptionEqualTo("One and only one deviceId should be provided. More than one is not supported now");
         }
     }
 
