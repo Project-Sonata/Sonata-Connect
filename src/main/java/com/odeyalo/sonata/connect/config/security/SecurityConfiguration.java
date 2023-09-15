@@ -1,6 +1,7 @@
 package com.odeyalo.sonata.connect.config.security;
 
-import com.odeyalo.sonata.suite.reactive.annotation.EnableSuiteReactive;
+import com.odeyalo.sonata.connect.config.security.configurer.HttpRequestServerWebExchangeMatcher;
+import com.odeyalo.sonata.connect.config.security.configurer.WebSocketServerWebExchangeMatcher;
 import com.odeyalo.suite.security.annotation.EnableSuiteSecurity;
 import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +29,35 @@ public class SecurityConfiguration {
     Customizer<ServerHttpSecurity.CsrfSpec> csrfSpecCustomizer;
     @Autowired
     AuthenticationWebFilter authenticationManagerFilter;
+    @Autowired
+    HttpRequestServerWebExchangeMatcher httpRequestServerWebExchangeMatcher;
+    @Autowired
+    WebSocketServerWebExchangeMatcher webSocketServerWebExchangeMatcher;
 
     @Bean
     public SecurityWebFilterChain defaultFilterChain(ServerHttpSecurity httpSecurity) {
-        return httpSecurity.authorizeExchange(authorizeExchangeSpecCustomizer)
+        return httpSecurity
+                .securityMatcher(httpRequestServerWebExchangeMatcher)
+                .authorizeExchange(authorizeExchangeSpecCustomizer)
                 .cors(corsSpecCustomizer)
                 .csrf(csrfSpecCustomizer)
                 .exceptionHandling(exceptionHandlingSpecCustomizer)
                 .addFilterAt(authenticationManagerFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
     }
+
+    @Bean
+    public SecurityWebFilterChain webSocketFilterChain(ServerHttpSecurity httpSecurity) {
+        return httpSecurity
+                .securityMatcher(webSocketServerWebExchangeMatcher)
+                .addFilterAfter(authenticationManagerFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .authorizeExchange(authorizeExchangeSpecCustomizer)
+                .cors(corsSpecCustomizer)
+                .csrf(csrfSpecCustomizer)
+                .exceptionHandling(exceptionHandlingSpecCustomizer)
+                .build();
+    }
+
+
 }
 

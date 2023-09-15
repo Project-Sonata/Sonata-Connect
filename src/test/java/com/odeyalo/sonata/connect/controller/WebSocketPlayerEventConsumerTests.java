@@ -57,7 +57,7 @@ public class WebSocketPlayerEventConsumerTests {
     int port;
 
 
-    final String VALID_ACCESS_TOKEN = "Bearer mikunakanoisthebestgirl";
+    final String VALID_ACCESS_TOKEN = "mikunakanoisthebestgirl";
     final String VALID_USER_ID = "1";
 
     @BeforeAll
@@ -70,120 +70,14 @@ public class WebSocketPlayerEventConsumerTests {
         connectToWs(WebSocketSession::close);
     }
 
-    @Test
-    @Disabled("THIS TEST WORKS RANDOM IDK HOW TO FIX IT")
-    void shouldSendEventIfPlayCommandWasTriggered() {
-        AtomicReference<List<String>> receivedMessages = new AtomicReference<>();
-
-        URI wsUri = URI.create(buildUri());
-        LinkedMultiValueMap<String, String> headers = enhanceHeaders();
-        sonataHttpOperations.connectDevice(VALID_ACCESS_TOKEN, ConnectDeviceRequestFaker.create().get());
-
-        webSocketClient.execute(wsUri,
-                        readOnlyHttpHeaders(headers),
-                        messageConsumer(1, receivedMessages))
-                .and(Mono.fromRunnable(this::resumePlayback))
-                .block(Duration.ofSeconds(5));
-
-        assertThat(receivedMessages.get()).hasSize(1);
-    }
-
-    @Test
-    @Disabled("Don't know how to consume messages from 2 different clients")
-    void shouldSendEventIfPlayCommandWasTriggeredForSpecificRoom() {
-        AtomicReference<List<String>> receivedMessagesClient1 = new AtomicReference<>();
-        AtomicReference<List<String>> receivedMessagesClient2 = new AtomicReference<>();
-
-        URI wsUri = URI.create(buildUri());
-        LinkedMultiValueMap<String, String> headers = enhanceHeaders();
-        sonataHttpOperations.connectDevice(VALID_ACCESS_TOKEN, ConnectDeviceRequestFaker.create().get());
-//
-        Mono.fromRunnable(() -> {
-            System.out.println("Send message");
-                    resumePlayback();
-                    System.out.println("Sent message");
-                }).and(
-                        webSocketClient.execute(wsUri,
-                                        readOnlyHttpHeaders(headers),
-                                        messageConsumer(1, receivedMessagesClient1)
-                                ).doOnSuccess(sub -> System.out.println("Сompleted subcriber 1"))
-                                .zipWith(webSocketClient.execute(wsUri,
-                                                readOnlyHttpHeaders(headers),
-                                                messageConsumer(1, receivedMessagesClient2))
-                                        .doOnSuccess(sub -> System.out.println("Сompleted subcriber 2"))))
-                .block(Duration.ofSeconds(5));
-
-        assertThat(receivedMessagesClient2.get()).hasSize(1);
-        assertThat(receivedMessagesClient1.get()).hasSize(1);
-    }
-
-    @Test
-    @Disabled("Disabled because it was written for example only and will be rewritten later")
-    void shouldReceiveEvents() {
-
-        Flux<String> input = Flux.just("Hello", "World", "I", "Love", "Miku");
-        AtomicReference<List<String>> receivedMessagesClient1 = new AtomicReference<>();
-        AtomicReference<List<String>> receivedMessagesClient2 = new AtomicReference<>();
-        LinkedMultiValueMap<String, String> headers = enhanceHeaders();
-        URI wsUri = URI.create(buildUri());
-        // HTTP CALL TO PLAY -> UPDATE STATE AND NOTIFY SUBSCRIBERS
-
-        sonataHttpOperations.connectDevice(VALID_ACCESS_TOKEN, ConnectDeviceRequestFaker.create().get());
-
-        webSocketClient.execute(wsUri,
-                        readOnlyHttpHeaders(headers),
-                        messageConsumer(1, receivedMessagesClient1))
-
-                .and(webSocketClient.execute(wsUri,
-                        readOnlyHttpHeaders(headers),
-                        messageConsumer(1, receivedMessagesClient2)))
-                .and(Mono.fromRunnable(this::resumePlayback).then())
-                .block(Duration.ofSeconds(5));
-
-        assertThat(receivedMessagesClient1.get()).hasSize(5);
-        assertThat(receivedMessagesClient2.get()).hasSize(5);
-    }
-
-    private void resumePlayback() {
-        sonataHttpOperations.playOrResumePlayback(VALID_ACCESS_TOKEN, PlayResumePlaybackRequest.of("sonata:track:miku"));
-        System.out.println("resumed playback");
-    }
-
-    @NotNull
-    private static WebSocketHandler messageConsumer(int take, AtomicReference<List<String>> messageReference) {
-        return (session) -> session.receive()
-                .take(take)
-                .map(WebSocketMessage::getPayloadAsText)
-                .doOnNext(payload -> System.out.println("REceived: " + payload + " " + session.getId()))
-                .collectList()
-                .doOnNext(messageReference::set)
-                .then();
-    }
-
-    @NotNull
-    private static WebSocketHandler messageProducer(Flux<String> input) {
-        return (session) -> session.send(input.map(session::textMessage)
-                .doOnNext(text -> System.out.println("Emitted data " + text)));
-    }
-
     private void connectToWs(WebSocketHandler handler) {
         String uriString = buildUri();
-        LinkedMultiValueMap<String, String> headers = enhanceHeaders();
 
-        webSocketClient.execute(URI.create(uriString),
-                        readOnlyHttpHeaders(headers),
-                        handler)
+        webSocketClient.execute(URI.create(uriString), handler)
                 .block(Duration.ofSeconds(5));
-    }
-
-    @NotNull
-    private LinkedMultiValueMap<String, String> enhanceHeaders() {
-        LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.add(HttpHeaders.AUTHORIZATION, VALID_ACCESS_TOKEN);
-        return headers;
     }
 
     private String buildUri() {
-        return String.format("ws://localhost:%s/v1/player/sync", port);
+        return String.format("ws://localhost:%s/v1/player/sync?token=%s", port, VALID_ACCESS_TOKEN);
     }
 }
