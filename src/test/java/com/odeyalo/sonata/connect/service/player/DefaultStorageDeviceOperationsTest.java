@@ -13,10 +13,7 @@ import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.handler.SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
-import com.odeyalo.sonata.connect.service.support.mapper.DeviceEntity2DeviceConverter;
-import com.odeyalo.sonata.connect.service.support.mapper.DevicesEntity2DevicesConverter;
-import com.odeyalo.sonata.connect.service.support.mapper.PlayableItemEntity2PlayableItemConverter;
-import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
+import com.odeyalo.sonata.connect.service.support.mapper.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import testing.asserts.DevicesAssert;
@@ -42,7 +39,8 @@ class DefaultStorageDeviceOperationsTest {
 
     DefaultStorageDeviceOperations operations = new DefaultStorageDeviceOperations(playerStateRepository,
             new SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate(playerStateRepository, playerStateConverter), playerStateConverter,
-            new DevicesEntity2DevicesConverter(new DeviceEntity2DeviceConverter()));
+            new DevicesEntity2DevicesConverter(new DeviceEntity2DeviceConverter()),
+            new Device2DeviceEntityConverter());
 
     User user;
     DeviceEntity activeDeviceEntity;
