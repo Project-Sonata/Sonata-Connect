@@ -73,12 +73,38 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
         return get(index);
     }
 
+    public void removeDevice(String deviceId) {
+        Assert.notNull(deviceId, "Device ID cannot be null!");
+        getDevices().removeIf((device) -> Objects.equals(device.getId(), deviceId));
+    }
+
     public boolean hasActiveDevice() {
         return items.stream().anyMatch(DeviceEntity::isActive);
     }
 
     public boolean hasNotActiveDevice() {
         return negate(hasActiveDevice());
+    }
+
+    public void deactivateDevice(DeviceEntity deviceToDeactivate) {
+        removeDevice(deviceToDeactivate.getId());
+        deviceToDeactivate.setActive(false);
+        addDevice(deviceToDeactivate);
+    }
+
+    public void activateDevice(DeviceEntity deviceToActivate) {
+        removeDevice(deviceToActivate.getId());
+        deviceToActivate.setActive(true);
+        addDevice(deviceToActivate);
+    }
+    public boolean containsById(String expectedId) {
+        return getDevices().stream().anyMatch(device -> Objects.equals(device.getId(), expectedId));
+    }
+
+    public Optional<DeviceEntity> findById(String expectedId) {
+        return getDevices().stream()
+                .filter(deviceEntity -> Objects.equals(deviceEntity.getId(), expectedId))
+                .findFirst();
     }
 
     @NotNull
