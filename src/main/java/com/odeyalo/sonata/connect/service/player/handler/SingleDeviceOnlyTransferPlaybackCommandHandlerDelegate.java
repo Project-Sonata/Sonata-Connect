@@ -65,7 +65,7 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
     private Mono<PlayerState> doTransferPlayback(PlayerState state, TargetDevice deviceData, DevicesEntity connectedDevicesEntity) {
         DeviceEntity activatedDeviceEntity = findAndActivate(deviceData, connectedDevicesEntity);
 
-        DeviceEntity deactivatedDeviceEntity = deativateCurrentlyActiveDevice(connectedDevicesEntity);
+        DeviceEntity deactivatedDeviceEntity = deactivateCurrentlyActiveDevice(connectedDevicesEntity);
 
         DevicesEntity updatedDevicesEntity = updateCurrentlyConnectedDevices(connectedDevicesEntity, activatedDeviceEntity, deactivatedDeviceEntity);
 
@@ -80,7 +80,9 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
         return activateDevice(deviceEntityToActivate);
     }
 
-    private static DevicesEntity updateCurrentlyConnectedDevices(DevicesEntity connectedDevicesEntity, DeviceEntity activatedDeviceEntity, DeviceEntity deactivatedDeviceEntity) {
+    private static DevicesEntity updateCurrentlyConnectedDevices(DevicesEntity connectedDevicesEntity,
+                                                                 DeviceEntity activatedDeviceEntity,
+                                                                 DeviceEntity deactivatedDeviceEntity) {
         DevicesEntity currentDevices = DevicesEntity.copyFrom(connectedDevicesEntity);
 
         if ( deactivatedDeviceEntity != null ) {
@@ -96,8 +98,10 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
     }
 
     @NotNull
-    private static DeviceEntity findDevice(TargetDevice targetDevice, DevicesEntity devicesEntity) {
-        return devicesEntity.stream().filter(device -> matchesDeviceId(targetDevice, device)).findFirst()
+    private static DeviceEntity findDevice(TargetDevice searchTarget, DevicesEntity devicesEntity) {
+        return devicesEntity.stream()
+                .filter(device -> matchesDeviceId(searchTarget, device))
+                .findFirst()
                 .orElseThrow(() -> NeverHappeningException.withCustomMessage("Looks like the code does not check the length of the devices before calling this method"));
     }
 
@@ -107,12 +111,13 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
     }
 
     @Nullable
-    private static DeviceEntity deativateCurrentlyActiveDevice(DevicesEntity devicesEntity) {
+    private static DeviceEntity deactivateCurrentlyActiveDevice(DevicesEntity devicesEntity) {
         List<DeviceEntity> activeDeviceEntities = devicesEntity.getActiveDevices();
         if ( activeDeviceEntities.isEmpty() ) {
             return null;
         }
-        return DeviceEntity.copy(activeDeviceEntities.get(0)).toBuilder().active(false).build();
+        DeviceEntity currentlyActiveDevice = activeDeviceEntities.get(0);
+        return DeviceEntity.copy(currentlyActiveDevice).toBuilder().active(false).build();
     }
 
     private static boolean containsDevice(TargetDevice targetDevice, DevicesEntity devicesEntity) {
