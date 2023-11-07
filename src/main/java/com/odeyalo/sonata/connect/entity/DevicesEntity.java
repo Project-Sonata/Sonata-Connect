@@ -9,6 +9,8 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static org.apache.commons.lang3.BooleanUtils.negate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -51,7 +53,7 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
         return items.isEmpty();
     }
 
-    public boolean contains(Object o) {
+    public boolean contains(DeviceEntity o) {
         return items.contains(o);
     }
 
@@ -69,6 +71,40 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
 
     public DeviceEntity getDevice(int index) {
         return get(index);
+    }
+
+    public void removeDevice(String deviceId) {
+        Assert.notNull(deviceId, "Device ID cannot be null!");
+        getDevices().removeIf((device) -> Objects.equals(device.getId(), deviceId));
+    }
+
+    public boolean hasActiveDevice() {
+        return items.stream().anyMatch(DeviceEntity::isActive);
+    }
+
+    public boolean hasNotActiveDevice() {
+        return negate(hasActiveDevice());
+    }
+
+    public void deactivateDevice(DeviceEntity deviceToDeactivate) {
+        removeDevice(deviceToDeactivate.getId());
+        deviceToDeactivate.setActive(false);
+        addDevice(deviceToDeactivate);
+    }
+
+    public void activateDevice(DeviceEntity deviceToActivate) {
+        removeDevice(deviceToActivate.getId());
+        deviceToActivate.setActive(true);
+        addDevice(deviceToActivate);
+    }
+    public boolean containsById(String expectedId) {
+        return getDevices().stream().anyMatch(device -> Objects.equals(device.getId(), expectedId));
+    }
+
+    public Optional<DeviceEntity> findById(String expectedId) {
+        return getDevices().stream()
+                .filter(deviceEntity -> Objects.equals(deviceEntity.getId(), expectedId))
+                .findFirst();
     }
 
     @NotNull

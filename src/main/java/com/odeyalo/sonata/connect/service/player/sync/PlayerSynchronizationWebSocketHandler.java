@@ -24,15 +24,15 @@ import reactor.core.publisher.Mono;
 @Service
 public class PlayerSynchronizationWebSocketHandler implements WebSocketHandler {
     private final PlayerSynchronizationManager playerSynchronizationManager;
-    private final Converter<PlayerEvent, PlayerEventDto> playerState2PlayerStateDtoConverter;
+    private final Converter<PlayerEvent, PlayerEventDto> playerEventPlayerEventDtoConverter;
     private final ObjectMapper objectMapper;
 
     @Autowired
     public PlayerSynchronizationWebSocketHandler(PlayerSynchronizationManager playerSynchronizationManager,
-                                                 Converter<PlayerEvent, PlayerEventDto> playerState2PlayerStateDtoConverter,
+                                                 Converter<PlayerEvent, PlayerEventDto> playerEventPlayerEventDtoConverter,
                                                  ObjectMapper objectMapper) {
         this.playerSynchronizationManager = playerSynchronizationManager;
-        this.playerState2PlayerStateDtoConverter = playerState2PlayerStateDtoConverter;
+        this.playerEventPlayerEventDtoConverter = playerEventPlayerEventDtoConverter;
         this.objectMapper = objectMapper;
     }
 
@@ -52,7 +52,7 @@ public class PlayerSynchronizationWebSocketHandler implements WebSocketHandler {
     }
 
     private String convertAndWriteAsJson(PlayerEvent event) {
-        PlayerEventDto dto = playerState2PlayerStateDtoConverter.convertTo(event);
+        PlayerEventDto dto = playerEventPlayerEventDtoConverter.convertTo(event);
         return dto != null ? json(dto) : null;
     }
 

@@ -55,71 +55,59 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
         DevicesEntity connectedDevicesEntity = state.getDevicesEntity();
         TargetDevice targetDevice = targetDevices.peekFirst();
 
-        if ( containsDevice(targetDevice, connectedDevicesEntity) ) {
+        if ( containsTargetDevice(targetDevice, connectedDevicesEntity) ) {
             return doTransferPlayback(state, targetDevice, connectedDevicesEntity);
         }
 
         return Mono.error(DeviceNotFoundException.defaultException());
     }
 
-    private Mono<PlayerState> doTransferPlayback(PlayerState state, TargetDevice deviceData, DevicesEntity connectedDevicesEntity) {
-        DeviceEntity activatedDeviceEntity = findAndActivate(deviceData, connectedDevicesEntity);
+    private Mono<PlayerState> doTransferPlayback(PlayerState state,
+                                                 TargetDevice deviceToTransferPlayback,
+                                                 DevicesEntity connectedDevicesEntity) {
 
-        DeviceEntity deactivatedDeviceEntity = deativateCurrentlyActiveDevice(connectedDevicesEntity);
-
-        DevicesEntity updatedDevicesEntity = updateCurrentlyConnectedDevices(connectedDevicesEntity, activatedDeviceEntity, deactivatedDeviceEntity);
+        DevicesEntity updatedDevicesEntity = updateCurrentlyConnectedDevices(connectedDevicesEntity, deviceToTransferPlayback);
 
         state.setDevicesEntity(updatedDevicesEntity);
 
         return playerStateRepository.save(state);
     }
 
-    @NotNull
-    private static DeviceEntity findAndActivate(TargetDevice deviceData, DevicesEntity connectedDevicesEntity) {
-        DeviceEntity deviceEntityToActivate = findDevice(deviceData, connectedDevicesEntity);
-        return activateDevice(deviceEntityToActivate);
-    }
+    private static DevicesEntity updateCurrentlyConnectedDevices(DevicesEntity connectedDevicesContainer,
+                                                                 TargetDevice deviceToTransferPlayback) {
 
-    private static DevicesEntity updateCurrentlyConnectedDevices(DevicesEntity connectedDevicesEntity, DeviceEntity activatedDeviceEntity, DeviceEntity deactivatedDeviceEntity) {
-        DevicesEntity currentDevices = DevicesEntity.copyFrom(connectedDevicesEntity);
+        DeviceEntity currentlyActiveDevice = findCurrentlyActiveDevice(connectedDevicesContainer);
 
-        if ( deactivatedDeviceEntity != null ) {
-            currentDevices.removeIf((device) -> device.getId().equals(deactivatedDeviceEntity.getId()));
-            currentDevices.addDevice(deactivatedDeviceEntity);
+        DeviceEntity deviceToActivate = findDeviceToActivate(deviceToTransferPlayback, connectedDevicesContainer);
+
+        if ( currentlyActiveDevice != null ) {
+            connectedDevicesContainer.deactivateDevice(currentlyActiveDevice);
         }
 
-        currentDevices.removeIf((device) -> device.getId().equals(activatedDeviceEntity.getId()));
+        connectedDevicesContainer.activateDevice(deviceToActivate);
 
-        currentDevices.addDevice(activatedDeviceEntity);
-
-        return currentDevices;
+        return connectedDevicesContainer;
     }
 
     @NotNull
-    private static DeviceEntity findDevice(TargetDevice targetDevice, DevicesEntity devicesEntity) {
-        return devicesEntity.stream().filter(device -> matchesDeviceId(targetDevice, device)).findFirst()
+    private static DeviceEntity findDeviceToActivate(TargetDevice searchTarget, DevicesEntity devicesEntity) {
+        return devicesEntity.findById(searchTarget.getId())
                 .orElseThrow(() -> NeverHappeningException.withCustomMessage("Looks like the code does not check the length of the devices before calling this method"));
     }
 
-    @NotNull
-    private static DeviceEntity activateDevice(DeviceEntity targetDeviceEntity) {
-        return DeviceEntity.copy(targetDeviceEntity).toBuilder().active(true).build();
-    }
-
     @Nullable
-    private static DeviceEntity deativateCurrentlyActiveDevice(DevicesEntity devicesEntity) {
+    private static DeviceEntity findCurrentlyActiveDevice(DevicesEntity devicesEntity) {
         List<DeviceEntity> activeDeviceEntities = devicesEntity.getActiveDevices();
+
         if ( activeDeviceEntities.isEmpty() ) {
+            // We do not have the active device, return null and skip it
             return null;
         }
-        return DeviceEntity.copy(activeDeviceEntities.get(0)).toBuilder().active(false).build();
+
+        return activeDeviceEntities.get(0);
     }
 
-    private static boolean containsDevice(TargetDevice targetDevice, DevicesEntity devicesEntity) {
-        return devicesEntity.stream().anyMatch(device -> matchesDeviceId(targetDevice, device));
-    }
-
-    private static boolean matchesDeviceId(TargetDevice targetDevice, DeviceEntity deviceEntity) {
-        return deviceEntity.getId().equals(targetDevice.getId());
+    private static boolean containsTargetDevice(TargetDevice targetDevice, DevicesEntity deviceContainer) {
+        return deviceContainer.containsById(targetDevice.getId());
     }
 }
