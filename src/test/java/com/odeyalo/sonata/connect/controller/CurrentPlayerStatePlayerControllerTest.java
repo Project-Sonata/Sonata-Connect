@@ -6,8 +6,7 @@ import com.odeyalo.sonata.connect.entity.*;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
-import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
-import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
+import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -39,7 +38,7 @@ class CurrentPlayerStatePlayerControllerTest {
     WebTestClient webTestClient;
 
     @Autowired
-    PlayerStateStorage playerStateStorage;
+    PlayerStateRepository playerStateRepository;
 
     @BeforeAll
     void prepare() {
@@ -54,8 +53,8 @@ class CurrentPlayerStatePlayerControllerTest {
 
         @BeforeAll
         void prepareData() {
-            InMemoryDevicesEntity devices = InMemoryDevicesEntity.builder()
-                    .device(DeviceEntityFaker.create()
+            DevicesEntity devices = DevicesEntity.builder()
+                    .item(DeviceEntityFaker.create()
                             .setDeviceId("something")
                             .setDeviceName("Miku")
                             .setDeviceType(DeviceType.COMPUTER)
@@ -65,18 +64,18 @@ class CurrentPlayerStatePlayerControllerTest {
                     .build();
             UserEntity user = UserEntityFaker.create().setId(VALID_USER_ID).get();
 
-            PersistablePlayerState playerState = PlayerStateFaker.createWithCustomNumberOfDevices(1)
-                    .setId(1L)
-                    .setShuffleState(PlayerState.SHUFFLE_DISABLED)
-                    .setProgressMs(0L)
-                    .setPlaying(true)
-                    .setPlayingType(PlayingType.TRACK)
-                    .setRepeatState(RepeatState.OFF)
-                    .setDevicesEntity(devices)
-                    .setUser(user)
-                    .setPlayingItem(TrackItemEntity.of("mikuyouaremyqueen"))
-                    .asPersistablePlayerState();
-            playerStateStorage.save(playerState).block();
+            PlayerState playerState = PlayerStateFaker.createWithCustomNumberOfDevices(1)
+                    .id(1L)
+                    .shuffleState(PlayerState.SHUFFLE_DISABLED)
+                    .progressMs(0L)
+                    .playing(true)
+                    .playingType(PlayingType.TRACK)
+                    .repeatState(RepeatState.OFF)
+                    .devicesEntity(devices)
+                    .user(user)
+                    .currentlyPlayingItem(TrackItemEntity.of("mikuyouaremyqueen"))
+                    .get();
+            playerStateRepository.save(playerState).block();
         }
 
         @Test
@@ -279,6 +278,6 @@ class CurrentPlayerStatePlayerControllerTest {
 
     @AfterAll
     void afterAll() {
-        playerStateStorage.clear().block();
+        playerStateRepository.clear().block();
     }
 }

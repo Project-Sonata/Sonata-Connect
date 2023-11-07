@@ -10,15 +10,13 @@ import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
-import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
-import com.odeyalo.sonata.connect.repository.storage.RepositoryDelegatePlayerStateStorage;
-import com.odeyalo.sonata.connect.repository.storage.support.InMemory2PersistablePlayerStateConverter;
+import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.handler.SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import com.odeyalo.sonata.connect.service.support.mapper.DeviceEntity2DeviceConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.DevicesEntity2DevicesConverter;
-import com.odeyalo.sonata.connect.service.support.mapper.PersistablePlayerState2CurrentPlayerStateConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.PlayableItemEntity2PlayableItemConverter;
+import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import testing.asserts.DevicesAssert;
@@ -35,17 +33,15 @@ import static testing.condition.Conditions.reasonCodeEqual;
 
 class DefaultStorageDeviceOperationsTest {
 
-    PlayerStateStorage storage = new RepositoryDelegatePlayerStateStorage(
-            new InMemoryPlayerStateRepository(),
-            new InMemory2PersistablePlayerStateConverter()
-    );
-    PersistablePlayerState2CurrentPlayerStateConverter playerStateConverter =
-            new PersistablePlayerState2CurrentPlayerStateConverter(
+    PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
+
+    PlayerState2CurrentPlayerStateConverter playerStateConverter =
+            new PlayerState2CurrentPlayerStateConverter(
                     new DevicesEntity2DevicesConverter(new DeviceEntity2DeviceConverter()),
                     new PlayableItemEntity2PlayableItemConverter());
 
-    DefaultStorageDeviceOperations operations = new DefaultStorageDeviceOperations(storage,
-            new SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate(storage, playerStateConverter), playerStateConverter);
+    DefaultStorageDeviceOperations operations = new DefaultStorageDeviceOperations(playerStateRepository,
+            new SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate(playerStateRepository, playerStateConverter), playerStateConverter);
 
     User user;
     DeviceEntity activeDeviceEntity;
@@ -53,7 +49,7 @@ class DefaultStorageDeviceOperationsTest {
 
     @BeforeEach
     void prepare() {
-        PlayerState playerState = storage.save(PlayerStateFaker.createWithCustomNumberOfDevices(3).asPersistablePlayerState()).block();
+        PlayerState playerState = playerStateRepository.save(PlayerStateFaker.createWithCustomNumberOfDevices(3).get()).block();
         user = User.of(playerState.getUser().getId());
         activeDeviceEntity = getActiveDevice(playerState);
         inactiveDeviceEntity = getInactiveDevice(playerState);
@@ -135,12 +131,12 @@ class DefaultStorageDeviceOperationsTest {
 
     @AfterEach
     void tearDown() {
-        storage.clear().block();
+        playerStateRepository.clear().block();
     }
 
     private static DeviceEntity getActiveDevice(PlayerState playerState) {
         List<DeviceEntity> activeDeviceEntities = playerState.getDevices().getActiveDevices();
-        if (activeDeviceEntities.size() == 0) {
+        if ( activeDeviceEntities.size() == 0 ) {
             throw new IllegalStateException("At least one device must be active");
         }
         return activeDeviceEntities.get(0);

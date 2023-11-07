@@ -1,14 +1,14 @@
 package com.odeyalo.sonata.connect.service.player;
 
+import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
 import com.odeyalo.sonata.connect.model.User;
-import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
-import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
+import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
-import com.odeyalo.sonata.connect.service.support.factory.PersistablePlayerStateFactory;
+import com.odeyalo.sonata.connect.service.support.factory.PlayerStateFactory;
 import com.odeyalo.sonata.connect.service.support.mapper.CurrentPlayerState2CurrentlyPlayingPlayerStateConverter;
-import com.odeyalo.sonata.connect.service.support.mapper.PersistablePlayerState2CurrentPlayerStateConverter;
+import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,17 +17,17 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class DefaultPlayerOperations implements BasicPlayerOperations {
-    private final PlayerStateStorage playerStateStorage;
+    private final PlayerStateRepository playerStateRepository;
     private final DeviceOperations deviceOperations;
-    private final PersistablePlayerState2CurrentPlayerStateConverter playerStateConverterSupport;
+    private final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport;
     private final PlayCommandHandlerDelegate playCommandHandlerDelegate;
     private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter;
     private final Logger logger = LoggerFactory.getLogger(DefaultPlayerOperations.class);
 
-    public DefaultPlayerOperations(PlayerStateStorage playerStateStorage,
+    public DefaultPlayerOperations(PlayerStateRepository playerStateRepository,
                                    DeviceOperations deviceOperations,
-                                   PersistablePlayerState2CurrentPlayerStateConverter playerStateConverterSupport, PlayCommandHandlerDelegate playCommandHandlerDelegate, CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter) {
-        this.playerStateStorage = playerStateStorage;
+                                   PlayerState2CurrentPlayerStateConverter playerStateConverterSupport, PlayCommandHandlerDelegate playCommandHandlerDelegate, CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter) {
+        this.playerStateRepository = playerStateRepository;
         this.deviceOperations = deviceOperations;
         this.playerStateConverterSupport = playerStateConverterSupport;
         this.playCommandHandlerDelegate = playCommandHandlerDelegate;
@@ -36,11 +36,11 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
 
     @Override
     public Mono<CurrentPlayerState> currentState(User user) {
-        return playerStateStorage.findByUserId(user.getId())
+        return playerStateRepository.findByUserId(user.getId())
                 .switchIfEmpty(Mono.defer(() -> {
-                    PersistablePlayerState state = emptyState(user);
+                    PlayerState state = emptyState(user);
                     logger.info("Created new empty player state due to missing for the user: {}", user);
-                    return playerStateStorage.save(state);
+                    return playerStateRepository.save(state);
                 }))
                 .map(playerStateConverterSupport::convertTo);
     }
@@ -54,9 +54,9 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
 
     @Override
     public Mono<CurrentPlayerState> changeShuffle(User user, boolean shuffleMode) {
-        return playerStateStorage.findByUserId(user.getId())
+        return playerStateRepository.findByUserId(user.getId())
                 .map(state -> doChangeShuffleMode(state, shuffleMode))
-                .flatMap(playerStateStorage::save)
+                .flatMap(playerStateRepository::save)
                 .map(playerStateConverterSupport::convertTo);
     }
 
@@ -70,12 +70,12 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
         return playCommandHandlerDelegate.playOrResume(user, context, targetDevice);
     }
 
-    private static PersistablePlayerState emptyState(User user) {
-        return PersistablePlayerStateFactory.createEmpty(user);
+    private static PlayerState emptyState(User user) {
+        return PlayerStateFactory.createEmpty(user);
     }
 
     @NotNull
-    private static PersistablePlayerState doChangeShuffleMode(PersistablePlayerState state, boolean shuffleMode) {
+    private static PlayerState doChangeShuffleMode(PlayerState state, boolean shuffleMode) {
         state.setShuffleState(shuffleMode);
         return state;
     }

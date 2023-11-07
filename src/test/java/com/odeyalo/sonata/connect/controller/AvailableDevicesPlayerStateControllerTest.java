@@ -3,8 +3,7 @@ package com.odeyalo.sonata.connect.controller;
 import com.odeyalo.sonata.connect.dto.AvailableDevicesResponseDto;
 import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
-import com.odeyalo.sonata.connect.entity.InMemoryDeviceEntity;
-import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
+import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,7 @@ public class AvailableDevicesPlayerStateControllerTest {
     WebTestClient webTestClient;
 
     @Autowired
-    PlayerStateStorage playerStateStorage;
+    PlayerStateRepository playerStateRepository;
 
     final String VALID_ACCESS_TOKEN = "Bearer mikunakanoisthebestgirl";
     final String VALID_USER_ID = "1";
@@ -56,7 +55,7 @@ public class AvailableDevicesPlayerStateControllerTest {
 
         @AfterAll
         void afterAll() {
-            playerStateStorage.clear().block();
+            playerStateRepository.clear().block();
         }
 
         @NotNull
@@ -103,7 +102,7 @@ public class AvailableDevicesPlayerStateControllerTest {
         private DeviceEntity connectSingleDevice() {
             ConnectDeviceRequest request = ConnectDeviceRequestFaker.create().get();
             sendConnectDeviceRequest(request);
-            return InMemoryDeviceEntity.builder()
+            return DeviceEntity.builder()
                     .id(request.getId())
                     .name(request.getName())
                     .active(true)

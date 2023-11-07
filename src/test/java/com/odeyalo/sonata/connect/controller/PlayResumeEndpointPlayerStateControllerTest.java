@@ -4,7 +4,7 @@ import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
 import com.odeyalo.sonata.connect.dto.PlayResumePlaybackRequest;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.dto.ReasonCodeAwareExceptionMessage;
-import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
+import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class PlayResumeEndpointPlayerStateControllerTest {
     WebTestClient webTestClient;
 
     @Autowired
-    PlayerStateStorage playerStateStorage;
+    PlayerStateRepository playerStateRepository;
 
 
     final String VALID_ACCESS_TOKEN = "Bearer mikunakanoisthebestgirl";
@@ -47,7 +47,7 @@ public class PlayResumeEndpointPlayerStateControllerTest {
 
     @AfterEach
     void afterEach() {
-        this.playerStateStorage.clear().block();
+        this.playerStateRepository.clear().block();
     }
 
     @Test
