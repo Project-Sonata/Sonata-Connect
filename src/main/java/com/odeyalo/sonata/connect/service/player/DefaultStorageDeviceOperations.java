@@ -56,13 +56,29 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
     public Mono<Devices> getConnectedDevices(User user) {
         return playerStateRepository.findByUserId(user.getId())
                 .map(PlayerState::getDevicesEntity)
-                .map(DefaultStorageDeviceOperations::toDeviceModels)
-                .map(Devices::of);
+                .map(DefaultStorageDeviceOperations::toDevices);
     }
 
     @NotNull
-    private static List<Device> toDeviceModels(DevicesEntity devicesEntity) {
-        return devicesEntity.stream().map(device -> Device.of(device.getId(), device.getName(), device.getDeviceType(), device.getVolume(), device.isActive())).toList();
+    private static Devices toDevices(@NotNull DevicesEntity devicesEntity) {
+        List<Device> devices = entitiesToDeviceList(devicesEntity);
+        return Devices.of(devices);
+    }
+
+    @NotNull
+    private static List<Device> entitiesToDeviceList(DevicesEntity devicesEntity) {
+        return devicesEntity.stream().map(DefaultStorageDeviceOperations::toDevice).toList();
+    }
+
+    @NotNull
+    private static Device toDevice(DeviceEntity device) {
+        return Device.builder()
+                .deviceId(device.getId())
+                .deviceName(device.getName())
+                .deviceType(device.getDeviceType())
+                .volume(device.getVolume())
+                .active(device.isActive())
+                .build();
     }
 
     private static DeviceEntity createDeviceEntity(Device device, PlayerState state) {
