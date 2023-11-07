@@ -51,7 +51,7 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
         return items.isEmpty();
     }
 
-    public boolean contains(Object o) {
+    public boolean contains(DeviceEntity o) {
         return items.contains(o);
     }
 
@@ -79,6 +79,10 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
 
     public DevicesEntityBuilder toBuilder() {
         return new DevicesEntityBuilder().items(items);
+    }
+
+    public boolean hasActiveDevice() {
+        return items.stream().anyMatch(DeviceEntity::isActive);
     }
 
     public static class DevicesEntityBuilder {

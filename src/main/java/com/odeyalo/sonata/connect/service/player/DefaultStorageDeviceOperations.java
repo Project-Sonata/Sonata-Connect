@@ -44,7 +44,7 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
     @NotNull
     @Override
     public Mono<Boolean> containsById(User user, String deviceId) {
-        return null;
+        return Mono.empty();
     }
 
     @NotNull
@@ -73,7 +73,7 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
     }
 
     private static boolean containAnyActiveDevice(PlayerState state) {
-        return state.getDevicesEntity().stream().anyMatch(DeviceEntity::isActive);
+        return state.getDevicesEntity().hasActiveDevice();
     }
 
     private static DeviceEntity buildDeviceEntity(Device device, boolean isActive) {
