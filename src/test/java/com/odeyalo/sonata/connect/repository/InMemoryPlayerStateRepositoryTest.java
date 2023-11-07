@@ -1,6 +1,6 @@
 package com.odeyalo.sonata.connect.repository;
 
-import com.odeyalo.sonata.connect.entity.InMemoryPlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerState;
 import org.junit.jupiter.api.Test;
 import testing.PlayerStatePersistentOperationsTestAdapter;
 import testing.TestEntityGenerator;
@@ -22,19 +22,19 @@ class InMemoryPlayerStateRepositoryTest extends PlayerStatePersistentOperationsT
         assertThat(repositoryType).isEqualTo(RepositoryType.IN_MEMORY);
     }
 
-    static class InMemoryPlayerStateTestEntityGenerator implements TestEntityGenerator<InMemoryPlayerState> {
+    static class InMemoryPlayerStateTestEntityGenerator implements TestEntityGenerator<PlayerState> {
 
         @Override
-        public InMemoryPlayerState generateValidEntity() {
+        public PlayerState generateValidEntity() {
             return PlayerStateFaker.create()
-                    .asInMemoryPlayerState();
+                    .get();
         }
 
         @Override
-        public InMemoryPlayerState generateInvalidEntity() {
+        public PlayerState generateInvalidEntity() {
             return PlayerStateFaker.create()
-                    .setId(-1L)
-                    .asInMemoryPlayerState();
+                    .id(-1L)
+                    .get();
         }
     }
 }
