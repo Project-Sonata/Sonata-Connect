@@ -2,57 +2,45 @@ package com.odeyalo.sonata.connect.entity;
 
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
-/**
- * Entity to represent the current player state for the specfic user
- */
-public interface PlayerState {
-    boolean SHUFFLE_ENABLED = true;
-    boolean SHUFFLE_DISABLED = false;
+@Builder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class PlayerState {
+    Long id;
+    boolean playing;
+    RepeatState repeatState;
+    boolean shuffleState;
+    Long progressMs;
+    PlayingType playingType;
+    DevicesEntity devicesEntity;
+    UserEntity user;
+    PlayableItemEntity currentlyPlayingItem;
 
-    /**
-     * @return ID of the state
-     */
-    Long getId();
+    public static final boolean SHUFFLE_ENABLED = true;
+    public static final boolean SHUFFLE_DISABLED = false;
 
-    /**
-     * @return repeat state for current player
-     */
-    RepeatState getRepeatState();
+    public boolean getShuffleState() {
+        return shuffleState;
+    }
 
-    /**
-     * @return shuffle state for the player, true - shuffle enabled, false - shuffle disabled
-     */
-    boolean getShuffleState();
+    public PlayingType getCurrentlyPlayingType() {
+        return playingType;
+    }
 
-    /**
-     * @return Progress of the track, episode, podcast, etc associated with current player
-     */
-    Long getProgressMs();
+    public DevicesEntity getDevicesEntity() {
+        return devicesEntity;
+    }
 
-    /**
-     * @return the current playing type
-     */
-    PlayingType getCurrentlyPlayingType();
+    public PlayableItemEntity getCurrentlyPlayingItem() {
+        return currentlyPlayingItem;
+    }
 
-    /**
-     *
-     * @return item that is playing right now. Null if player state is empty
-     */
-    PlayableItemEntity getCurrentlyPlayingItem();
-
-    /**
-     * @return True if the player is playing something, false otherwise
-     */
-    boolean isPlaying();
-
-    /**
-     * @return Devices associated with current player
-     */
-    DevicesEntity getDevices();
-
-    /**
-     * @return Owner of the player
-     */
-    UserEntity getUser();
+    public DevicesEntity getDevices() {
+        return devicesEntity;
+    }
 }

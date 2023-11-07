@@ -1,10 +1,13 @@
 package com.odeyalo.sonata.connect.entity;
 
-/**
- * Represent the User entity
- */
-public interface UserEntity {
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
-    String getId();
-
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class UserEntity {
+    String id;
 }
