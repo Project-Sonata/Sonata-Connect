@@ -17,8 +17,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-import static org.apache.commons.lang.BooleanUtils.negate;
-
 @Component
 public class DefaultStorageDeviceOperations implements DeviceOperations {
     private final PlayerStateRepository playerStateRepository;
@@ -37,7 +35,7 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
     @Override
     public Mono<CurrentPlayerState> addDevice(User user, Device device) {
         return playerStateRepository.findByUserId(user.getId())
-                .doOnNext(state -> state.getDevicesEntity().addDevice(createDevice(device, state)))
+                .doOnNext(state -> state.getDevicesEntity().addDevice(createDeviceEntity(device, state)))
                 .map(currentPlayerStateConverterSupport::convertTo);
     }
 
@@ -67,16 +65,16 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
         return devicesEntity.stream().map(device -> Device.of(device.getId(), device.getName(), device.getDeviceType(), device.getVolume(), device.isActive())).toList();
     }
 
-    private static DeviceEntity createDevice(Device device, PlayerState state) {
-        Boolean isActive = negate(containAnyActiveDevice(state));
-        return buildDeviceEntity(device, isActive);
+    private static DeviceEntity createDeviceEntity(Device device, PlayerState state) {
+        boolean isActive = doesNotContainActiveDevice(state);
+        return fromDeviceToDeviceEntity(device, isActive);
     }
 
-    private static boolean containAnyActiveDevice(PlayerState state) {
-        return state.getDevicesEntity().hasActiveDevice();
+    private static boolean doesNotContainActiveDevice(PlayerState state) {
+        return state.getDevicesEntity().hasNotActiveDevice();
     }
 
-    private static DeviceEntity buildDeviceEntity(Device device, boolean isActive) {
+    private static DeviceEntity fromDeviceToDeviceEntity(Device device, boolean isActive) {
         return DeviceEntity.builder()
                 .id(device.getDeviceId())
                 .name(device.getDeviceName())

@@ -9,6 +9,8 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static org.apache.commons.lang3.BooleanUtils.negate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -71,6 +73,14 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
         return get(index);
     }
 
+    public boolean hasActiveDevice() {
+        return items.stream().anyMatch(DeviceEntity::isActive);
+    }
+
+    public boolean hasNotActiveDevice() {
+        return negate(hasActiveDevice());
+    }
+
     @NotNull
     @Override
     public Iterator<DeviceEntity> iterator() {
@@ -79,10 +89,6 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
 
     public DevicesEntityBuilder toBuilder() {
         return new DevicesEntityBuilder().items(items);
-    }
-
-    public boolean hasActiveDevice() {
-        return items.stream().anyMatch(DeviceEntity::isActive);
     }
 
     public static class DevicesEntityBuilder {
