@@ -1,49 +1,118 @@
 package com.odeyalo.sonata.connect.entity;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.util.Assert;
+
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public interface DevicesEntity extends Iterable<DeviceEntity> {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class DevicesEntity implements Iterable<DeviceEntity> {
+    @NotNull
+    @Getter(value = AccessLevel.PRIVATE)
+    private List<DeviceEntity> items;
 
-    List<DeviceEntity> getDevices();
-
-    default List<DeviceEntity> getActiveDevices() {
-        return new ArrayList<>(getDevices().stream().filter(DeviceEntity::isActive).toList());
+    public static DevicesEntity empty() {
+        return new DevicesEntity(new ArrayList<>());
     }
 
-    default boolean isEmpty() {
-        return getDevices().isEmpty();
+    public static DevicesEntity copyFrom(DevicesEntity parent) {
+        return parent.toBuilder().build();
     }
 
-    default int size() {
-        return getDevices().size();
+    public static DevicesEntityBuilder builder() {
+        return new DevicesEntityBuilder();
     }
 
-    default void addDevice(DeviceEntity deviceEntity) {
-        getDevices().add(deviceEntity);
+    public List<DeviceEntity> getDevices() {
+        return items;
     }
 
-    default DeviceEntity getDevice(int index) {
-        return getDevices().get(index);
+    public void addDevice(DeviceEntity device) {
+        Assert.notNull(device, "Device should be not null!");
+        items.add(device);
     }
 
-    default void removeDevice(int index) {
-        getDevices().remove(index);
+    public Stream<DeviceEntity> stream() {
+        return items.stream();
     }
 
-    default void removeIf(Predicate<DeviceEntity> predicate) {
-        getDevices().removeIf(predicate);
+    public int size() {
+        return items.size();
     }
 
-    default Stream<DeviceEntity> stream() {
-        return getDevices().stream();
+    public boolean isEmpty() {
+        return items.isEmpty();
     }
 
+    public boolean contains(Object o) {
+        return items.contains(o);
+    }
+
+    public void removeIf(Predicate<DeviceEntity> predicate) {
+        items.removeIf(predicate);
+    }
+
+    public List<DeviceEntity> getActiveDevices() {
+        return items.stream().filter(DeviceEntity::isActive).toList();
+    }
+
+    public DeviceEntity get(int index) {
+        return items.get(index);
+    }
+
+    public DeviceEntity getDevice(int index) {
+        return get(index);
+    }
+
+    @NotNull
     @Override
-    default Iterator<DeviceEntity> iterator() {
-        return getDevices().iterator();
+    public Iterator<DeviceEntity> iterator() {
+        return items.iterator();
+    }
+
+    public DevicesEntityBuilder toBuilder() {
+        return new DevicesEntityBuilder().items(items);
+    }
+
+    public static class DevicesEntityBuilder {
+        private ArrayList<DeviceEntity> items;
+
+        public DevicesEntityBuilder item(DeviceEntity item) {
+            if ( this.items == null ) {
+                this.items = new ArrayList<>();
+            }
+            this.items.add(item);
+            return this;
+        }
+
+        public DevicesEntityBuilder items(Collection<? extends DeviceEntity> items) {
+            if ( this.items == null ) {
+                this.items = new ArrayList<>();
+            }
+            this.items.addAll(items);
+            return this;
+        }
+
+        public DevicesEntityBuilder clearItems() {
+            if ( this.items != null ) {
+                this.items.clear();
+            }
+            return this;
+        }
+
+        public DevicesEntity build() {
+            return new DevicesEntity(items);
+        }
+
+        public String toString() {
+            return "DevicesEntity.DevicesEntityBuilder(items=" + this.items + ")";
+        }
     }
 }

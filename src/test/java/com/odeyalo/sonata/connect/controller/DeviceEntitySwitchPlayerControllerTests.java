@@ -1,7 +1,7 @@
 package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.connect.dto.*;
-import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
+import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ public class DeviceEntitySwitchPlayerControllerTests {
     SonataTestHttpOperations sonataTestHttpOperations;
 
     @Autowired
-    PlayerStateStorage playerStateStorage;
+    PlayerStateRepository playerStateRepository;
 
     final String VALID_ACCESS_TOKEN = "Bearer mikunakanoisthebestgirl";
     final String VALID_USER_ID = "1";
@@ -143,7 +143,7 @@ public class DeviceEntitySwitchPlayerControllerTests {
 
         @AfterEach
         void clean() {
-            playerStateStorage.clear().block();
+            playerStateRepository.clear().block();
         }
 
         @Test

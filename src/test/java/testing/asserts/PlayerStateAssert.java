@@ -20,14 +20,14 @@ public class PlayerStateAssert extends AbstractAssert<PlayerStateAssert, PlayerS
     }
 
     public PlayerStateAssert shouldPlay() {
-        if (isFalse(actual.isPlaying())) {
+        if ( isFalse(actual.isPlaying()) ) {
             failWithActualExpectedAndMessage(false, true, "Expected player with playing status!");
         }
         return this;
     }
 
     public PlayerStateAssert shouldBeStopped() {
-        if (actual.isPlaying()) {
+        if ( actual.isPlaying() ) {
             failWithActualExpectedAndMessage(true, false, "Expected player with paused status!");
         }
         return this;
@@ -46,7 +46,7 @@ public class PlayerStateAssert extends AbstractAssert<PlayerStateAssert, PlayerS
     }
 
     public PlayerStateAssert progressMs(long expectedMs) {
-        if (actual.getProgressMs() != expectedMs) {
+        if ( actual.getProgressMs() != expectedMs ) {
             failWithActualExpectedAndMessage(actual.getProgressMs(), expectedMs, "The progress in ms must be equalQ!");
         }
         return null;

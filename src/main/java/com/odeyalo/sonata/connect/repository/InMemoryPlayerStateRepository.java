@@ -1,6 +1,6 @@
 package com.odeyalo.sonata.connect.repository;
 
-import com.odeyalo.sonata.connect.entity.InMemoryPlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerState;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class InMemoryPlayerStateRepository implements PlayerStateRepository<InMemoryPlayerState> {
-    private final Map<Long, InMemoryPlayerState> cache = new ConcurrentHashMap<>();
+public class InMemoryPlayerStateRepository implements PlayerStateRepository {
+    private final Map<Long, PlayerState> cache = new ConcurrentHashMap<>();
     private final Map<String, Long> cacheByUserId = new ConcurrentHashMap<>();
 
     @Override
-    public Mono<InMemoryPlayerState> save(InMemoryPlayerState entity) {
+    public Mono<PlayerState> save(PlayerState entity) {
         if (entity.getId() == null || entity.getId() <= 0) {
             return Mono.error(new IllegalArgumentException("The id is invalid"));
         }
@@ -24,7 +24,7 @@ public class InMemoryPlayerStateRepository implements PlayerStateRepository<InMe
     }
 
     @Override
-    public Mono<InMemoryPlayerState> findById(Long id) {
+    public Mono<PlayerState> findById(Long id) {
         return Mono.justOrEmpty(cache.get(id));
     }
 
@@ -54,7 +54,7 @@ public class InMemoryPlayerStateRepository implements PlayerStateRepository<InMe
     }
 
     @Override
-    public Mono<InMemoryPlayerState> findByUserId(String userId) {
+    public Mono<PlayerState> findByUserId(String userId) {
         return Mono.justOrEmpty(cacheByUserId.get(userId))
                 .map(cache::get);
     }

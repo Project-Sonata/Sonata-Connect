@@ -4,7 +4,6 @@ import com.github.javafaker.Faker;
 import com.odeyalo.sonata.connect.entity.*;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
-import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -17,15 +16,7 @@ import java.util.function.Function;
 @Accessors(chain = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PlayerStateFaker {
-    Long id;
-    boolean playing;
-    RepeatState repeatState;
-    boolean shuffleState;
-    Long progressMs;
-    PlayingType playingType;
-    DevicesEntity devicesEntity;
-    UserEntity user;
-    PlayableItemEntity playingItem;
+    PlayerState.PlayerStateBuilder builder = PlayerState.builder();
 
     final Faker faker = Faker.instance();
 
@@ -38,20 +29,20 @@ public class PlayerStateFaker {
     }
 
     private void initializeWithFakedValues(int numberOfDevices) {
-        this.id = Long.valueOf(faker.random().nextInt(0, 100000));
-        this.playing = faker.random().nextBoolean();
-        this.repeatState = faker.options().option(RepeatState.class);
-        this.shuffleState = faker.random().nextBoolean();
-        this.progressMs = faker.random().nextLong();
-        this.playingType = faker.options().option(PlayingType.class);
-        this.user = UserEntityFaker.create().get();
+        builder.id((long) faker.random().nextInt(100000))
+                .playing(faker.random().nextBoolean())
+                .repeatState(faker.options().option(RepeatState.class))
+                .shuffleState(faker.random().nextBoolean())
+                .progressMs(faker.random().nextLong())
+                .playingType(faker.options().option(PlayingType.class))
+                .user(UserEntityFaker.create().get());
 
-        if (numberOfDevices <= 0) {
-            this.devicesEntity = DevicesEntityFaker.create().get();
+        if ( numberOfDevices <= 0 ) {
+            builder.devicesEntity(DevicesEntityFaker.create().get());
         } else {
-            this.devicesEntity = DevicesEntityFaker.create(numberOfDevices).get();
+            builder.devicesEntity(DevicesEntityFaker.create(numberOfDevices).get());
         }
-        this.playingItem = TrackItemEntity.of(RandomStringUtils.randomAlphanumeric(16));
+        builder.currentlyPlayingItem(TrackItemEntity.of(RandomStringUtils.randomAlphanumeric(16)));
     }
 
     public static PlayerStateFaker create() {
@@ -62,40 +53,52 @@ public class PlayerStateFaker {
         return new PlayerStateFaker(deviceNumber);
     }
 
-    public PlayerStateFaker setPlayableItem(Function<PlayableItemEntity, PlayableItemEntity> modifier) {
-        this.playingItem = modifier.apply(playingItem);
+    public PlayerStateFaker id(Long id) {
+        builder.id(id);
+        return this;
+    }
+
+    public PlayerStateFaker playing(boolean playing) {
+        builder.playing(playing);
+        return this;
+    }
+
+    public PlayerStateFaker repeatState(RepeatState repeatState) {
+        builder.repeatState(repeatState);
+        return this;
+    }
+
+    public PlayerStateFaker shuffleState(boolean shuffleState) {
+        builder.shuffleState(shuffleState);
+        return this;
+    }
+
+    public PlayerStateFaker progressMs(Long progressMs) {
+        builder.progressMs(progressMs);
+        return this;
+    }
+
+    public PlayerStateFaker playingType(PlayingType playingType) {
+        builder.playingType(playingType);
+        return this;
+    }
+
+    public PlayerStateFaker devicesEntity(DevicesEntity devicesEntity) {
+        builder.devicesEntity(devicesEntity);
+        return this;
+    }
+
+    public PlayerStateFaker user(UserEntity user) {
+        builder.user(user);
+        return this;
+    }
+
+    public PlayerStateFaker currentlyPlayingItem(PlayableItemEntity currentlyPlayingItem) {
+        builder.currentlyPlayingItem(currentlyPlayingItem);
         return this;
     }
 
     public PlayerState get() {
-        return asInMemoryPlayerState();
-    }
-
-    public PersistablePlayerState asPersistablePlayerState() {
-        return PersistablePlayerState.builder()
-                .id(id)
-                .repeatState(repeatState)
-                .shuffleState(shuffleState)
-                .devicesEntity(devicesEntity)
-                .playing(playing)
-                .playingType(playingType)
-                .progressMs(progressMs)
-                .user(user)
-                .currentlyPlayingItem(playingItem)
-                .build();
-    }
-
-    public InMemoryPlayerState asInMemoryPlayerState() {
-        return InMemoryPlayerState.builder()
-                .id(id)
-                .repeatState(repeatState)
-                .shuffleState(shuffleState)
-                .devicesEntity(devicesEntity)
-                .playing(playing)
-                .playingType(playingType)
-                .progressMs(progressMs)
-                .user(user)
-                .currentlyPlayingItem(playingItem)
-                .build();
+        return builder.build();
     }
 }

@@ -2,7 +2,6 @@ package testing.faker;
 
 import com.github.javafaker.Faker;
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
-import com.odeyalo.sonata.connect.entity.InMemoryDeviceEntity;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -52,8 +51,8 @@ public class DeviceEntityFaker {
         return buildInMemoryDevice();
     }
 
-    private InMemoryDeviceEntity buildInMemoryDevice() {
-        return InMemoryDeviceEntity
+    private DeviceEntity buildInMemoryDevice() {
+        return DeviceEntity
                 .builder()
                 .id(deviceId)
                 .name(deviceName)

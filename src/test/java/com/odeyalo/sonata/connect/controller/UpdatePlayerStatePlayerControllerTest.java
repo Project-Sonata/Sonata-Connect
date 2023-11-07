@@ -3,10 +3,10 @@ package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.connect.dto.ExceptionMessage;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
-import com.odeyalo.sonata.connect.entity.InMemoryDevicesEntity;
+import com.odeyalo.sonata.connect.entity.DevicesEntity;
+import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.model.DeviceType;
-import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
-import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
+import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class UpdatePlayerStatePlayerControllerTest {
     WebTestClient testClient;
 
     @Autowired
-    PlayerStateStorage playerStateStorage;
+    PlayerStateRepository playerStateRepository;
 
     final String VALID_ACCESS_TOKEN = "Bearer mikunakanoisthebestgirl";
     final String VALID_USER_ID = "1";
@@ -101,8 +101,8 @@ public class UpdatePlayerStatePlayerControllerTest {
 
         @BeforeAll
         void prepareData() {
-            InMemoryDevicesEntity devices = InMemoryDevicesEntity.builder()
-                    .device(DeviceEntityFaker.create()
+            DevicesEntity devices = DevicesEntity.builder()
+                    .item(DeviceEntityFaker.create()
                             .setDeviceId("something")
                             .setDeviceName("Miku")
                             .setDeviceType(DeviceType.COMPUTER)
@@ -110,10 +110,10 @@ public class UpdatePlayerStatePlayerControllerTest {
                             .setActive(true)
                             .asInMemoryDevice())
                     .build();
-            PersistablePlayerState playerState = PlayerStateFaker.createWithCustomNumberOfDevices(1)
-                    .setDevicesEntity(devices)
-                    .asPersistablePlayerState();
-            playerStateStorage.save(playerState).block();
+            PlayerState playerState = PlayerStateFaker.createWithCustomNumberOfDevices(1)
+                    .devicesEntity(devices)
+                    .get();
+            playerStateRepository.save(playerState).block();
         }
 
         @Test
@@ -180,6 +180,6 @@ public class UpdatePlayerStatePlayerControllerTest {
 
     @AfterAll
     void afterAll() {
-        playerStateStorage.clear().block();
+        playerStateRepository.clear().block();
     }
 }

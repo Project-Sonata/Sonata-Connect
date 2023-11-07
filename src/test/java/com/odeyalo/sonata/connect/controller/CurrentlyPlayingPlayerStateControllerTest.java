@@ -3,11 +3,11 @@ package com.odeyalo.sonata.connect.controller;
 import com.odeyalo.sonata.connect.dto.CurrentlyPlayingPlayerStateDto;
 import com.odeyalo.sonata.connect.dto.DevicesDto;
 import com.odeyalo.sonata.connect.entity.DevicesEntity;
-import com.odeyalo.sonata.connect.entity.InMemoryUserEntity;
 import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
+import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.UserEntity;
 import com.odeyalo.sonata.connect.model.Devices;
-import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
-import com.odeyalo.sonata.connect.repository.storage.PlayerStateStorage;
+import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.support.mapper.DevicesEntity2DevicesConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.Devices2DevicesDtoConverter;
 import org.junit.jupiter.api.*;
@@ -39,7 +39,7 @@ public class CurrentlyPlayingPlayerStateControllerTest {
     WebTestClient webTestClient;
 
     @Autowired
-    PlayerStateStorage playerStateStorage;
+    PlayerStateRepository playerStateRepository;
 
     @Autowired
     DevicesEntity2DevicesConverter devicesEntity2DevicesConverter;
@@ -58,18 +58,18 @@ public class CurrentlyPlayingPlayerStateControllerTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class CurrentlyPlayingForValidUser {
-        PersistablePlayerState expectedState;
+        PlayerState expectedState;
 
         @BeforeEach
         void beforeEach() {
-            PersistablePlayerState playerState = createPlayingState();
+            PlayerState playerState = createPlayingState();
 
-            expectedState = playerStateStorage.save(playerState).block();
+            expectedState = playerStateRepository.save(playerState).block();
         }
 
         @AfterEach
         void afterEach() {
-            playerStateStorage.clear().block();
+            playerStateRepository.clear().block();
         }
 
         @Test
@@ -138,7 +138,7 @@ public class CurrentlyPlayingPlayerStateControllerTest {
             CurrentlyPlayingPlayerStateDto body = sendAndGetBody();
 
             CurrentlyPlayingPlayerStateDtoAssert.forBody(body)
-                            .devices().length(expectedDevicesEntity.size());
+                    .devices().length(expectedDevicesEntity.size());
 
             Devices model = devicesEntity2DevicesConverter.convertTo(expectedDevicesEntity);
 
@@ -153,11 +153,11 @@ public class CurrentlyPlayingPlayerStateControllerTest {
             return responseSpec.expectBody(CurrentlyPlayingPlayerStateDto.class).returnResult().getResponseBody();
         }
 
-        private PersistablePlayerState createPlayingState() {
+        private PlayerState createPlayingState() {
             return PlayerStateFaker.create()
-                    .setPlaying(true)
-                    .setUser(new InMemoryUserEntity(VALID_USER_ID))
-                    .asPersistablePlayerState();
+                    .playing(true)
+                    .user(new UserEntity(VALID_USER_ID))
+                    .get();
         }
 
         public WebTestClient.ResponseSpec sendRequest() {

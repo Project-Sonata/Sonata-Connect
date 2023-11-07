@@ -1,6 +1,5 @@
 package testing.faker;
 
-import com.odeyalo.sonata.connect.entity.InMemoryUserEntity;
 import com.odeyalo.sonata.connect.entity.UserEntity;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -23,12 +22,12 @@ public class UserEntityFaker {
         return buildInMemoryUser();
     }
 
-    public InMemoryUserEntity asInMemoryUser() {
+    public UserEntity asInMemoryUser() {
         return buildInMemoryUser();
     }
 
-    private InMemoryUserEntity buildInMemoryUser() {
-        return InMemoryUserEntity.builder()
+    private UserEntity buildInMemoryUser() {
+        return UserEntity.builder()
                 .id(id)
                 .build();
     }

@@ -1,20 +1,19 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.common.context.HardcodedContextUriParser;
-import com.odeyalo.sonata.connect.entity.InMemoryUserEntity;
 import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
+import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.UserEntity;
 import com.odeyalo.sonata.connect.exception.ReasonCodeAware;
 import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriException;
 import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
-import com.odeyalo.sonata.connect.repository.storage.PersistablePlayerState;
-import com.odeyalo.sonata.connect.repository.storage.RepositoryDelegatePlayerStateStorage;
-import com.odeyalo.sonata.connect.repository.storage.support.InMemory2PersistablePlayerStateConverter;
+import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.support.HardcodedPlayableItemResolver;
 import com.odeyalo.sonata.connect.service.player.support.validation.HardcodedPlayCommandPreExecutingIntegrityValidator;
 import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
-import com.odeyalo.sonata.connect.service.support.factory.PersistablePlayerStateFactory;
+import com.odeyalo.sonata.connect.service.support.factory.PlayerStateFactory;
 import com.odeyalo.sonata.connect.service.support.mapper.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,20 +28,21 @@ import java.util.function.BiConsumer;
 
 import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.TestInstance.*;
+import static org.junit.jupiter.api.TestInstance.Lifecycle;
 
 class DefaultPlayerOperationsTest {
 
-    RepositoryDelegatePlayerStateStorage storage = new RepositoryDelegatePlayerStateStorage(new InMemoryPlayerStateRepository(), new InMemory2PersistablePlayerStateConverter());
-    PersistablePlayerState2CurrentPlayerStateConverter converter = new PersistablePlayerState2CurrentPlayerStateConverter(
+    PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
+
+    PlayerState2CurrentPlayerStateConverter converter = new PlayerState2CurrentPlayerStateConverter(
             new DevicesEntity2DevicesConverter(new DeviceEntity2DeviceConverter()),
             new PlayableItemEntity2PlayableItemConverter());
 
     DefaultPlayerOperations playerOperations = new DefaultPlayerOperations(
-            storage,
+            playerStateRepository,
             new NullDeviceOperations(),
             converter,
-            new PlayerStateUpdatePlayCommandHandlerDelegate(storage, converter,
+            new PlayerStateUpdatePlayCommandHandlerDelegate(playerStateRepository, converter,
                     new HardcodedContextUriParser(),
                     new HardcodedPlayableItemResolver(),
                     new HardcodedPlayCommandPreExecutingIntegrityValidator()),
@@ -50,7 +50,7 @@ class DefaultPlayerOperationsTest {
 
     @AfterEach
     void afterEach() {
-        storage.clear().block();
+        playerStateRepository.clear().block();
     }
 
     @Test
@@ -73,7 +73,7 @@ class DefaultPlayerOperationsTest {
 
     @Test
     void changeShuffleToEnabled_andExpectShuffleToChange() {
-        PersistablePlayerState playerState = saveState(createDisabledState());
+        PlayerState playerState = saveState(createDisabledState());
 
         CurrentPlayerState updatedState = playerOperations.changeShuffle(createUser(playerState), SHUFFLE_ENABLED).block();
 
@@ -82,7 +82,7 @@ class DefaultPlayerOperationsTest {
 
     @Test
     void changeShuffleToDisabled_andExpectShuffleToChange() {
-        PersistablePlayerState playerState = saveState(createEnabledState());
+        PlayerState playerState = saveState(createEnabledState());
 
         CurrentPlayerState updatedState = playerOperations.changeShuffle(createUser(playerState), SHUFFLE_DISABLED).block();
 
@@ -91,8 +91,8 @@ class DefaultPlayerOperationsTest {
 
     @Test
     void shouldChangeNothingIfStateIsEqual() {
-        PersistablePlayerState state = PlayerStateFaker.create().asPersistablePlayerState();
-        PersistablePlayerState savedPlayerState = saveState(state);
+        PlayerState state = PlayerStateFaker.create().get();
+        PlayerState savedPlayerState = saveState(state);
 
         CurrentPlayerState updatedState = playerOperations.changeShuffle(createUser(savedPlayerState), state.getShuffleState()).block();
 
@@ -104,7 +104,7 @@ class DefaultPlayerOperationsTest {
     class EmptyPlayerStateTests {
         @AfterEach
         void clear() {
-            storage.clear().block();
+            playerStateRepository.clear().block();
         }
 
         @Test
@@ -143,10 +143,10 @@ class DefaultPlayerOperationsTest {
             createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getPlayingItem()).isNull());
         }
 
-        private void createEmptyPlayerStateAndAssert(BiConsumer<PersistablePlayerState, CurrentPlayerState> predicateConsumer) {
+        private void createEmptyPlayerStateAndAssert(BiConsumer<PlayerState, CurrentPlayerState> predicateConsumer) {
             User user = User.of("NakanoMiku");
 
-            PersistablePlayerState expected = PersistablePlayerStateFactory.createEmpty(user);
+            PlayerState expected = PlayerStateFactory.createEmpty(user);
 
             CurrentPlayerState actual = playerOperations.createState(user).block();
 
@@ -220,10 +220,10 @@ class DefaultPlayerOperationsTest {
         }
 
 
-        private void saveAndCompareActualWithExpected(BiConsumer<PersistablePlayerState, CurrentPlayerState> predicateConsumer) {
-            PersistablePlayerState expected = PlayerStateFaker.create().asPersistablePlayerState();
+        private void saveAndCompareActualWithExpected(BiConsumer<PlayerState, CurrentPlayerState> predicateConsumer) {
+            PlayerState expected = PlayerStateFaker.create().get();
 
-            PersistablePlayerState playerState = saveState(expected);
+            PlayerState playerState = saveState(expected);
 
             CurrentPlayerState actual = getCurrentPlayerState(playerState);
 
@@ -231,7 +231,7 @@ class DefaultPlayerOperationsTest {
         }
 
         @Nullable
-        private CurrentPlayerState getCurrentPlayerState(PersistablePlayerState playerState) {
+        private CurrentPlayerState getCurrentPlayerState(PlayerState playerState) {
             return playerOperations.currentState(User.of(playerState.getUser().getId())).block();
         }
     }
@@ -242,7 +242,7 @@ class DefaultPlayerOperationsTest {
 
         @AfterEach
         void cleanup() {
-            storage.clear().block();
+            playerStateRepository.clear().block();
         }
 
         @Test
@@ -278,13 +278,13 @@ class DefaultPlayerOperationsTest {
         @NotNull
         private User prepareStateForUser() {
             User user = User.of("miku");
-            PersistablePlayerState playerState = PlayerStateFaker.create().setUser(InMemoryUserEntity.builder().id(user.getId()).build()).asPersistablePlayerState();
+            PlayerState playerState = PlayerStateFaker.create().user(UserEntity.builder().id(user.getId()).build()).get();
             saveState(playerState); // prepare state for the user
             return user;
         }
 
         private static boolean verifyReasonCode(Throwable err, String expected) {
-            if (err instanceof ReasonCodeAware reasonCodeAware) {
+            if ( err instanceof ReasonCodeAware reasonCodeAware ) {
                 return reasonCodeAware.getReasonCode().equals(expected);
             }
             return false;
@@ -322,10 +322,10 @@ class DefaultPlayerOperationsTest {
             saveAndAssert((expected, actual) -> assertThat(expected.getPlayingType()).isEqualTo(actual.getCurrentlyPlayingType()));
         }
 
-        private void saveAndAssert(BiConsumer<PersistablePlayerState, CurrentlyPlayingPlayerState> predicateConsumer) {
-            PersistablePlayerState expected = PlayerStateFaker.create().setPlaying(true).asPersistablePlayerState();
+        private void saveAndAssert(BiConsumer<PlayerState, CurrentlyPlayingPlayerState> predicateConsumer) {
+            PlayerState expected = PlayerStateFaker.create().playing(true).get();
 
-            PersistablePlayerState playerState = saveState(expected);
+            PlayerState playerState = saveState(expected);
 
             CurrentlyPlayingPlayerState currentlyPlayingState = getCurrentlyPlayingState(playerState);
 
@@ -333,7 +333,7 @@ class DefaultPlayerOperationsTest {
         }
 
         @Nullable
-        private CurrentlyPlayingPlayerState getCurrentlyPlayingState(PersistablePlayerState playerState) {
+        private CurrentlyPlayingPlayerState getCurrentlyPlayingState(PlayerState playerState) {
             return getCurrentlyPlayingPlayerState(User.of(playerState.getUser().getId()));
         }
 
@@ -343,27 +343,27 @@ class DefaultPlayerOperationsTest {
         }
     }
 
-    private static User createUser(PersistablePlayerState playerState) {
+    private static User createUser(PlayerState playerState) {
         return User.of(playerState.getUser().getId());
     }
 
     @NotNull
-    private PersistablePlayerState saveState(PersistablePlayerState playerState) {
-        return Objects.requireNonNull(storage.save(playerState).block());
+    private PlayerState saveState(PlayerState playerState) {
+        return Objects.requireNonNull(playerStateRepository.save(playerState).block());
     }
 
-    private PersistablePlayerState createEnabledState() {
+    private PlayerState createEnabledState() {
         return PlayerStateFaker
                 .create()
-                .setShuffleState(SHUFFLE_ENABLED)
-                .asPersistablePlayerState();
+                .shuffleState(SHUFFLE_ENABLED)
+                .get();
     }
 
-    private static PersistablePlayerState createDisabledState() {
+    private static PlayerState createDisabledState() {
         return PlayerStateFaker
                 .create()
-                .setShuffleState(SHUFFLE_DISABLED)
-                .asPersistablePlayerState();
+                .shuffleState(SHUFFLE_DISABLED)
+                .get();
     }
 
     static class NullDeviceOperations implements DeviceOperations {

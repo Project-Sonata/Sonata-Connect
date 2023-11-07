@@ -12,14 +12,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PlayerStatePersistentOperationsTestAdapter {
 
-    final PlayerStatePersistentOperations<PlayerState> testTarget;
+    final PlayerStatePersistentOperations testTarget;
     final TestEntityGenerator<? extends PlayerState> entityGenerator;
 
     protected PlayerState entity;
 
-    public PlayerStatePersistentOperationsTestAdapter(PlayerStatePersistentOperations<? extends PlayerState> testTarget,
+    public PlayerStatePersistentOperationsTestAdapter(PlayerStatePersistentOperations testTarget,
                                                       TestEntityGenerator<? extends PlayerState> entityGenerator) {
-        this.testTarget = (PlayerStatePersistentOperations<PlayerState>) testTarget;
+        this.testTarget = testTarget;
         this.entityGenerator = entityGenerator;
     }
 
