@@ -11,9 +11,9 @@ public abstract class JwtUtils {
      * @param tokenFormat - format to check
      * @return - true if string is valid JWT format
      */
-    public static boolean isValidFormat(String tokenFormat) {
+    public static boolean isValidFormat(CharSequence tokenFormat) {
         Assert.notNull(tokenFormat, "Token must be not null!");
-        String[] jwtParts = StringUtils.split(tokenFormat, JWT_PART_SEPARATOR);
+        String[] jwtParts = StringUtils.split(tokenFormat.toString(), JWT_PART_SEPARATOR);
 
         return jwtParts.length == 3;
     }
