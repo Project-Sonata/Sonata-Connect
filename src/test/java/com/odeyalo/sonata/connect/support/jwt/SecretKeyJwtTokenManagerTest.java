@@ -1,7 +1,6 @@
 package com.odeyalo.sonata.connect.support.jwt;
 
 import com.odeyalo.sonata.connect.support.jwt.JwtTokenGenerator.GenerationOptions;
-import com.odeyalo.sonata.connect.support.jwt.JwtTokenGenerator.GenerationOptions.DefaultClaimsOverridePolicy;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -13,16 +12,18 @@ import javax.crypto.SecretKey;
 
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Objects;
 
 import static com.odeyalo.sonata.connect.support.jwt.JwtTokenGenerator.GenerationOptions.DefaultClaimsOverridePolicy.*;
 import static com.odeyalo.sonata.connect.support.jwt.StaticJwtTokenSecretKeySupplier.withStaticValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-class SecretKeyJwtTokenGeneratorTest {
+class SecretKeyJwtTokenManagerTest {
     public static final Duration TOKEN_LIFETIME = Duration.ofMinutes(15);
     static SecretKey secretKey = generateSecretKey();
 
-    SecretKeyJwtTokenGenerator testable = new SecretKeyJwtTokenGenerator(withStaticValue(secretKey));
+    SecretKeyJwtTokenManager testable = new SecretKeyJwtTokenManager(withStaticValue(secretKey));
 
     JwtParser jwtParser = Jwts.parser().verifyWith(secretKey).build();
 
@@ -92,6 +93,31 @@ class SecretKeyJwtTokenGeneratorTest {
         testable.generateJwt(generationOptions)
                 .as(StepVerifier::create)
                 .expectNextMatches(actual -> Objects.equals(actual.getLifetime(), lifetime))
+                .verifyComplete();
+    }
+
+    @Test
+    void shouldParseJwtAndReturnValidClaims() {
+        Collection<String> expectedClaims = JwtTokenGenerator.DEFAULT_CLAIMS;
+        JwtToken token = testable.generateJwt(JwtTokenGenerator.DEFAULT_OPTIONS).block();
+
+        assertThat(token).isNotNull();
+
+        testable.parseToken(token.getTokenValue())
+                .as(StepVerifier::create)
+                .expectNextMatches(actual -> expectedClaims.containsAll(actual.keySet()))
+                .verifyComplete();
+    }
+
+    @Test
+    void shouldParseJwtAndReturnRemainingTime() {
+        JwtToken token = testable.generateJwt(JwtTokenGenerator.DEFAULT_OPTIONS).block();
+
+        assertThat(token).isNotNull();
+
+        testable.parseToken(token.getTokenValue())
+                .as(StepVerifier::create)
+                .expectNextMatches(actual -> actual.getRemainingLifetime().isPositive())
                 .verifyComplete();
     }
 
