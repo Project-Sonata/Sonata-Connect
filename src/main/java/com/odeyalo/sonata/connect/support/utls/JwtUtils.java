@@ -17,4 +17,11 @@ public abstract class JwtUtils {
 
         return jwtParts.length == 3;
     }
+    /**
+     * @param tokenFormat - format to check
+     * @return - true if string is valid JWT format
+     */
+    public static boolean isInvalidFormat(CharSequence tokenFormat) {
+        return !isValidFormat(tokenFormat);
+    }
 }
