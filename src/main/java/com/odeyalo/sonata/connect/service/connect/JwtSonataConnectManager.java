@@ -8,6 +8,8 @@ import com.odeyalo.sonata.connect.support.jwt.JwtTokenManager;
 import com.odeyalo.sonata.connect.support.jwt.ParsedJwtTokenMetadata;
 import com.odeyalo.sonata.connect.support.utls.JwtUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -18,6 +20,7 @@ import java.util.Set;
 
 import static com.odeyalo.sonata.connect.service.connect.SCAToken.withTokenValue;
 
+@Component
 public class JwtSonataConnectManager implements SonataConnectManager {
     private final JwtTokenManager jwtTokenManager;
     private final SonataConnectAccessTokenGenerator accessTokenGenerator;
@@ -25,6 +28,7 @@ public class JwtSonataConnectManager implements SonataConnectManager {
     private static final String DEVICE_ID_CLAIM = "device_id";
     private static final String USER_ID_CLAIM = "user_id";
 
+    @Autowired
     public JwtSonataConnectManager(JwtTokenManager jwtTokenManager, SonataConnectAccessTokenGenerator accessTokenGenerator) {
         this.jwtTokenManager = jwtTokenManager;
         this.accessTokenGenerator = accessTokenGenerator;
