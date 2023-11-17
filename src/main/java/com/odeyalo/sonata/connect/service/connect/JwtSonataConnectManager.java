@@ -1,40 +1,51 @@
 package com.odeyalo.sonata.connect.service.connect;
 
+import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.support.jwt.JwtToken;
+import com.odeyalo.sonata.connect.support.jwt.JwtToken.JwtTokenValue;
 import com.odeyalo.sonata.connect.support.jwt.JwtTokenGenerator;
-import com.odeyalo.sonata.connect.support.jwt.JwtTokenGenerator.GenerationOptions.DefaultClaimsOverridePolicy;
+import com.odeyalo.sonata.connect.support.jwt.JwtTokenManager;
+import com.odeyalo.sonata.connect.support.jwt.ParsedJwtTokenMetadata;
 import com.odeyalo.sonata.connect.support.utls.JwtUtils;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
+import java.time.Duration;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static com.odeyalo.sonata.connect.service.connect.SCAToken.withTokenValue;
 
 public class JwtSonataConnectManager implements SonataConnectManager {
-    private final JwtTokenGenerator generator;
+    private final JwtTokenManager jwtTokenManager;
+    private final SonataConnectAccessTokenGenerator accessTokenGenerator;
 
-    public JwtSonataConnectManager(JwtTokenGenerator generator) {
-        this.generator = generator;
+    private static final String DEVICE_ID_CLAIM = "device_id";
+    private static final String USER_ID_CLAIM = "user_id";
+
+    public JwtSonataConnectManager(JwtTokenManager jwtTokenManager, SonataConnectAccessTokenGenerator accessTokenGenerator) {
+        this.jwtTokenManager = jwtTokenManager;
+        this.accessTokenGenerator = accessTokenGenerator;
     }
 
     @NotNull
     @Override
-    public Mono<SCAToken> generateSCAToken(DeviceConnectionAuthenticationTarget connectionAuthenticationTarget) {
-        Map<String, Object> claims = Collections.singletonMap(
-                "device_id", connectionAuthenticationTarget.getId()
-        );
+    public Mono<SCAToken> generateSCAToken(DeviceConnectionAuthenticationTarget connectionAuthenticationTarget, User user) {
 
-        Mono<JwtToken> jwtTokenMono = generator.generateJwt(
-                JwtTokenGenerator.GenerationOptions.builder()
-                        .additionalClaims(claims)
-                        .defaultClaimsOverridePolicy(DefaultClaimsOverridePolicy.OVERRIDE)
-                        .build()
-        );
+        Map<String, Object> claims = new HashMap<>() {{
+            put(DEVICE_ID_CLAIM, connectionAuthenticationTarget.getId());
+            put(USER_ID_CLAIM, user.getId());
+        }};
 
-        return jwtTokenMono.map(jwtToken -> withTokenValue(jwtToken.getTokenValue().tokenValue()))
-                .log();
+        var generationOptions = JwtTokenGenerator.GenerationOptions.builder()
+                .additionalClaims(claims)
+                .build();
+
+        Mono<JwtToken> jwtTokenMono = jwtTokenManager.generateJwt(generationOptions);
+
+        return jwtTokenMono.map(jwtToken -> withTokenValue(jwtToken.getTokenValue().tokenValue()));
     }
 
     @NotNull
@@ -43,6 +54,60 @@ public class JwtSonataConnectManager implements SonataConnectManager {
         if ( JwtUtils.isInvalidFormat(scat) ) {
             return Mono.empty();
         }
-        return Mono.just(AccessToken.of("value"));
+        return jwtTokenManager.parseToken(JwtTokenValue.just(scat))
+                .map(JwtSCATokenMetadataWrapper::new)
+                .flatMap(tokenMetadata -> accessTokenGenerator.generateAccessToken(tokenMetadata.getUser()));
+    }
+
+
+    private record JwtSCATokenMetadataWrapper(@NotNull ParsedJwtTokenMetadata parent) {
+
+        public User getUser() {
+            String userId = get(USER_ID_CLAIM, String.class);
+            return User.of(userId);
+        }
+
+        public DeviceConnectionAuthenticationTarget getTargetDevice() {
+            String deviceId = get(DEVICE_ID_CLAIM, String.class);
+            return DeviceConnectionAuthenticationTarget.of(deviceId);
+        }
+
+        // Delegate methods
+
+        public Duration getRemainingLifetime() {
+            return parent.getRemainingLifetime();
+        }
+
+        public int size() {
+            return parent.size();
+        }
+
+        public boolean isEmpty() {
+            return parent.isEmpty();
+        }
+
+        public boolean containsKey(String key) {
+            return parent.containsKey(key);
+        }
+
+        public boolean containsValue(Object value) {
+            return parent.containsValue(value);
+        }
+
+        public Set<String> keySet() {
+            return parent.keySet();
+        }
+
+        public Collection<Object> values() {
+            return parent.values();
+        }
+
+        public Object get(String key) {
+            return parent.get(key);
+        }
+
+        public <T> T get(String key, Class<T> requiredClass) {
+            return parent.get(key, requiredClass);
+        }
     }
 }
