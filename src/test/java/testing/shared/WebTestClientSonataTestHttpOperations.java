@@ -5,6 +5,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 /**
  * Call endpoints using WebTestClient
  */
@@ -70,5 +72,20 @@ public class WebTestClientSonataTestHttpOperations implements SonataTestHttpOper
                 .uri("/player/device/switch")
                 .header(HttpHeaders.AUTHORIZATION, authorizationHeaderValue)
                 .bodyValue(body);
+    }
+
+    @Override
+    public SCATokenExchangeResponseDto exchangeScat(String authorizationHeaderValue, String scat) {
+        var exchangeBody = SCATokenExchangeRequestDto.of(scat);
+
+        WebTestClient.ResponseSpec exchange = webTestClient.post().uri("/connect/auth/exchange")
+                .header(AUTHORIZATION, authorizationHeaderValue)
+                .bodyValue(exchangeBody)
+                .exchange();
+        exchange.expectStatus().isOk();
+
+        return exchange.expectBody(SCATokenExchangeResponseDto.class)
+                .returnResult()
+                .getResponseBody();
     }
 }

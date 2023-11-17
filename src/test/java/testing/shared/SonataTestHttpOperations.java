@@ -21,4 +21,6 @@ public interface SonataTestHttpOperations {
     void changeShuffle(String authorizationHeaderValue, boolean shuffleMode);
 
     void switchDevices(String authorizationHeaderValue, DeviceSwitchRequest body);
+
+    SCATokenExchangeResponseDto exchangeScat(String authorizationHeaderValue, String scat);
 }
