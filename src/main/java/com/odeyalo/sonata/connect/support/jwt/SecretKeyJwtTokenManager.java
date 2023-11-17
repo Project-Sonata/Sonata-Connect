@@ -13,6 +13,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.odeyalo.sonata.connect.support.jwt.JwtToken.withTokenValue;
@@ -36,6 +38,7 @@ public class SecretKeyJwtTokenManager implements JwtTokenManager {
 
         Date issuedAt = Date.from(generationTime);
         Date expiresIn = Date.from(generationTime.plusSeconds(options.getLifetime().toSeconds()));
+        Map<String, Object> additionalClaims = options.getAdditionalClaims();
 
         JwtBuilder jwtBuilder = Jwts.builder()
                 .id(UUID.randomUUID().toString())
@@ -44,10 +47,10 @@ public class SecretKeyJwtTokenManager implements JwtTokenManager {
                 .signWith(secretKeySupplier.get());
 
         if ( options.getDefaultClaimsOverridePolicy() == DO_NOT_OVERRIDE ) {
-            removeDefaultClaimsFromAdditional(options);
+            additionalClaims = removeDefaultClaimsFromAdditional(options);
         }
 
-        jwtBuilder.claims().add(options.getAdditionalClaims());
+        jwtBuilder.claims().add(additionalClaims);
 
         JwtToken jwtToken = convertToJwtToken(options, expiresIn, jwtBuilder);
 
@@ -73,8 +76,10 @@ public class SecretKeyJwtTokenManager implements JwtTokenManager {
                 .build();
     }
 
-    private static void removeDefaultClaimsFromAdditional(@NotNull GenerationOptions options) {
-        DEFAULT_CLAIMS.forEach(options.getAdditionalClaims().keySet()::remove);
+    private static Map<String, Object> removeDefaultClaimsFromAdditional(@NotNull GenerationOptions options) {
+        HashMap<String, Object> newClaims = new HashMap<>(options.getAdditionalClaims());
+        DEFAULT_CLAIMS.forEach(newClaims.keySet()::remove);
+        return newClaims;
     }
 
     private static Instant calculateRemainingLifetime(Claims claims) {
