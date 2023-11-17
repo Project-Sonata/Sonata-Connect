@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
@@ -38,7 +39,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
         repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
         ids = "com.odeyalo.sonata:authorization:+")
 @TestPropertySource(locations = "classpath:application-test.properties")
-@Import(Configuration.class)
 public class SonataConnectDeviceAuthenticationEndpointTest {
 
     @Autowired
@@ -87,7 +87,7 @@ public class SonataConnectDeviceAuthenticationEndpointTest {
             assertThat(responseBody).isNotNull();
 
             // HTTP status already asserted in exchangeScat method, won't do it again
-            sonataTestHttpOperations.exchangeScat(VALID_ACCESS_TOKEN, responseBody.getToken());
+            sonataTestHttpOperations.exchangeScat(responseBody.getToken());
         }
 
         @NotNull
@@ -106,9 +106,10 @@ public class SonataConnectDeviceAuthenticationEndpointTest {
     }
 
     @TestConfiguration
-    static class Configuration {
+    public static class Configuration {
 
         @Bean
+        @Primary
         public SonataConnectAccessTokenGenerator sonataConnectAccessTokenGenerator() {
             return new MockSonataConnectAccessTokenGenerator();
         }

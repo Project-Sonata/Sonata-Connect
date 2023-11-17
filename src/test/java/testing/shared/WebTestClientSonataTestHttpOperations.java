@@ -75,11 +75,10 @@ public class WebTestClientSonataTestHttpOperations implements SonataTestHttpOper
     }
 
     @Override
-    public SCATokenExchangeResponseDto exchangeScat(String authorizationHeaderValue, String scat) {
+    public SCATokenExchangeResponseDto exchangeScat(String scat) {
         var exchangeBody = SCATokenExchangeRequestDto.of(scat);
 
         WebTestClient.ResponseSpec exchange = webTestClient.post().uri("/connect/auth/exchange")
-                .header(AUTHORIZATION, authorizationHeaderValue)
                 .bodyValue(exchangeBody)
                 .exchange();
         exchange.expectStatus().isOk();

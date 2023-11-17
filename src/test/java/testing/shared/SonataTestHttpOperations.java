@@ -22,5 +22,5 @@ public interface SonataTestHttpOperations {
 
     void switchDevices(String authorizationHeaderValue, DeviceSwitchRequest body);
 
-    SCATokenExchangeResponseDto exchangeScat(String authorizationHeaderValue, String scat);
+    SCATokenExchangeResponseDto exchangeScat(String scat);
 }
