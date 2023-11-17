@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.service.connect;
 
+import com.odeyalo.sonata.connect.model.User;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -24,7 +25,8 @@ import reactor.core.publisher.Mono;
 public interface SonataConnectManager {
 
     @NotNull
-    Mono<SCAToken> generateSCAToken(DeviceConnectionAuthenticationTarget deviceConnectionAuthenticationTarget);
+    Mono<SCAToken> generateSCAToken(@NotNull DeviceConnectionAuthenticationTarget deviceTarget,
+                                    @NotNull User user);
 
     @NotNull
     Mono<AccessToken> exchangeForToken(@NotNull String scat);
