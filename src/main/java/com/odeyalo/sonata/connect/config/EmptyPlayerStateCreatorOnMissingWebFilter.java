@@ -3,6 +3,7 @@ package com.odeyalo.sonata.connect.config;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.BasicPlayerOperations;
 import com.odeyalo.suite.security.auth.AuthenticatedUser;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Component;
@@ -24,11 +25,12 @@ public class EmptyPlayerStateCreatorOnMissingWebFilter implements WebFilter {
     }
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+    @NotNull
+    public Mono<Void> filter(@NotNull ServerWebExchange exchange, @NotNull WebFilterChain chain) {
         return ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
                 .cast(AuthenticatedUser.class)
                 .map(user -> User.of(user.getDetails().getId()))
                 .flatMap(playerOperations::createState)
-                .flatMap(state -> chain.filter(exchange));
+                .then(chain.filter(exchange));
     }
 }
