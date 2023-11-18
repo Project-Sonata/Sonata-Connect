@@ -9,9 +9,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AuthorizeExchangeSpecConfigurer implements Customizer<AuthorizeExchangeSpec> {
+    private static final String SCA_TOKEN_EXCHANGE_ENDPOINT = "/connect/auth/exchange**";
 
     @Override
     public void customize(AuthorizeExchangeSpec authorizeExchangeSpec) {
-        authorizeExchangeSpec.anyExchange().authenticated();
+        authorizeExchangeSpec.
+                pathMatchers(SCA_TOKEN_EXCHANGE_ENDPOINT).permitAll()
+                .anyExchange().authenticated();
     }
 }
