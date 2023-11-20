@@ -8,7 +8,6 @@ import reactor.core.publisher.Mono;
 /**
  * Mock impl of SonataConnectAccessTokenGenerator
  */
-@Component
 public class MockSonataConnectAccessTokenGenerator implements SonataConnectAccessTokenGenerator {
 
     @Override
