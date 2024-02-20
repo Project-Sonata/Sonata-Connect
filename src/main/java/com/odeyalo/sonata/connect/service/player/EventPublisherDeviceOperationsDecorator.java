@@ -52,6 +52,12 @@ public class EventPublisherDeviceOperationsDecorator implements DeviceOperations
 
     @NotNull
     @Override
+    public Mono<CurrentPlayerState> disconnectDevice(User user, DisconnectDeviceArgs args) {
+        return delegate.disconnectDevice(user, args);
+    }
+
+    @NotNull
+    @Override
     public Mono<Devices> getConnectedDevices(User user) {
         return delegate.getConnectedDevices(user);
     }

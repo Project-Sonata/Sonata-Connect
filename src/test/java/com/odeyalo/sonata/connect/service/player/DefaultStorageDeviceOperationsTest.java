@@ -16,11 +16,13 @@ import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import com.odeyalo.sonata.connect.service.support.mapper.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import reactor.test.StepVerifier;
 import testing.asserts.DevicesAssert;
 import testing.faker.PlayerStateFaker;
 import testing.faker.TargetDeactivationDevicesFaker;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.odeyalo.sonata.connect.service.player.SwitchDeviceCommandArgs.ensurePlaybackStarted;
 import static com.odeyalo.sonata.connect.service.player.TargetDeactivationDevices.empty;
@@ -84,6 +86,29 @@ class DefaultStorageDeviceOperationsTest {
                     .peekById(inactiveDeviceEntity.getId()).active();
         }
 
+        @Test
+        void shouldRemoveExistingDevice() {
+            String disconnectTargetId = inactiveDeviceEntity.getId();
+
+            operations.disconnectDevice(user, DisconnectDeviceArgs.withDeviceId(disconnectTargetId))
+                    .map(CurrentPlayerState::getDevices)
+                    .as(StepVerifier::create)
+                    .expectNextMatches(devices -> devices.stream().noneMatch(device -> Objects.equals(device.getDeviceId(), disconnectTargetId)))
+                    .verifyComplete();
+        }
+
+        @Test
+        void shouldNotChangeStateIfDeviceNotExist() {
+            String disconnectTargetId = "not_existing";
+            Devices connectedDevices = operations.getConnectedDevices(user).block();
+
+            //noinspection DataFlowIssue
+            operations.disconnectDevice(user, DisconnectDeviceArgs.withDeviceId(disconnectTargetId))
+                    .map(CurrentPlayerState::getDevices)
+                    .as(StepVerifier::create)
+                    .expectNext(connectedDevices)
+                    .verifyComplete();
+        }
 
         @Test
         void shouldThrowExceptionIfDeviceIdIsInvalid() {
