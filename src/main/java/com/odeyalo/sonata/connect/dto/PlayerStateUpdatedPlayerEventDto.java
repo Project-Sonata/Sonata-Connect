@@ -4,19 +4,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.odeyalo.sonata.connect.service.player.sync.event.PlayerEvent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
  * Dto wrapper for PlayerStateUpdatedPlayerEvent
  */
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
 @Data
 public class PlayerStateUpdatedPlayerEventDto extends PlayerEventDto {
     @JsonProperty("player_state")
     PlayerStateDto playerState;
-    @JsonProperty("event_type")
-    PlayerEvent.EventType eventType;
     @JsonProperty("device_that_changed")
     String deviceThatChanged;
+
+    @Override
+    public PlayerEvent.EventType getEventType() {
+        return PlayerEvent.EventType.PLAYER_STATE_UPDATED;
+    }
 }
