@@ -7,10 +7,8 @@ import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.sync.PlayerSynchronizationManager;
 import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import com.odeyalo.sonata.connect.service.player.sync.event.DeviceConnectedPlayerEvent;
-import com.odeyalo.suite.security.auth.AuthenticatedUser;
+import com.odeyalo.sonata.connect.service.player.sync.event.DeviceDisconnectedPlayerEvent;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import reactor.core.publisher.Mono;
 
 /**
@@ -29,13 +27,13 @@ public class EventPublisherDeviceOperationsDecorator implements DeviceOperations
     @Override
     public Mono<CurrentPlayerState> addDevice(User user, Device device) {
         return delegate.addDevice(user, device)
-                .zipWith(ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication).cast(AuthenticatedUser.class))
-                .flatMap(tuple -> {
-                    CurrentPlayerState state = tuple.getT1();
-                    String deviceId = device.getDeviceId();
-                    return synchronizationManager.publishUpdatedState(tuple.getT2(), DeviceConnectedPlayerEvent.of(state, deviceId))
-                            .thenReturn(state);
-                });
+                .flatMap(state -> synchronizationManager.publishUpdatedState(user,
+                                DeviceConnectedPlayerEvent.builder()
+                                        .playerState(state)
+                                        .deviceThatChanged(device.getDeviceId())
+                                        .build())
+                        .thenReturn(state));
+
     }
 
     @NotNull
@@ -53,7 +51,14 @@ public class EventPublisherDeviceOperationsDecorator implements DeviceOperations
     @NotNull
     @Override
     public Mono<CurrentPlayerState> disconnectDevice(User user, DisconnectDeviceArgs args) {
-        return delegate.disconnectDevice(user, args);
+        return delegate.disconnectDevice(user, args)
+                .flatMap(currentPlayerState -> synchronizationManager
+                        .publishUpdatedState(user, DeviceDisconnectedPlayerEvent.builder()
+                                .playerState(currentPlayerState)
+                                .deviceThatChanged(args.getDeviceId())
+                                .build())
+                        .thenReturn(currentPlayerState)
+                );
     }
 
     @NotNull

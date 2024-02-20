@@ -1,6 +1,6 @@
 package com.odeyalo.sonata.connect.service.player.sync;
 
-import com.odeyalo.suite.security.auth.AuthenticatedUser;
+import com.odeyalo.sonata.connect.model.User;
 import reactor.core.publisher.Mono;
 
 /**
@@ -12,5 +12,5 @@ public interface RoomHolder {
      * @param user - user to get or create room to
      * @return - room wrapped in mono
      */
-    Mono<Room> getOrCreateRoom(AuthenticatedUser user);
+    Mono<Room> getOrCreateRoom(User user);
 }

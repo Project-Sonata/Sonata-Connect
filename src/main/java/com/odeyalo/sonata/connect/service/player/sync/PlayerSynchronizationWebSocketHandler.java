@@ -3,6 +3,7 @@ package com.odeyalo.sonata.connect.service.player.sync;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odeyalo.sonata.connect.dto.PlayerEventDto;
+import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.sync.event.PlayerEvent;
 import com.odeyalo.sonata.connect.service.support.mapper.Converter;
 import com.odeyalo.suite.security.auth.AuthenticatedUser;
@@ -40,12 +41,13 @@ public class PlayerSynchronizationWebSocketHandler implements WebSocketHandler {
     @Override
     public Mono<Void> handle(WebSocketSession session) {
         Flux<WebSocketMessage> messages = resolveAuthentication()
+                .map(authentication -> User.of(authentication.getDetails().getId()))
                 .flatMapMany(user -> receiveAndConvert(session, user));
         return session.send(messages);
     }
 
     @NotNull
-    private Flux<WebSocketMessage> receiveAndConvert(WebSocketSession session, AuthenticatedUser user) {
+    private Flux<WebSocketMessage> receiveAndConvert(WebSocketSession session, User user) {
         return playerSynchronizationManager.getEventStream(user)
                 .mapNotNull(this::convertAndWriteAsJson)
                 .map(session::textMessage);

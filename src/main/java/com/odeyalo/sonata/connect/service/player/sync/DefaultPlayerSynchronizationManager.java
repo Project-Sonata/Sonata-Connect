@@ -1,7 +1,7 @@
 package com.odeyalo.sonata.connect.service.player.sync;
 
+import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.sync.event.PlayerEvent;
-import com.odeyalo.suite.security.auth.AuthenticatedUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -20,12 +20,12 @@ public class DefaultPlayerSynchronizationManager implements PlayerSynchronizatio
     }
 
     @Override
-    public Mono<Void> publishUpdatedState(AuthenticatedUser user, PlayerEvent event) {
+    public Mono<Void> publishUpdatedState(User user, PlayerEvent event) {
         return roomHolder.getOrCreateRoom(user).flatMap(room -> room.getPublisher().publishEvent(event));
     }
 
     @Override
-    public Flux<PlayerEvent> getEventStream(AuthenticatedUser user) {
+    public Flux<PlayerEvent> getEventStream(User user) {
         return roomHolder.getOrCreateRoom(user).flatMapMany(room -> room.getPublisher().getEventStream());
     }
 }
