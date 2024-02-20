@@ -1,9 +1,7 @@
 package testing.asserts;
 
 import com.odeyalo.sonata.connect.dto.AvailableDevicesResponseDto;
-import com.odeyalo.sonata.connect.dto.DevicesDto;
 import org.assertj.core.api.AbstractAssert;
-import org.jetbrains.annotations.NotNull;
 
 public class AvailableDevicesResponseDtoAssert extends AbstractAssert<AvailableDevicesResponseDtoAssert, AvailableDevicesResponseDto> {
 
@@ -20,6 +18,10 @@ public class AvailableDevicesResponseDtoAssert extends AbstractAssert<AvailableD
             failWithActualExpectedAndMessage(actual.getSize(), expectedLength, "Expected sizes to be equal");
         }
         return this;
+    }
+
+    public AvailableDevicesResponseDtoAssert isEmpty() {
+        return length(0);
     }
 
     public DevicesDtoAssert devices() {

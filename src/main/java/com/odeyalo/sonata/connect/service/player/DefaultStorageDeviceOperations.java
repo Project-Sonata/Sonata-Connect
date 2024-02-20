@@ -57,6 +57,14 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
 
     @NotNull
     @Override
+    public Mono<CurrentPlayerState> disconnectDevice(User user, DisconnectDeviceArgs args) {
+        return playerStateRepository.findByUserId(user.getId())
+                .doOnNext(playerState -> playerState.getDevices().removeDevice(args.getDeviceId()))
+                .map(currentPlayerStateConverterSupport::convertTo);
+    }
+
+    @NotNull
+    @Override
     public Mono<Devices> getConnectedDevices(User user) {
         return playerStateRepository.findByUserId(user.getId())
                 .map(PlayerState::getDevicesEntity)

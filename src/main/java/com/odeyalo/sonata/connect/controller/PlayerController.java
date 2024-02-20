@@ -103,6 +103,13 @@ public class PlayerController {
                 .thenReturn(default204Response());
     }
 
+    @DeleteMapping(value = "/device")
+    public Mono<ResponseEntity<?>> disconnectDevice(@RequestParam("device_id") String deviceId, AuthenticatedUser authenticatedUser) {
+        return playerOperations.getDeviceOperations()
+                .disconnectDevice(resolveUser(authenticatedUser), DisconnectDeviceArgs.withDeviceId(deviceId))
+                .thenReturn(default204Response());
+    }
+
     private CurrentlyPlayingPlayerStateDto convertToDto(CurrentlyPlayingPlayerState state) {
         return currentlyPlayingPlayerStateDtoConverter.convertTo(state);
     }

@@ -31,6 +31,9 @@ public interface DeviceOperations {
     Mono<CurrentPlayerState> transferPlayback(User user, SwitchDeviceCommandArgs args, TargetDeactivationDevices deactivationDevices, TargetDevices targetDevices);
 
     @NotNull
+    Mono<CurrentPlayerState> disconnectDevice(User user, DisconnectDeviceArgs args);
+
+    @NotNull
     Mono<Devices> getConnectedDevices(User user);
 
 }

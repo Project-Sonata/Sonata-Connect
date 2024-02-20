@@ -8,8 +8,6 @@ import com.odeyalo.sonata.connect.service.player.sync.PlayerSynchronizationManag
 import com.odeyalo.sonata.connect.service.player.sync.event.PlayerStateUpdatedPlayerEvent;
 import com.odeyalo.suite.security.auth.AuthenticatedUser;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
@@ -29,9 +27,7 @@ public class EventPublisherPlayerOperationsDecorator implements BasicPlayerOpera
 
     @Override
     public Mono<CurrentPlayerState> currentState(User user) {
-        return delegate.currentState(user)
-                .zipWith(ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication).cast(AuthenticatedUser.class))
-                .flatMap(this::publishEvent);
+        return delegate.currentState(user);
     }
 
     @Override

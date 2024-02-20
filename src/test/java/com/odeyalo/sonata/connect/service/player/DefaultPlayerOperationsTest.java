@@ -388,6 +388,12 @@ class DefaultPlayerOperationsTest {
 
         @NotNull
         @Override
+        public Mono<CurrentPlayerState> disconnectDevice(User user, DisconnectDeviceArgs args) {
+            return Mono.empty();
+        }
+
+        @NotNull
+        @Override
         public Mono<Devices> getConnectedDevices(User user) {
             return Mono.empty();
         }
