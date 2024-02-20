@@ -23,7 +23,8 @@ import lombok.experimental.SuperBuilder;
         property = "event_type")
 @JsonSubTypes(value = {
                 @JsonSubTypes.Type(value = PlayerStateUpdatedPlayerEventDto.class, name = "PLAYER_STATE_UPDATED"),
-                @JsonSubTypes.Type(value = DeviceConnectedPlayerEventDto.class, name = "NEW_DEVICE_CONNECTED")
+                @JsonSubTypes.Type(value = DeviceConnectedPlayerEventDto.class, name = "NEW_DEVICE_CONNECTED"),
+                @JsonSubTypes.Type(value = DeviceDisconnectedPlayerEventDto.class, name = "DEVICE_DISAPPEARED")
         }
 )
 public abstract class PlayerEventDto {
