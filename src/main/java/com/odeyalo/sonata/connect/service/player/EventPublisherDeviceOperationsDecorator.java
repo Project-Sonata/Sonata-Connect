@@ -52,8 +52,7 @@ public class EventPublisherDeviceOperationsDecorator implements DeviceOperations
     @Override
     public Mono<CurrentPlayerState> disconnectDevice(User user, DisconnectDeviceArgs args) {
         return delegate.disconnectDevice(user, args)
-                .flatMap(currentPlayerState -> synchronizationManager
-                        .publishUpdatedState(user, DeviceDisconnectedPlayerEvent.builder()
+                .flatMap(currentPlayerState -> synchronizationManager.publishUpdatedState(user, DeviceDisconnectedPlayerEvent.builder()
                                 .playerState(currentPlayerState)
                                 .deviceThatChanged(args.getDeviceId())
                                 .build())
