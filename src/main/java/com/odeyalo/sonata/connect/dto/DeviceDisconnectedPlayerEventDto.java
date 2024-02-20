@@ -5,16 +5,14 @@ import com.odeyalo.sonata.connect.service.player.sync.event.PlayerEvent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 /**
- * Dto wrapper for PlayerStateUpdatedPlayerEvent
+ * Wrapper for {@link com.odeyalo.sonata.connect.service.player.sync.event.DeviceDisconnectedPlayerEvent}
  */
 @EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor(staticName = "of")
-@NoArgsConstructor
 @Data
-public class PlayerStateUpdatedPlayerEventDto extends PlayerEventDto {
+@AllArgsConstructor(staticName = "of")
+public class DeviceDisconnectedPlayerEventDto extends PlayerEventDto {
     @JsonProperty("player_state")
     PlayerStateDto playerState;
     @JsonProperty("device_that_changed")
@@ -22,6 +20,6 @@ public class PlayerStateUpdatedPlayerEventDto extends PlayerEventDto {
 
     @Override
     public PlayerEvent.EventType getEventType() {
-        return PlayerEvent.EventType.PLAYER_STATE_UPDATED;
+        return PlayerEvent.EventType.DEVICE_DISAPPEARED;
     }
 }

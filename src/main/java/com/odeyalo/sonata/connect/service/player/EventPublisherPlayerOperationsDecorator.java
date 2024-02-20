@@ -6,10 +6,9 @@ import com.odeyalo.sonata.connect.model.Device;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.sync.PlayerSynchronizationManager;
 import com.odeyalo.sonata.connect.service.player.sync.event.PlayerStateUpdatedPlayerEvent;
-import com.odeyalo.suite.security.auth.AuthenticatedUser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 /**
  * Decorator that can publish event to PlayerSynchronizationManager
@@ -51,18 +50,23 @@ public class EventPublisherPlayerOperationsDecorator implements BasicPlayerOpera
     }
 
     @NotNull
-    private Mono<CurrentPlayerState> publishEvent(Tuple2<CurrentPlayerState, AuthenticatedUser> tuple) {
-        CurrentPlayerState currentPlayerState = tuple.getT1();
-        AuthenticatedUser authenticatedUser = tuple.getT2();
+    private Mono<CurrentPlayerState> publishEvent(CurrentPlayerState currentPlayerState, User user) {
         Device activeDevice = getActiveDevice(currentPlayerState);
         if (activeDevice == null) {
             return Mono.just(currentPlayerState);
         }
-        return synchronizationManager.publishUpdatedState(authenticatedUser,
-                PlayerStateUpdatedPlayerEvent.of(currentPlayerState, activeDevice.getDeviceId())).thenReturn(currentPlayerState);
+
+        PlayerStateUpdatedPlayerEvent stateUpdatedPlayerEvent = PlayerStateUpdatedPlayerEvent.builder()
+                .playerState(currentPlayerState)
+                .deviceThatChanged(activeDevice.getDeviceId())
+                .build();
+
+        return synchronizationManager.publishUpdatedState(user, stateUpdatedPlayerEvent)
+                .thenReturn(currentPlayerState);
     }
 
+    @Nullable
     private static Device getActiveDevice(CurrentPlayerState state) {
-        return state.getDevices().getDevices().stream().filter(Device::isActive).findFirst().orElse(null);
+        return state.getDevices().getActiveDevice().orElse(null);
     }
 }

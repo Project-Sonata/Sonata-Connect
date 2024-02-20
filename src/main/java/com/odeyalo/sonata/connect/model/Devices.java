@@ -1,16 +1,18 @@
 package com.odeyalo.sonata.connect.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Value
 @AllArgsConstructor(staticName = "of")
 @Builder
-public class Devices {
+public class Devices implements Iterable<Device> {
+    @Getter(value = AccessLevel.PRIVATE)
     List<Device> devices;
 
     public boolean isEmpty() {
@@ -25,11 +27,17 @@ public class Devices {
         return devices.get(index);
     }
 
-    public void addDevice(Device device) {
-        this.devices.add(device);
+    public Optional<Device> getActiveDevice() {
+        return getDevices().stream().filter(Device::isActive).findFirst();
     }
 
     public Stream<Device> stream() {
         return devices.stream();
+    }
+
+    @NotNull
+    @Override
+    public Iterator<Device> iterator() {
+        return devices.iterator();
     }
 }

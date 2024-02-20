@@ -42,7 +42,7 @@ public class DevicesAssert extends AbstractAssert<DevicesAssert, Devices> {
     }
 
     public DeviceAssert peekById(String id) {
-        Device foundDevice = actual.getDevices().stream().filter(device -> device.getDeviceId().equals(id)).findFirst()
+        Device foundDevice = actual.stream().filter(device -> device.getDeviceId().equals(id)).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(format("Expected device with ID: %s but nothing was found", id)));
 
         return DeviceAssert.forDevice(foundDevice);

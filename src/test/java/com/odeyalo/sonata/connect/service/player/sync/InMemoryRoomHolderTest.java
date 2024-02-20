@@ -1,18 +1,12 @@
 package com.odeyalo.sonata.connect.service.player.sync;
 
-import com.odeyalo.suite.security.auth.AuthenticatedUser;
-import com.odeyalo.suite.security.auth.AuthenticatedUserDetails;
+import com.odeyalo.sonata.connect.model.User;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.Set;
-
-import static java.util.Set.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Tests for InMemoryRoomHolder
@@ -22,7 +16,7 @@ class InMemoryRoomHolderTest {
     @Test
     void getOrCreateRoom() {
         InMemoryRoomHolder repository = new InMemoryRoomHolder();
-        AuthenticatedUser user = createAuthenticatedUser();
+        User user = createUser();
         Room room = repository.getOrCreateRoom(user).block();
 
         assertThat(room).isNotNull();
@@ -31,7 +25,7 @@ class InMemoryRoomHolderTest {
     @Test
     void mustReuseExistingOne() {
         InMemoryRoomHolder repository = new InMemoryRoomHolder();
-        AuthenticatedUser user = createAuthenticatedUser();
+        User user = createUser();
         Room first = repository.getOrCreateRoom(user).block();
 
         assertNotNull(first);
@@ -42,11 +36,8 @@ class InMemoryRoomHolderTest {
     }
 
     @NotNull
-    private static AuthenticatedUser createAuthenticatedUser() {
-        Set<GrantedAuthority> authorities = of(new SimpleGrantedAuthority("read"), new SimpleGrantedAuthority("write"));
-        AuthenticatedUserDetails details = new AuthenticatedUserDetails("id", "odeyalo", "password", authorities);
-        AuthenticatedUser user = AuthenticatedUser.of(details, "odeyalo", authorities);
-        return user;
+    private static User createUser() {
+        return User.of("123");
     }
 
     @Test
