@@ -6,10 +6,7 @@ import lombok.Builder;
 import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -32,6 +29,11 @@ public class TargetDevices implements Iterable<TargetDevice> {
 
     public static TargetDevices empty() {
         return of(List.of());
+    }
+
+    public static TargetDevices fromDeviceIds(String[] deviceIds) {
+        List<TargetDevice> targetDevices = Arrays.stream(deviceIds).map(TargetDevice::of).toList();
+        return of(targetDevices);
     }
 
     public TargetDevice get(int index) {

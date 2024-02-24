@@ -21,8 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.Arrays;
-
 @RestController
 @RequestMapping("/player")
 public class PlayerController {
@@ -57,7 +55,7 @@ public class PlayerController {
     @GetMapping("/currently-playing")
     public Mono<ResponseEntity<CurrentlyPlayingPlayerStateDto>> currentlyPlaying(User user) {
         return playerOperations.currentlyPlayingState(user)
-                .map(state -> ResponseEntity.ok(convertToDto(state)))
+                .map(state -> ResponseEntity.ok(convertToCurrentlyPlayingStateDto(state)))
                 .defaultIfEmpty(ResponseEntity.noContent().build());
     }
 
@@ -94,10 +92,11 @@ public class PlayerController {
 
     @PutMapping(value = "/device/switch", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<?>> switchDevices(User user, @RequestBody DeviceSwitchRequest body) {
-        return playerOperations.getDeviceOperations().transferPlayback(user,
+        return playerOperations.getDeviceOperations().transferPlayback(
+                        user,
                         SwitchDeviceCommandArgs.noMatter(),
                         TargetDeactivationDevices.empty(),
-                        TargetDevices.of(Arrays.stream(body.getDeviceIds()).map(TargetDevice::of).toList()))
+                        TargetDevices.fromDeviceIds(body.getDeviceIds()))
                 .thenReturn(default204Response());
     }
 
@@ -108,7 +107,7 @@ public class PlayerController {
                 .thenReturn(default204Response());
     }
 
-    private CurrentlyPlayingPlayerStateDto convertToDto(CurrentlyPlayingPlayerState state) {
+    private CurrentlyPlayingPlayerStateDto convertToCurrentlyPlayingStateDto(CurrentlyPlayingPlayerState state) {
         return currentlyPlayingPlayerStateDtoConverter.convertTo(state);
     }
 
