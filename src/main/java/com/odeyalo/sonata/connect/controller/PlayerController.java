@@ -69,7 +69,7 @@ public class PlayerController {
     }
 
     @PutMapping("/play")
-    public Mono<ResponseEntity<?>> resumePlayback(User user, @RequestBody PlayResumePlaybackRequest body) {
+    public Mono<ResponseEntity<?>> playOrResume(User user, @RequestBody PlayResumePlaybackRequest body) {
         return playerOperations.playOrResume(user, PlayCommandContext.of(body.getContextUri()), null)
                 .thenReturn(default204Response());
     }
