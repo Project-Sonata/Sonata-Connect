@@ -12,8 +12,8 @@ import com.odeyalo.sonata.connect.service.support.mapper.dto.ConnectDeviceReques
 import com.odeyalo.sonata.connect.service.support.mapper.dto.CurrentPlayerState2PlayerStateDtoConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.Devices2DevicesDtoConverter;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,26 +23,13 @@ import reactor.core.scheduler.Schedulers;
 
 @RestController
 @RequestMapping("/player")
+@RequiredArgsConstructor
 public class PlayerController {
     private final BasicPlayerOperations playerOperations;
     private final CurrentPlayerState2PlayerStateDtoConverter playerState2PlayerStateDtoConverter;
     private final Devices2DevicesDtoConverter devicesDtoConverter;
     private final ConnectDeviceRequest2DeviceConverter deviceModelConverter;
     private final Converter<CurrentlyPlayingPlayerState, CurrentlyPlayingPlayerStateDto> currentlyPlayingPlayerStateDtoConverter;
-
-    @Autowired
-    public PlayerController(
-            BasicPlayerOperations playerOperations,
-            CurrentPlayerState2PlayerStateDtoConverter playerState2PlayerStateDtoConverter,
-            Devices2DevicesDtoConverter devicesDtoConverter,
-            ConnectDeviceRequest2DeviceConverter deviceModelConverter,
-            Converter<CurrentlyPlayingPlayerState, CurrentlyPlayingPlayerStateDto> currentlyPlayingPlayerStateDtoConverter) {
-        this.playerOperations = playerOperations;
-        this.playerState2PlayerStateDtoConverter = playerState2PlayerStateDtoConverter;
-        this.devicesDtoConverter = devicesDtoConverter;
-        this.deviceModelConverter = deviceModelConverter;
-        this.currentlyPlayingPlayerStateDtoConverter = currentlyPlayingPlayerStateDtoConverter;
-    }
 
     @GetMapping("/state")
     public Mono<PlayerStateDto> currentPlayerState(User user) {
