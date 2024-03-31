@@ -1,6 +1,7 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.common.context.HardcodedContextUriParser;
+import com.odeyalo.sonata.connect.config.Converters;
 import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
 import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.entity.UserEntity;
@@ -9,6 +10,7 @@ import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriEx
 import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
+import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.support.HardcodedPlayableItemResolver;
 import com.odeyalo.sonata.connect.service.player.support.validation.HardcodedPlayCommandPreExecutingIntegrityValidator;
@@ -27,11 +29,13 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.*;
+import static com.odeyalo.sonata.connect.service.player.DefaultPlayerOperationsTest.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
 
 class DefaultPlayerOperationsTest {
 
+    public static final User EXISTING_USER = User.of("odeyalooo");
     PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
 
     PlayerState2CurrentPlayerStateConverter converter = new PlayerState2CurrentPlayerStateConverter(
@@ -48,6 +52,27 @@ class DefaultPlayerOperationsTest {
                     new HardcodedPlayCommandPreExecutingIntegrityValidator()),
             new CurrentPlayerState2CurrentlyPlayingPlayerStateConverter());
 
+    static class DefaultPlayerOperationsTestableBuilder {
+        private final PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
+        private final DeviceOperations deviceOperations = new NullDeviceOperations();
+        private final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport = new Converters().playerState2CurrentPlayerStateConverter();
+        private final PlayCommandHandlerDelegate playCommandHandlerDelegate = new PlayerStateUpdatePlayCommandHandlerDelegate(playerStateRepository, playerStateConverterSupport,
+                new HardcodedContextUriParser(),
+                new HardcodedPlayableItemResolver(),
+                new HardcodedPlayCommandPreExecutingIntegrityValidator());
+        private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter = new Converters().currentPlayerStateConverter();
+
+        public static DefaultPlayerOperationsTestableBuilder testableBuilder() {
+            return new DefaultPlayerOperationsTestableBuilder();
+        }
+
+        public DefaultPlayerOperations build() {
+            return new DefaultPlayerOperations(playerStateRepository,
+                    deviceOperations, playerStateConverterSupport,
+                    playCommandHandlerDelegate, playerStateConverter);
+        }
+    }
+
     @AfterEach
     void afterEach() {
         playerStateRepository.clear().block();
@@ -55,11 +80,13 @@ class DefaultPlayerOperationsTest {
 
     @Test
     void getStateForUser_andExpectStateToBeCreated() {
-        User user = User.of("odeyalooo");
+        DefaultPlayerOperations testable = testableBuilder().build();
 
-        CurrentPlayerState playerState = playerOperations.currentState(user).block();
+        testable.currentState(EXISTING_USER)
+                .as(StepVerifier::create)
+                .expectNextCount(1)
+                .verifyComplete();
 
-        assertThat(playerState).isNotNull();
     }
 
     @Test
