@@ -12,7 +12,7 @@ import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.SH
 import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.SHUFFLE_ENABLED;
 import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 
-class ChangeShuffleStateTest {
+class ChangeShuffleStateTest extends DefaultPlayerOperationsTest {
     static final User EXISTING_USER = User.of("odeyalooo");
 
     @Test
@@ -63,11 +63,6 @@ class ChangeShuffleStateTest {
 
     }
 
-    protected static PlayerState existingPlayerState() {
-        UserEntity existingUserEntity = existingUserEntity();
-        return PlayerStateFaker.create().user(existingUserEntity).get();
-    }
-
     private PlayerState playerStateWithShuffleEnabled() {
         UserEntity user = existingUserEntity();
 
@@ -86,11 +81,5 @@ class ChangeShuffleStateTest {
                 .shuffleState(SHUFFLE_DISABLED)
                 .user(user)
                 .get();
-    }
-
-    protected static UserEntity existingUserEntity() {
-        return UserEntity.builder()
-                .id(EXISTING_USER.getId())
-                .build();
     }
 }

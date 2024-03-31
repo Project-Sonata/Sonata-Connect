@@ -1,7 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.entity.PlayerState;
-import com.odeyalo.sonata.connect.entity.UserEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.User;
@@ -11,7 +10,7 @@ import testing.faker.PlayerStateFaker;
 
 import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 
-class CurrentlyPlayingPlayerStateTests {
+class CurrentlyPlayingPlayerStateTests extends DefaultPlayerOperationsTest {
     static final User EXISTING_USER = User.of("odeyalooo");
 
     @Test
@@ -78,11 +77,5 @@ class CurrentlyPlayingPlayerStateTests {
 
     private static PlayerState playingActivePlayerState() {
         return PlayerStateFaker.create().playing(true).user(existingUserEntity()).get();
-    }
-
-    protected static UserEntity existingUserEntity() {
-        return UserEntity.builder()
-                .id(EXISTING_USER.getId())
-                .build();
     }
 }

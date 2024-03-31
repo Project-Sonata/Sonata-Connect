@@ -6,16 +6,12 @@ import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriEx
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.PlayableItemType;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import reactor.test.StepVerifier;
 
 import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.CURRENT_DEVICE;
 import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 
-@Nested
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PlayResumeCommandTests extends DefaultPlayerOperationsTest {
     static final String INVALID_CONTEXT_URI = "sonata:invalid:cassie";
     static final String EXISTING_PLAYABLE_ITEM_CONTEXT = "sonata:track:cassie";

@@ -8,7 +8,7 @@ import reactor.test.StepVerifier;
 
 import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 
-class EmptyPlayerStateTest {
+class EmptyPlayerStateTest extends DefaultPlayerOperationsTest {
     static final User EXISTING_USER = User.of("odeyalooo");
 
     @Test

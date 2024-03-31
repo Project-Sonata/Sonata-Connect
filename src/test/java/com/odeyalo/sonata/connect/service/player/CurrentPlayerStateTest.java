@@ -1,17 +1,15 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.entity.PlayerState;
-import com.odeyalo.sonata.connect.entity.UserEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.User;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
-import testing.faker.PlayerStateFaker;
 
 import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 
-class CurrentPlayerStateTest {
+class CurrentPlayerStateTest extends DefaultPlayerOperationsTest {
     static final User EXISTING_USER = User.of("odeyalooo");
 
     @Test
@@ -133,16 +131,5 @@ class CurrentPlayerStateTest {
                 .as(StepVerifier::create)
                 .expectNext(state.getCurrentlyPlayingItem().getType())
                 .verifyComplete();
-    }
-
-    protected static PlayerState existingPlayerState() {
-        UserEntity existingUserEntity = existingUserEntity();
-        return PlayerStateFaker.create().user(existingUserEntity).get();
-    }
-
-    protected static UserEntity existingUserEntity() {
-        return UserEntity.builder()
-                .id(EXISTING_USER.getId())
-                .build();
     }
 }
