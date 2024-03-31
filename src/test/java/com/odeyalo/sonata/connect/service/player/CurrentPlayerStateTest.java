@@ -128,9 +128,17 @@ class CurrentPlayerStateTest {
 
     @Test
     void shouldReturnPlayingType() {
-        saveAndCompareActualWithExpected(
-                (expected, actual) -> assertThat(expected.getPlayingType()).isEqualTo(actual.getPlayingType())
-        );
+        PlayerState state = existingPlayerState();
+
+        DefaultPlayerOperations testable = testableBuilder()
+                .withState(state)
+                .build();
+
+        testable.currentState(EXISTING_USER)
+                .map(CurrentPlayerState::getPlayingType)
+                .as(StepVerifier::create)
+                .expectNext(state.getPlayingType())
+                .verifyComplete();
     }
 
     @Test
