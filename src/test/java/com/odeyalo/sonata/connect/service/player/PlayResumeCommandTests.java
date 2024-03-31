@@ -12,7 +12,7 @@ import org.junit.jupiter.api.TestInstance;
 import reactor.test.StepVerifier;
 
 import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.CURRENT_DEVICE;
-import static com.odeyalo.sonata.connect.service.player.DefaultPlayerOperationsTest.DefaultPlayerOperationsTestableBuilder.testableBuilder;
+import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 
 @Nested
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

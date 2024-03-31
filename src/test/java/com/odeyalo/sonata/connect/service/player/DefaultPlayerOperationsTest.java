@@ -1,27 +1,22 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.common.context.HardcodedContextUriParser;
-import com.odeyalo.sonata.connect.config.Converters;
 import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
 import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.entity.UserEntity;
-import com.odeyalo.sonata.connect.exception.ReasonCodeAware;
-import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriException;
 import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
-import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.support.HardcodedPlayableItemResolver;
 import com.odeyalo.sonata.connect.service.player.support.validation.HardcodedPlayCommandPreExecutingIntegrityValidator;
-import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import com.odeyalo.sonata.connect.service.support.factory.PlayerStateFactory;
 import com.odeyalo.sonata.connect.service.support.mapper.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.*;
-import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import testing.stub.NullDeviceOperations;
 import testing.asserts.PlayableItemEntityAssert;
 import testing.faker.PlayerStateFaker;
 
@@ -29,14 +24,13 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.*;
-import static com.odeyalo.sonata.connect.service.player.DefaultPlayerOperationsTest.DefaultPlayerOperationsTestableBuilder.testableBuilder;
+import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
 
 class DefaultPlayerOperationsTest {
 
     public static final User EXISTING_USER = User.of("odeyalooo");
-    public static final String EXISTING_PLAYABLE_ITEM_CONTEXT = "sonata:track:cassie";
     PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
 
     PlayerState2CurrentPlayerStateConverter converter = new PlayerState2CurrentPlayerStateConverter(
@@ -52,32 +46,6 @@ class DefaultPlayerOperationsTest {
                     new HardcodedPlayableItemResolver(),
                     new HardcodedPlayCommandPreExecutingIntegrityValidator()),
             new CurrentPlayerState2CurrentlyPlayingPlayerStateConverter());
-
-    static class DefaultPlayerOperationsTestableBuilder {
-        private final PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
-        private final DeviceOperations deviceOperations = new NullDeviceOperations();
-        private final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport = new Converters().playerState2CurrentPlayerStateConverter();
-        private final PlayCommandHandlerDelegate playCommandHandlerDelegate = new PlayerStateUpdatePlayCommandHandlerDelegate(playerStateRepository, playerStateConverterSupport,
-                new HardcodedContextUriParser(),
-                new HardcodedPlayableItemResolver(),
-                new HardcodedPlayCommandPreExecutingIntegrityValidator());
-        private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter = new Converters().currentPlayerStateConverter();
-
-        public static DefaultPlayerOperationsTestableBuilder testableBuilder() {
-            return new DefaultPlayerOperationsTestableBuilder();
-        }
-
-        public DefaultPlayerOperationsTestableBuilder withState(PlayerState state) {
-            playerStateRepository.save(state).block();
-            return this;
-        }
-
-        public DefaultPlayerOperations build() {
-            return new DefaultPlayerOperations(playerStateRepository,
-                    deviceOperations, playerStateConverterSupport,
-                    playCommandHandlerDelegate, playerStateConverter);
-        }
-    }
 
     @AfterEach
     void afterEach() {
@@ -356,36 +324,4 @@ class DefaultPlayerOperationsTest {
                 .get();
     }
 
-    static class NullDeviceOperations implements DeviceOperations {
-
-        @NotNull
-        @Override
-        public Mono<CurrentPlayerState> addDevice(User user, Device device) {
-            return Mono.empty();
-        }
-
-        @NotNull
-        @Override
-        public Mono<Boolean> containsById(User user, String deviceId) {
-            return Mono.empty();
-        }
-
-        @NotNull
-        @Override
-        public Mono<CurrentPlayerState> transferPlayback(User user, SwitchDeviceCommandArgs args, TargetDeactivationDevices deactivationDevices, TargetDevices targetDevices) {
-            return Mono.empty();
-        }
-
-        @NotNull
-        @Override
-        public Mono<CurrentPlayerState> disconnectDevice(User user, DisconnectDeviceArgs args) {
-            return Mono.empty();
-        }
-
-        @NotNull
-        @Override
-        public Mono<Devices> getConnectedDevices(User user) {
-            return Mono.empty();
-        }
-    }
 }
