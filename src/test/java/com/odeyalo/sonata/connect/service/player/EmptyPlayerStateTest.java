@@ -16,7 +16,7 @@ import java.util.function.BiConsumer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 
-class EmptyPlayerStateTests {
+class EmptyPlayerStateTest {
     PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
     static final User EXISTING_USER = User.of("odeyalooo");
 
@@ -68,8 +68,14 @@ class EmptyPlayerStateTests {
     }
 
     @Test
-    void shouldReturnProgressMs() {
-        createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getProgressMs()).isEqualTo(expected.getProgressMs()));
+    void shouldReturnDefaultProgressMs() {
+        DefaultPlayerOperations testable = testableBuilder().build();
+
+        testable.currentState(EXISTING_USER)
+                .map(CurrentPlayerState::getProgressMs)
+                .as(StepVerifier::create)
+                .expectNext(-1L)
+                .verifyComplete();
     }
 
     @Test
