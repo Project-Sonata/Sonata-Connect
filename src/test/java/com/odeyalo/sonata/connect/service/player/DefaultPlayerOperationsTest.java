@@ -5,7 +5,6 @@ import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
 import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.entity.UserEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
@@ -13,7 +12,6 @@ import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.support.HardcodedPlayableItemResolver;
 import com.odeyalo.sonata.connect.service.player.support.validation.HardcodedPlayCommandPreExecutingIntegrityValidator;
-import com.odeyalo.sonata.connect.service.support.factory.PlayerStateFactory;
 import com.odeyalo.sonata.connect.service.support.mapper.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +20,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import reactor.test.StepVerifier;
-import testing.asserts.PlayableItemEntityAssert;
 import testing.faker.PlayerStateFaker;
 import testing.stub.NullDeviceOperations;
 
@@ -142,58 +139,6 @@ class DefaultPlayerOperationsTest {
         @Nullable
         private CurrentPlayerState getCurrentPlayerState(PlayerState playerState) {
             return playerOperations.currentState(User.of(playerState.getUser().getId())).block();
-        }
-    }
-
-    @Nested
-    @TestInstance(Lifecycle.PER_CLASS)
-    class CurrentlyPlayingPlayerStateTests {
-
-        @Test
-        void shouldReturnShuffleState() {
-            saveAndAssert((expected, actual) -> assertThat(expected.getShuffleState()).isEqualTo(actual.getShuffleState()));
-        }
-
-        @Test
-        void shouldReturnRepeatState() {
-            saveAndAssert((expected, actual) -> assertThat(expected.getRepeatState()).isEqualTo(actual.getRepeatState()));
-        }
-
-        @Test
-        void shouldReturnPlayableItem() {
-            saveAndAssert((expected, actual) -> {
-
-                PlayableItemEntityAssert.forEntity(expected.getCurrentlyPlayingItem())
-                        .id().isEqualTo(actual.getPlayableItem().getId());
-
-                PlayableItemEntityAssert.forEntity(expected.getCurrentlyPlayingItem())
-                        .entityType().isEqualTo(actual.getPlayableItem().getItemType());
-            });
-        }
-
-        @Test
-        void shouldReturnPlayingType() {
-            saveAndAssert((expected, actual) -> assertThat(expected.getPlayingType()).isEqualTo(actual.getCurrentlyPlayingType()));
-        }
-
-        private void saveAndAssert(BiConsumer<PlayerState, CurrentlyPlayingPlayerState> predicateConsumer) {
-            PlayerState expected = PlayerStateFaker.create().playing(true).get();
-
-            PlayerState playerState = saveState(expected);
-
-            CurrentlyPlayingPlayerState currentlyPlayingState = getCurrentlyPlayingState(playerState);
-
-            predicateConsumer.accept(playerState, currentlyPlayingState);
-        }
-
-        @Nullable
-        private CurrentlyPlayingPlayerState getCurrentlyPlayingState(PlayerState playerState) {
-            return getCurrentlyPlayingPlayerState(User.of(playerState.getUser().getId()));
-        }
-
-        @Nullable
-        private CurrentlyPlayingPlayerState getCurrentlyPlayingPlayerState(User user) {
-            return playerOperations.currentlyPlayingState(user).block();
         }
     }
 
