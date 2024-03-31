@@ -124,13 +124,25 @@ class DefaultPlayerOperationsTest {
     }
 
     @Test
-    void shouldChangeNothingIfStateIsEqual() {
-        PlayerState state = PlayerStateFaker.create().get();
-        PlayerState savedPlayerState = saveState(state);
+    void shouldChangeNothingIfShuffleStateIsEqual() {
+        PlayerState state = existingPlayerState();
+        boolean expectedShuffleState = state.getShuffleState();
 
-        CurrentPlayerState updatedState = playerOperations.changeShuffle(createUser(savedPlayerState), state.getShuffleState()).block();
+        DefaultPlayerOperations testable = testableBuilder()
+                .withState(state)
+                .build();
 
-        assertThat(updatedState.getShuffleState()).isEqualTo(state.getShuffleState());
+
+        testable.changeShuffle(EXISTING_USER, expectedShuffleState)
+                .map(CurrentPlayerState::getShuffleState)
+                .as(StepVerifier::create)
+                .expectNext(expectedShuffleState)
+                .verifyComplete();
+
+    }
+
+    private static PlayerState existingPlayerState() {
+        return PlayerStateFaker.create().get();
     }
 
     @Nested
@@ -255,7 +267,7 @@ class DefaultPlayerOperationsTest {
 
 
         private void saveAndCompareActualWithExpected(BiConsumer<PlayerState, CurrentPlayerState> predicateConsumer) {
-            PlayerState expected = PlayerStateFaker.create().get();
+            PlayerState expected = existingPlayerState();
 
             PlayerState playerState = saveState(expected);
 
