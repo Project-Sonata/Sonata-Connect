@@ -111,12 +111,19 @@ class CurrentPlayerStateTest {
                 .verifyComplete();
     }
 
-
     @Test
     void shouldReturnProgressMs() {
-        saveAndCompareActualWithExpected(
-                (expected, actual) -> assertThat(expected.getProgressMs()).isEqualTo(actual.getProgressMs())
-        );
+        PlayerState state = existingPlayerState();
+
+        DefaultPlayerOperations testable = testableBuilder()
+                .withState(state)
+                .build();
+
+        testable.currentState(EXISTING_USER)
+                .map(CurrentPlayerState::getProgressMs)
+                .as(StepVerifier::create)
+                .expectNext(state.getProgressMs())
+                .verifyComplete();
     }
 
     @Test
