@@ -35,8 +35,13 @@ class EmptyPlayerStateTests {
     }
 
     @Test
-    void shouldReturnId() {
-        createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getId()).isNotNull().isPositive());
+    void shouldReturnGeneratedId() {
+        DefaultPlayerOperations testable = testableBuilder().build();
+
+        testable.currentState(EXISTING_USER)
+                .as(StepVerifier::create)
+                .expectNextMatches(it -> it.getId() > 0)
+                .verifyComplete();
     }
 
     @Test
