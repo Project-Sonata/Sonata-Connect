@@ -142,7 +142,7 @@ class DefaultPlayerOperationsTest {
 
     }
 
-    private static PlayerState existingPlayerState() {
+    protected static PlayerState existingPlayerState() {
         UserEntity existingUserEntity = existingUserEntity();
         return PlayerStateFaker.create().user(existingUserEntity).get();
     }
@@ -275,65 +275,6 @@ class DefaultPlayerOperationsTest {
 
     @Nested
     @TestInstance(Lifecycle.PER_CLASS)
-    class PlayResumeCommandTests {
-
-        @AfterEach
-        void cleanup() {
-            playerStateRepository.clear().block();
-        }
-
-        @Test
-        void shouldUpdateState() {
-            PlayerState playerState = existingPlayerState();
-            DefaultPlayerOperations testable = testableBuilder().withState(playerState).build();
-
-            testable.playOrResume(EXISTING_USER, PlayCommandContext.of(EXISTING_PLAYABLE_ITEM_CONTEXT), CURRENT_DEVICE)
-                    .map(CurrentPlayerState::getPlayableItem)
-                    .as(StepVerifier::create)
-                    .assertNext(it -> {
-                        assertThat(it.getId()).isEqualTo("cassie");
-                        assertThat(it.getItemType()).isEqualTo(PlayableItemType.TRACK);
-                    })
-                    .verifyComplete();
-        }
-
-        @Test
-        void shouldThrowExceptionIfContextUriIsInvalid() {
-            String invalidContext = "sonata:invalid:cassie";
-            User user = prepareStateForUser();
-
-            StepVerifier.create(playerOperations.playOrResume(user, PlayCommandContext.of(invalidContext), CURRENT_DEVICE))
-                    .expectError(ReasonCodeAwareMalformedContextUriException.class)
-                    .verify();
-        }
-
-        @Test
-        void shouldContainReasonCodeIfContextUriIsInvalid() {
-            String invalidContext = "sonata:invalid:cassie";
-            User user = prepareStateForUser();
-
-            StepVerifier.create(playerOperations.playOrResume(user, PlayCommandContext.of(invalidContext), CURRENT_DEVICE))
-                    .expectErrorMatches(err -> verifyReasonCode(err, "malformed_context_uri"))
-                    .verify();
-        }
-
-        @NotNull
-        private User prepareStateForUser() {
-            PlayerState playerState = PlayerStateFaker.create().user(existingUserEntity()).get();
-            saveState(playerState); // prepare state for the user
-            return EXISTING_USER;
-        }
-
-        private static boolean verifyReasonCode(Throwable err, String expected) {
-            if ( err instanceof ReasonCodeAware reasonCodeAware ) {
-                return reasonCodeAware.getReasonCode().equals(expected);
-            }
-            return false;
-        }
-    }
-
-    @Nested
-    @TestInstance(Lifecycle.PER_CLASS)
     class CurrentlyPlayingPlayerStateTests {
 
         @Test
@@ -385,7 +326,7 @@ class DefaultPlayerOperationsTest {
     }
 
     @NotNull
-    private PlayerState saveState(PlayerState playerState) {
+    protected PlayerState saveState(PlayerState playerState) {
         return Objects.requireNonNull(playerStateRepository.save(playerState).block());
     }
 
@@ -399,7 +340,7 @@ class DefaultPlayerOperationsTest {
                 .get();
     }
 
-    private static UserEntity existingUserEntity() {
+    protected static UserEntity existingUserEntity() {
         return UserEntity.builder()
                 .id(EXISTING_USER.getId())
                 .build();
