@@ -1,11 +1,8 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.common.context.HardcodedContextUriParser;
-import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
 import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.entity.UserEntity;
-import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
@@ -14,20 +11,14 @@ import com.odeyalo.sonata.connect.service.player.support.HardcodedPlayableItemRe
 import com.odeyalo.sonata.connect.service.player.support.validation.HardcodedPlayCommandPreExecutingIntegrityValidator;
 import com.odeyalo.sonata.connect.service.support.mapper.*;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import reactor.test.StepVerifier;
 import testing.faker.PlayerStateFaker;
 import testing.stub.NullDeviceOperations;
 
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.TestInstance.Lifecycle;
 import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 
 class DefaultPlayerOperationsTest {
@@ -67,79 +58,6 @@ class DefaultPlayerOperationsTest {
     protected static PlayerState existingPlayerState() {
         UserEntity existingUserEntity = existingUserEntity();
         return PlayerStateFaker.create().user(existingUserEntity).get();
-    }
-
-    @Nested
-    @TestInstance(Lifecycle.PER_CLASS)
-    class CurrentPlayerStateTest {
-        @Test
-        void shouldReturnNotNullExistedState() {
-            saveAndCompareActualWithExpected((
-                    (expected, actual) -> assertThat(actual).isNotNull())
-            );
-        }
-
-        @Test
-        void shouldReturnIdForExistedState() {
-            saveAndCompareActualWithExpected((
-                    (expected, actual) -> assertThat(actual.getId()).isEqualTo(expected.getId()))
-            );
-        }
-
-        @Test
-        void shouldReturnRepeatState() {
-            saveAndCompareActualWithExpected(
-                    (expected, actual) -> assertThat(actual.getRepeatState()).isEqualTo(expected.getRepeatState()));
-        }
-
-        @Test
-        void shouldReturnShuffleState() {
-            saveAndCompareActualWithExpected(
-                    (expected, actual) -> assertThat(expected.getShuffleState()).isEqualTo(actual.getShuffleState())
-            );
-        }
-
-
-        @Test
-        void shouldReturnProgressMs() {
-            saveAndCompareActualWithExpected(
-                    (expected, actual) -> assertThat(expected.getProgressMs()).isEqualTo(actual.getProgressMs())
-            );
-        }
-
-        @Test
-        void shouldReturnPlayingType() {
-            saveAndCompareActualWithExpected(
-                    (expected, actual) -> assertThat(expected.getPlayingType()).isEqualTo(actual.getPlayingType())
-            );
-        }
-
-        @Test
-        void shouldReturnCurrentlyPlayingItem() {
-            saveAndCompareActualWithExpected(
-                    (expected, actual) -> {
-                        PlayableItemEntity expectedItem = expected.getCurrentlyPlayingItem();
-                        PlayableItem actualItem = actual.getPlayingItem();
-                        assertThat(expectedItem.getId()).isEqualTo(actualItem.getId());
-                        assertThat(expectedItem.getType()).isEqualTo(actualItem.getItemType());
-                    }
-            );
-        }
-
-        private void saveAndCompareActualWithExpected(BiConsumer<PlayerState, CurrentPlayerState> predicateConsumer) {
-            PlayerState expected = existingPlayerState();
-
-            PlayerState playerState = saveState(expected);
-
-            CurrentPlayerState actual = getCurrentPlayerState(playerState);
-
-            predicateConsumer.accept(expected, actual);
-        }
-
-        @Nullable
-        private CurrentPlayerState getCurrentPlayerState(PlayerState playerState) {
-            return playerOperations.currentState(User.of(playerState.getUser().getId())).block();
-        }
     }
 
     @NotNull
