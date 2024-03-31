@@ -98,9 +98,17 @@ class CurrentPlayerStateTest {
 
     @Test
     void shouldReturnShuffleState() {
-        saveAndCompareActualWithExpected(
-                (expected, actual) -> assertThat(expected.getShuffleState()).isEqualTo(actual.getShuffleState())
-        );
+        PlayerState state = existingPlayerState();
+
+        DefaultPlayerOperations testable = testableBuilder()
+                .withState(state)
+                .build();
+
+        testable.currentState(EXISTING_USER)
+                .map(CurrentPlayerState::getShuffleState)
+                .as(StepVerifier::create)
+                .expectNext(state.getShuffleState())
+                .verifyComplete();
     }
 
 
