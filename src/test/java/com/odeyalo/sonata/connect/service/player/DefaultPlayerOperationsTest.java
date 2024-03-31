@@ -110,11 +110,17 @@ class DefaultPlayerOperationsTest {
 
     @Test
     void changeShuffleToDisabled_andExpectShuffleToChange() {
-        PlayerState playerState = saveState(createEnabledState());
+        PlayerState withShuffleDisabled = playerStateWithShuffleEnabled();
 
-        CurrentPlayerState updatedState = playerOperations.changeShuffle(createUser(playerState), SHUFFLE_DISABLED).block();
+        DefaultPlayerOperations testable = testableBuilder()
+                .withState(withShuffleDisabled)
+                .build();
 
-        assertThat(updatedState.getShuffleState()).isEqualTo(SHUFFLE_DISABLED);
+        testable.changeShuffle(EXISTING_USER, SHUFFLE_DISABLED)
+                .map(CurrentPlayerState::getShuffleState)
+                .as(StepVerifier::create)
+                .expectNext(SHUFFLE_DISABLED)
+                .verifyComplete();
     }
 
     @Test
@@ -380,17 +386,24 @@ class DefaultPlayerOperationsTest {
         return Objects.requireNonNull(playerStateRepository.save(playerState).block());
     }
 
-    private PlayerState createEnabledState() {
+    private PlayerState playerStateWithShuffleEnabled() {
+        UserEntity user = existingUserEntity();
+
         return PlayerStateFaker
                 .create()
+                .user(user)
                 .shuffleState(SHUFFLE_ENABLED)
                 .get();
     }
 
-    private static PlayerState playerStateWithShuffleDisabled() {
-        UserEntity user = UserEntity.builder()
+    private static UserEntity existingUserEntity() {
+        return UserEntity.builder()
                 .id(EXISTING_USER.getId())
                 .build();
+    }
+
+    private static PlayerState playerStateWithShuffleDisabled() {
+        UserEntity user = existingUserEntity();
 
         return PlayerStateFaker
                 .create()
