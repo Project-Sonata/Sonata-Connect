@@ -58,7 +58,13 @@ class EmptyPlayerStateTests {
 
     @Test
     void shouldReturnShuffleState() {
-        createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getShuffleState()).isEqualTo(expected.getShuffleState()));
+        DefaultPlayerOperations testable = testableBuilder().build();
+
+        testable.currentState(EXISTING_USER)
+                .map(CurrentPlayerState::getShuffleState)
+                .as(StepVerifier::create)
+                .expectNext(false)
+                .verifyComplete();
     }
 
     @Test
