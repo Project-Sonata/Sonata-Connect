@@ -66,6 +66,11 @@ class DefaultPlayerOperationsTest {
             return new DefaultPlayerOperationsTestableBuilder();
         }
 
+        public DefaultPlayerOperationsTestableBuilder withState(PlayerState state) {
+            playerStateRepository.save(state).block();
+            return this;
+        }
+
         public DefaultPlayerOperations build() {
             return new DefaultPlayerOperations(playerStateRepository,
                     deviceOperations, playerStateConverterSupport,
@@ -90,11 +95,17 @@ class DefaultPlayerOperationsTest {
 
     @Test
     void changeShuffleToEnabled_andExpectShuffleToChange() {
-        PlayerState playerState = saveState(createDisabledState());
+        PlayerState withShuffleDisabled = playerStateWithShuffleDisabled();
 
-        CurrentPlayerState updatedState = playerOperations.changeShuffle(createUser(playerState), SHUFFLE_ENABLED).block();
+        DefaultPlayerOperations testable = testableBuilder()
+                .withState(withShuffleDisabled)
+                .build();
 
-        assertThat(updatedState.getShuffleState()).isEqualTo(SHUFFLE_ENABLED);
+        testable.changeShuffle(EXISTING_USER, SHUFFLE_ENABLED)
+                .map(CurrentPlayerState::getShuffleState)
+                .as(StepVerifier::create)
+                .expectNext(SHUFFLE_ENABLED)
+                .verifyComplete();
     }
 
     @Test
@@ -376,10 +387,15 @@ class DefaultPlayerOperationsTest {
                 .get();
     }
 
-    private static PlayerState createDisabledState() {
+    private static PlayerState playerStateWithShuffleDisabled() {
+        UserEntity user = UserEntity.builder()
+                .id(EXISTING_USER.getId())
+                .build();
+
         return PlayerStateFaker
                 .create()
                 .shuffleState(SHUFFLE_DISABLED)
+                .user(user)
                 .get();
     }
 
