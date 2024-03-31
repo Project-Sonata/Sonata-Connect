@@ -43,4 +43,9 @@ public class PlayerState {
     public DevicesEntity getDevices() {
         return devicesEntity;
     }
+
+    public PlayerState pause() {
+        setPlaying(false);
+        return this;
+    }
 }

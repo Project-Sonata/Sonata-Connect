@@ -70,6 +70,14 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
         return playCommandHandlerDelegate.playOrResume(user, context, targetDevice);
     }
 
+    @Override
+    public Mono<CurrentPlayerState> pause(User user) {
+        return playerStateRepository.findByUserId(user.getId())
+                .map(PlayerState::pause)
+                .flatMap(playerStateRepository::save)
+                .map(playerStateConverterSupport::convertTo);
+    }
+
     private static PlayerState emptyState(User user) {
         return PlayerStateFactory.createEmpty(user);
     }

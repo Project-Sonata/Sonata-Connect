@@ -49,6 +49,11 @@ public class EventPublisherPlayerOperationsDecorator implements BasicPlayerOpera
         return delegate.playOrResume(user, context, targetDevice);
     }
 
+    @Override
+    public Mono<CurrentPlayerState> pause(User user) {
+        return delegate.pause(user);
+    }
+
     @NotNull
     private Mono<CurrentPlayerState> publishEvent(CurrentPlayerState currentPlayerState, User user) {
         Device activeDevice = getActiveDevice(currentPlayerState);

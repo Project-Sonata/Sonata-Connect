@@ -59,6 +59,13 @@ public class PlayerController {
                 .thenReturn(default204Response());
     }
 
+    @PutMapping("/pause")
+    public Mono<ResponseEntity<?>> pause(User user) {
+        return playerOperations.pause(user).thenReturn(
+                default204Response()
+        );
+    }
+
     @PutMapping("/shuffle")
     public Mono<ResponseEntity<?>> changeShuffleState(User user,
                                                       @RequestParam("state") boolean state) {

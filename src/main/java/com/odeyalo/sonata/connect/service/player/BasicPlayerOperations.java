@@ -62,6 +62,13 @@ public interface BasicPlayerOperations {
     Mono<CurrentPlayerState> playOrResume(User user, PlayCommandContext context, TargetDevice targetDevice);
 
     /**
+     * Pause the player playback, if playback is already paused, then do nothing
+     * @param user - owner of the player state
+     * @return - {@link Mono} with current state of the player
+     */
+    Mono<CurrentPlayerState> pause(User user);
+
+    /**
      * Alias for  #changeShuffle(User, true) method call
      */
     default Mono<CurrentPlayerState> enableShuffle(User user) {
