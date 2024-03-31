@@ -1,30 +1,15 @@
 package com.odeyalo.sonata.connect.service.player;
 
-import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
 import com.odeyalo.sonata.connect.model.User;
-import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
-import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
-import com.odeyalo.sonata.connect.service.support.factory.PlayerStateFactory;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
-import java.util.function.BiConsumer;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 
 class EmptyPlayerStateTest {
-    PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
     static final User EXISTING_USER = User.of("odeyalooo");
-
-    @AfterEach
-    void clear() {
-        playerStateRepository.clear().block();
-    }
 
     @Test
     void shouldReturnNotNull() {
@@ -89,17 +74,14 @@ class EmptyPlayerStateTest {
                 .verifyComplete();
     }
 
+    // We assume that empty state should not contain any track, episode, podcast, so on.
     @Test
-    void shouldReturnPlayingItem() {
-        // We assume that empty state should not contain any track, episode, podcast, so on.
-        createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getPlayingItem()).isNull());
-    }
+    void shouldReturnNullPlayingItem() {
+        DefaultPlayerOperations testable = testableBuilder().build();
 
-    private void createEmptyPlayerStateAndAssert(BiConsumer<PlayerState, CurrentPlayerState> predicateConsumer) {
-        PlayerState expected = PlayerStateFactory.createEmpty(EXISTING_USER);
-
-        CurrentPlayerState actual = testableBuilder().build().createState(EXISTING_USER).block();
-
-        predicateConsumer.accept(expected, actual);
+        testable.currentState(EXISTING_USER)
+                .as(StepVerifier::create)
+                .expectNextMatches(it -> it.getPlayableItem() == null)
+                .verifyComplete();
     }
 }
