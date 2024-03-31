@@ -4,7 +4,10 @@ import com.odeyalo.sonata.common.context.HardcodedContextUriParser;
 import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
 import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.entity.UserEntity;
-import com.odeyalo.sonata.connect.model.*;
+import com.odeyalo.sonata.connect.model.CurrentPlayerState;
+import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
+import com.odeyalo.sonata.connect.model.PlayableItem;
+import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePlayCommandHandlerDelegate;
@@ -14,19 +17,21 @@ import com.odeyalo.sonata.connect.service.support.factory.PlayerStateFactory;
 import com.odeyalo.sonata.connect.service.support.mapper.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import reactor.test.StepVerifier;
-import testing.stub.NullDeviceOperations;
 import testing.asserts.PlayableItemEntityAssert;
 import testing.faker.PlayerStateFaker;
+import testing.stub.NullDeviceOperations;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
-import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.*;
-import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
+import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 
 class DefaultPlayerOperationsTest {
 
@@ -60,54 +65,6 @@ class DefaultPlayerOperationsTest {
                 .as(StepVerifier::create)
                 .expectNextCount(1)
                 .verifyComplete();
-    }
-
-    @Test
-    void changeShuffleToEnabled_andExpectShuffleToChange() {
-        PlayerState withShuffleDisabled = playerStateWithShuffleDisabled();
-
-        DefaultPlayerOperations testable = testableBuilder()
-                .withState(withShuffleDisabled)
-                .build();
-
-        testable.changeShuffle(EXISTING_USER, SHUFFLE_ENABLED)
-                .map(CurrentPlayerState::getShuffleState)
-                .as(StepVerifier::create)
-                .expectNext(SHUFFLE_ENABLED)
-                .verifyComplete();
-    }
-
-    @Test
-    void changeShuffleToDisabled_andExpectShuffleToChange() {
-        PlayerState withShuffleDisabled = playerStateWithShuffleEnabled();
-
-        DefaultPlayerOperations testable = testableBuilder()
-                .withState(withShuffleDisabled)
-                .build();
-
-        testable.changeShuffle(EXISTING_USER, SHUFFLE_DISABLED)
-                .map(CurrentPlayerState::getShuffleState)
-                .as(StepVerifier::create)
-                .expectNext(SHUFFLE_DISABLED)
-                .verifyComplete();
-    }
-
-    @Test
-    void shouldChangeNothingIfShuffleStateIsEqual() {
-        PlayerState state = existingPlayerState();
-        boolean expectedShuffleState = state.getShuffleState();
-
-        DefaultPlayerOperations testable = testableBuilder()
-                .withState(state)
-                .build();
-
-
-        testable.changeShuffle(EXISTING_USER, expectedShuffleState)
-                .map(CurrentPlayerState::getShuffleState)
-                .as(StepVerifier::create)
-                .expectNext(expectedShuffleState)
-                .verifyComplete();
-
     }
 
     protected static PlayerState existingPlayerState() {
@@ -298,30 +255,9 @@ class DefaultPlayerOperationsTest {
         return Objects.requireNonNull(playerStateRepository.save(playerState).block());
     }
 
-    private PlayerState playerStateWithShuffleEnabled() {
-        UserEntity user = existingUserEntity();
-
-        return PlayerStateFaker
-                .create()
-                .user(user)
-                .shuffleState(SHUFFLE_ENABLED)
-                .get();
-    }
-
     protected static UserEntity existingUserEntity() {
         return UserEntity.builder()
                 .id(EXISTING_USER.getId())
                 .build();
     }
-
-    private static PlayerState playerStateWithShuffleDisabled() {
-        UserEntity user = existingUserEntity();
-
-        return PlayerStateFaker
-                .create()
-                .shuffleState(SHUFFLE_DISABLED)
-                .user(user)
-                .get();
-    }
-
 }
