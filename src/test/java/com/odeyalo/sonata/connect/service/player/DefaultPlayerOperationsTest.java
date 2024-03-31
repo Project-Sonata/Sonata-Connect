@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle;
 class DefaultPlayerOperationsTest {
 
     public static final User EXISTING_USER = User.of("odeyalooo");
+    public static final String EXISTING_PLAYABLE_ITEM_CONTEXT = "sonata:track:cassie";
     PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
 
     PlayerState2CurrentPlayerStateConverter converter = new PlayerState2CurrentPlayerStateConverter(
@@ -283,12 +284,17 @@ class DefaultPlayerOperationsTest {
 
         @Test
         void shouldUpdateState() {
-            String validContext = "sonata:track:cassie";
-            User user = prepareStateForUser();
-            CurrentPlayerState updatedState = playerOperations.playOrResume(user, PlayCommandContext.of(validContext), CURRENT_DEVICE).block();
+            PlayerState playerState = existingPlayerState();
+            DefaultPlayerOperations testable = testableBuilder().withState(playerState).build();
 
-            assertThat(updatedState.getPlayingItem().getId()).isEqualTo("cassie");
-            assertThat(updatedState.getPlayingItem().getItemType()).isEqualTo(PlayableItemType.TRACK);
+            testable.playOrResume(EXISTING_USER, PlayCommandContext.of(EXISTING_PLAYABLE_ITEM_CONTEXT), CURRENT_DEVICE)
+                    .map(CurrentPlayerState::getPlayableItem)
+                    .as(StepVerifier::create)
+                    .assertNext(it -> {
+                        assertThat(it.getId()).isEqualTo("cassie");
+                        assertThat(it.getItemType()).isEqualTo(PlayableItemType.TRACK);
+                    })
+                    .verifyComplete();
         }
 
         @Test
@@ -313,10 +319,9 @@ class DefaultPlayerOperationsTest {
 
         @NotNull
         private User prepareStateForUser() {
-            User user = User.of("miku");
-            PlayerState playerState = PlayerStateFaker.create().user(UserEntity.builder().id(user.getId()).build()).get();
+            PlayerState playerState = PlayerStateFaker.create().user(existingUserEntity()).get();
             saveState(playerState); // prepare state for the user
-            return user;
+            return EXISTING_USER;
         }
 
         private static boolean verifyReasonCode(Throwable err, String expected) {
