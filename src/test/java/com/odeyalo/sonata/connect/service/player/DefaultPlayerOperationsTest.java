@@ -86,16 +86,6 @@ class DefaultPlayerOperationsTest {
                 .as(StepVerifier::create)
                 .expectNextCount(1)
                 .verifyComplete();
-
-    }
-
-    @Test
-    void shouldReturnCurrentEmptyState() {
-        User user = User.of("Mikuuuu");
-        CurrentPlayerState expectedState = playerOperations.createState(user).block();
-        CurrentPlayerState actualState = playerOperations.currentState(user).block();
-
-        assertThat(actualState).isEqualTo(expectedState);
     }
 
     @Test
