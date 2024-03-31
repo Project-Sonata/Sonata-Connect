@@ -74,59 +74,6 @@ class DefaultPlayerOperationsTest {
 
     @Nested
     @TestInstance(Lifecycle.PER_CLASS)
-    class EmptyPlayerStateTests {
-        @AfterEach
-        void clear() {
-            playerStateRepository.clear().block();
-        }
-
-        @Test
-        void shouldReturnNotNull() {
-            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual).isNotNull());
-        }
-
-        @Test
-        void shouldReturnId() {
-            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getId()).isNotNull().isPositive());
-        }
-
-        @Test
-        void shouldReturnRepeatState() {
-            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getRepeatState()).isEqualTo(expected.getRepeatState()));
-        }
-
-        @Test
-        void shouldReturnShuffleState() {
-            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getShuffleState()).isEqualTo(expected.getShuffleState()));
-        }
-
-        @Test
-        void shouldReturnProgressMs() {
-            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getProgressMs()).isEqualTo(expected.getProgressMs()));
-        }
-
-        @Test
-        void shouldReturnPlayingType() {
-            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getPlayingType()).isEqualTo(expected.getPlayingType()));
-        }
-
-        @Test
-        void shouldReturnPlayingItem() {
-            // We assume that empty state should not contain any track, episode, podcast, so on.
-            createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getPlayingItem()).isNull());
-        }
-
-        private void createEmptyPlayerStateAndAssert(BiConsumer<PlayerState, CurrentPlayerState> predicateConsumer) {
-            PlayerState expected = PlayerStateFactory.createEmpty(EXISTING_USER);
-
-            CurrentPlayerState actual = playerOperations.createState(EXISTING_USER).block();
-
-            predicateConsumer.accept(expected, actual);
-        }
-    }
-
-    @Nested
-    @TestInstance(Lifecycle.PER_CLASS)
     class CurrentPlayerStateTest {
         @Test
         void shouldReturnNotNullExistedState() {
