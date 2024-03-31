@@ -5,6 +5,7 @@ import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.entity.UserEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
+import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
@@ -69,15 +70,29 @@ class CurrentlyPlayingPlayerStateTests {
     }
 
     @Test
-    void shouldReturnPlayableItem() {
-        saveAndAssert((expected, actual) -> {
+    void shouldReturnPlayableItemId() {
+        PlayerState playingPlayerState = playingActivePlayerState();
+        DefaultPlayerOperations testable = testableBuilder().withState(playingPlayerState).build();
 
-            PlayableItemEntityAssert.forEntity(expected.getCurrentlyPlayingItem())
-                    .id().isEqualTo(actual.getPlayableItem().getId());
+        testable.currentState(EXISTING_USER)
+                .map(CurrentPlayerState::getPlayableItem)
+                .map(PlayableItem::getId)
+                .as(StepVerifier::create)
+                .expectNext(playingPlayerState.getCurrentlyPlayingItem().getId())
+                .verifyComplete();
+    }
 
-            PlayableItemEntityAssert.forEntity(expected.getCurrentlyPlayingItem())
-                    .entityType().isEqualTo(actual.getPlayableItem().getItemType());
-        });
+    @Test
+    void shouldReturnPlayableItemType() {
+        PlayerState playingPlayerState = playingActivePlayerState();
+        DefaultPlayerOperations testable = testableBuilder().withState(playingPlayerState).build();
+
+        testable.currentState(EXISTING_USER)
+                .map(CurrentPlayerState::getPlayableItem)
+                .map(PlayableItem::getItemType)
+                .as(StepVerifier::create)
+                .expectNext(playingPlayerState.getCurrentlyPlayingItem().getType())
+                .verifyComplete();
     }
 
     @Test
