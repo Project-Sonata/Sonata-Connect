@@ -2,6 +2,7 @@ package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
+import com.odeyalo.sonata.connect.model.RepeatState;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
@@ -45,8 +46,14 @@ class EmptyPlayerStateTests {
     }
 
     @Test
-    void shouldReturnRepeatState() {
-        createEmptyPlayerStateAndAssert((expected, actual) -> assertThat(actual.getRepeatState()).isEqualTo(expected.getRepeatState()));
+    void shouldReturnDefaultRepeatState() {
+        DefaultPlayerOperations testable = testableBuilder().build();
+
+        testable.currentState(EXISTING_USER)
+                .map(CurrentPlayerState::getRepeatState)
+                .as(StepVerifier::create)
+                .expectNext(RepeatState.OFF)
+                .verifyComplete();
     }
 
     @Test
