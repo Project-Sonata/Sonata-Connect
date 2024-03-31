@@ -77,14 +77,23 @@ class CurrentPlayerStateTest {
         testable.currentState(EXISTING_USER)
                 .map(CurrentPlayerState::getId)
                 .as(StepVerifier::create)
-                .expectNextCount(state.getId())
+                .expectNext(state.getId())
                 .verifyComplete();
     }
 
     @Test
     void shouldReturnRepeatState() {
-        saveAndCompareActualWithExpected(
-                (expected, actual) -> assertThat(actual.getRepeatState()).isEqualTo(expected.getRepeatState()));
+        PlayerState state = existingPlayerState();
+
+        DefaultPlayerOperations testable = testableBuilder()
+                .withState(state)
+                .build();
+
+        testable.currentState(EXISTING_USER)
+                .map(CurrentPlayerState::getRepeatState)
+                .as(StepVerifier::create)
+                .expectNext(state.getRepeatState())
+                .verifyComplete();
     }
 
     @Test
