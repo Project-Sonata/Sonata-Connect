@@ -60,8 +60,8 @@ public class PlayerController {
     }
 
     @PutMapping("/pause")
-    public Mono<ResponseEntity<?>> pause() {
-        return Mono.just(
+    public Mono<ResponseEntity<?>> pause(User user) {
+        return playerOperations.pause(user).thenReturn(
                 default204Response()
         );
     }

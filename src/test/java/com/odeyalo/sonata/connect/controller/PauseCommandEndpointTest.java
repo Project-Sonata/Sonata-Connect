@@ -1,7 +1,10 @@
 package com.odeyalo.sonata.connect.controller;
 
+import com.odeyalo.sonata.connect.dto.PlayResumePlaybackRequest;
+import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
+import testing.asserts.PlayerStateDtoAssert;
 import testing.shared.SonataTestHttpOperations;
 import testing.spring.autoconfigure.AutoConfigureSonataHttpClient;
 
@@ -41,11 +45,25 @@ class PauseCommandEndpointTest {
         Hooks.onOperatorDebug(); // DO NOT DELETE IT, VERY IMPORTANT LINE, WITHOUT IT FEIGN WITH WIREMOCK THROWS ILLEGAL STATE EXCEPTION, I DON'T FIND SOLUTION YET
     }
 
+    @BeforeEach
+    void setUp() {
+        sonataTestHttpOperations.playOrResumePlayback(VALID_ACCESS_TOKEN, PlayResumePlaybackRequest.of("sonata:track:miku"));
+    }
+
+
     @Test
     void shouldReturn204StatusOnSuccess() {
         WebTestClient.ResponseSpec responseSpec = sendPauseRequest();
 
         responseSpec.expectStatus().isNoContent();
+    }
+
+    @Test
+    void shouldPausePlayer() {
+        WebTestClient.ResponseSpec ignored = sendPauseRequest();
+        PlayerStateDto currentState = sonataTestHttpOperations.getCurrentState(VALID_ACCESS_TOKEN);
+
+        PlayerStateDtoAssert.forState(currentState).shouldBePaused();
     }
 
     @NotNull

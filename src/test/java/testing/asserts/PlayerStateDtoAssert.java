@@ -5,7 +5,6 @@ import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.dto.TrackItemDto;
 import com.odeyalo.sonata.connect.model.RepeatState;
 import org.assertj.core.api.AbstractAssert;
-import org.junit.jupiter.api.RepeatedTest;
 import org.springframework.util.Assert;
 
 import static org.apache.commons.lang.BooleanUtils.isFalse;
@@ -28,7 +27,7 @@ public class PlayerStateDtoAssert extends AbstractAssert<PlayerStateDtoAssert, P
         return this;
     }
 
-    public PlayerStateDtoAssert shouldBeStopped() {
+    public PlayerStateDtoAssert shouldBePaused() {
         if (actual.isPlaying()) {
             failWithActualExpectedAndMessage(true, false, "Expected player with paused status!");
         }

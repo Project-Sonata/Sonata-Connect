@@ -5,8 +5,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 /**
  * Call endpoints using WebTestClient
  */
@@ -20,7 +18,7 @@ public class WebTestClientSonataTestHttpOperations implements SonataTestHttpOper
     @Override
     public PlayerStateDto getCurrentState(String authorizationHeaderValue) {
         return webTestClient.get()
-                .uri("/player/currently-playing")
+                .uri("/player/state")
                 .header(HttpHeaders.AUTHORIZATION, authorizationHeaderValue)
                 .exchange().expectBody(PlayerStateDto.class)
                 .returnResult().getResponseBody();
