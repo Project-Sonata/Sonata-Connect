@@ -58,7 +58,14 @@ class CurrentlyPlayingPlayerStateTests {
 
     @Test
     void shouldReturnRepeatState() {
-        saveAndAssert((expected, actual) -> assertThat(expected.getRepeatState()).isEqualTo(actual.getRepeatState()));
+        PlayerState playingPlayerState = playingActivePlayerState();
+        DefaultPlayerOperations testable = testableBuilder().withState(playingPlayerState).build();
+
+        testable.currentState(EXISTING_USER)
+                .map(CurrentPlayerState::getRepeatState)
+                .as(StepVerifier::create)
+                .expectNext(playingPlayerState.getRepeatState())
+                .verifyComplete();
     }
 
     @Test
