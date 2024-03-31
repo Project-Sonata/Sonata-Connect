@@ -142,7 +142,8 @@ class DefaultPlayerOperationsTest {
     }
 
     private static PlayerState existingPlayerState() {
-        return PlayerStateFaker.create().get();
+        UserEntity existingUserEntity = existingUserEntity();
+        return PlayerStateFaker.create().user(existingUserEntity).get();
     }
 
     @Nested
@@ -190,11 +191,9 @@ class DefaultPlayerOperationsTest {
         }
 
         private void createEmptyPlayerStateAndAssert(BiConsumer<PlayerState, CurrentPlayerState> predicateConsumer) {
-            User user = User.of("NakanoMiku");
+            PlayerState expected = PlayerStateFactory.createEmpty(EXISTING_USER);
 
-            PlayerState expected = PlayerStateFactory.createEmpty(user);
-
-            CurrentPlayerState actual = playerOperations.createState(user).block();
+            CurrentPlayerState actual = playerOperations.createState(EXISTING_USER).block();
 
             predicateConsumer.accept(expected, actual);
         }
@@ -256,15 +255,6 @@ class DefaultPlayerOperationsTest {
                     }
             );
         }
-
-        @Test
-        @Disabled("Disabled because I am too lazy to assert it now, will do it later")
-        void shouldReturnDevices() {
-            saveAndCompareActualWithExpected(
-                    (expected, actual) -> assertThat(expected.getDevicesEntity()).isEqualTo(actual.getDevices())
-            );
-        }
-
 
         private void saveAndCompareActualWithExpected(BiConsumer<PlayerState, CurrentPlayerState> predicateConsumer) {
             PlayerState expected = existingPlayerState();
@@ -387,10 +377,6 @@ class DefaultPlayerOperationsTest {
         private CurrentlyPlayingPlayerState getCurrentlyPlayingPlayerState(User user) {
             return playerOperations.currentlyPlayingState(user).block();
         }
-    }
-
-    private static User createUser(PlayerState playerState) {
-        return User.of(playerState.getUser().getId());
     }
 
     @NotNull
