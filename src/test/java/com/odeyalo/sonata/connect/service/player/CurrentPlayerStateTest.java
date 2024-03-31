@@ -13,6 +13,16 @@ class CurrentPlayerStateTest extends DefaultPlayerOperationsTest {
     static final User EXISTING_USER = User.of("odeyalooo");
 
     @Test
+    void getStateForUser_andExpectStateToBeCreated() {
+        DefaultPlayerOperations testable = testableBuilder().build();
+
+        testable.currentState(EXISTING_USER)
+                .as(StepVerifier::create)
+                .expectNextCount(1)
+                .verifyComplete();
+    }
+
+    @Test
     void shouldReturnNotNullExistedState() {
         PlayerState state = existingPlayerState();
 
