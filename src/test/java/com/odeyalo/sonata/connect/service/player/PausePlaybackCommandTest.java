@@ -7,7 +7,7 @@ import reactor.test.StepVerifier;
 import testing.faker.PlayerStateFaker;
 
 import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
-
+import static org.assertj.core.api.Assertions.assertThat;
 class PausePlaybackCommandTest extends DefaultPlayerOperationsTest {
 
     @Test
@@ -20,6 +20,18 @@ class PausePlaybackCommandTest extends DefaultPlayerOperationsTest {
         testable.pause(EXISTING_USER)
                 .as(StepVerifier::create)
                 .expectNextCount(1)
+                .verifyComplete();
+    }
+    @Test
+    void shouldReturnPlayingSetToFalse() {
+        PlayerState playerState = activePlayerState();
+        DefaultPlayerOperations testable = testableBuilder()
+                .withState(playerState)
+                .build();
+
+        testable.pause(EXISTING_USER)
+                .as(StepVerifier::create)
+                .assertNext(it -> assertThat(it.isPlaying()).isFalse())
                 .verifyComplete();
     }
 
