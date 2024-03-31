@@ -68,9 +68,17 @@ class CurrentPlayerStateTest {
 
     @Test
     void shouldReturnIdForExistedState() {
-        saveAndCompareActualWithExpected((
-                (expected, actual) -> assertThat(actual.getId()).isEqualTo(expected.getId()))
-        );
+        PlayerState state = existingPlayerState();
+
+        DefaultPlayerOperations testable = testableBuilder()
+                .withState(state)
+                .build();
+
+        testable.currentState(EXISTING_USER)
+                .map(CurrentPlayerState::getId)
+                .as(StepVerifier::create)
+                .expectNextCount(state.getId())
+                .verifyComplete();
     }
 
     @Test
