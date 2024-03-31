@@ -50,9 +50,12 @@ class PlayResumeCommandTests extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldThrowExceptionIfContextUriIsInvalid() {
-        User user = prepareStateForUser();
+        PlayerState playerState = existingPlayerState();
+        DefaultPlayerOperations testable = testableBuilder()
+                .withState(playerState)
+                .build();
 
-        playerOperations.playOrResume(user, PlayCommandContext.of(INVALID_CONTEXT_URI), CURRENT_DEVICE)
+        testable.playOrResume(EXISTING_USER, PlayCommandContext.of(INVALID_CONTEXT_URI), CURRENT_DEVICE)
                 .as(StepVerifier::create)
                 .expectError(ReasonCodeAwareMalformedContextUriException.class)
                 .verify();
