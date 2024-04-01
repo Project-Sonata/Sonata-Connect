@@ -2,13 +2,16 @@ package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
 import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.exception.NoActiveDeviceException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.sync.DefaultPlayerSynchronizationManager;
 import com.odeyalo.sonata.connect.service.player.sync.InMemoryRoomHolder;
 import com.odeyalo.sonata.connect.service.player.sync.PlayerSynchronizationManager;
 import com.odeyalo.sonata.connect.service.player.sync.event.PlayerEvent;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -22,129 +25,159 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.CURRENT_DEVICE;
 import static com.odeyalo.sonata.connect.service.player.EventPublisherPlayerOperationsDecoratorTest.TestableBuilder.testableBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class EventPublisherPlayerOperationsDecoratorTest {
     public static final User USER = User.of("odeyalo");
+    public static final PlayCommandContext VALID_PLAY_COMMAND_CONTEXT = PlayCommandContext.of("sonata:track:miku");
 
-    @Test
-    void shouldSendEventToSynchronizationManagerOnPauseCommand() {
-        // given
-        PlayerState pausedPlayerState = PlayerStateFaker
-                .forUser(USER)
-                .paused()
-                .get();
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    class PlayCommandTest {
 
-        EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+        @Test
+        void shouldSendEventOnPlayCommand() {
+            // given
+            PlayerState pausedPlayerState = PlayerStateFaker
+                    .forUser(USER)
+                    .paused()
+                    .get();
 
-        EventPublisherPlayerOperationsDecorator testable = testableBuilder()
-                .withPlayerState(pausedPlayerState)
-                .withSynchronizationManager(synchronizationManagerMock)
-                .build();
-        // when
-        testable.pause(USER)
-                .as(StepVerifier::create)
-                // then
-                .assertNext(it -> assertThat(synchronizationManagerMock.getOccurredEvents()).hasSize(1))
-                .verifyComplete();
+            EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+
+            EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                    .withPlayerState(pausedPlayerState)
+                    .withSynchronizationManager(synchronizationManagerMock)
+                    .build();
+            // when
+            testable.playOrResume(USER, VALID_PLAY_COMMAND_CONTEXT, CURRENT_DEVICE)
+                    .as(StepVerifier::create)
+                    // then
+                    .assertNext(it -> assertThat(synchronizationManagerMock.getOccurredEvents()).hasSize(1))
+                    .verifyComplete();
+        }
     }
 
-    @Test
-    void shouldUseActiveDeviceIdForDeviceThatChanged() {
-        DeviceEntity activeDevice = DeviceEntityFaker.createActiveDevice().get();
-        // given
-        PlayerState pausedPlayerState = PlayerStateFaker
-                .forUser(USER)
-                .paused()
-                .device(activeDevice)
-                .get();
+    @Nested
+    class PauseCommandTest {
 
-        EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+        @Test
+        void shouldSendEventToSynchronizationManagerOnPauseCommand() {
+            // given
+            PlayerState pausedPlayerState = PlayerStateFaker
+                    .forUser(USER)
+                    .paused()
+                    .get();
 
-        EventPublisherPlayerOperationsDecorator testable = testableBuilder()
-                .withPlayerState(pausedPlayerState)
-                .withSynchronizationManager(synchronizationManagerMock)
-                .build();
-        // when
-        testable.pause(USER)
-                .map(it -> synchronizationManagerMock.getOccurredEvents().get(0))
-                .as(StepVerifier::create)
-                // then
-                .assertNext(it -> assertThat(it.getDeviceThatChanged()).isEqualTo(activeDevice.getId()))
-                .verifyComplete();
+            EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+
+            EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                    .withPlayerState(pausedPlayerState)
+                    .withSynchronizationManager(synchronizationManagerMock)
+                    .build();
+            // when
+            testable.pause(USER)
+                    .as(StepVerifier::create)
+                    // then
+                    .assertNext(it -> assertThat(synchronizationManagerMock.getOccurredEvents()).hasSize(1))
+                    .verifyComplete();
+        }
+
+        @Test
+        void shouldUseActiveDeviceIdForDeviceThatChanged() {
+            DeviceEntity activeDevice = DeviceEntityFaker.createActiveDevice().get();
+            // given
+            PlayerState pausedPlayerState = PlayerStateFaker
+                    .forUser(USER)
+                    .paused()
+                    .device(activeDevice)
+                    .get();
+
+            EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+
+            EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                    .withPlayerState(pausedPlayerState)
+                    .withSynchronizationManager(synchronizationManagerMock)
+                    .build();
+            // when
+            testable.pause(USER)
+                    .map(it -> synchronizationManagerMock.getOccurredEvents().get(0))
+                    .as(StepVerifier::create)
+                    // then
+                    .assertNext(it -> assertThat(it.getDeviceThatChanged()).isEqualTo(activeDevice.getId()))
+                    .verifyComplete();
+        }
+
+        @Test
+        void shouldNotSendAnyEventIfActiveDeviceIsNull() {
+            DeviceEntity activeDevice = DeviceEntityFaker.createInactiveDevice().get();
+            // given
+            PlayerState pausedPlayerState = PlayerStateFaker
+                    .forUser(USER)
+                    .paused()
+                    .device(activeDevice)
+                    .get();
+
+            EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+
+            EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                    .withPlayerState(pausedPlayerState)
+                    .withSynchronizationManager(synchronizationManagerMock)
+                    .build();
+            // when
+            assertThatThrownBy(() -> testable.pause(USER).block()).isInstanceOf(NoActiveDeviceException.class);
+            assertThat(synchronizationManagerMock.getOccurredEvents()).isEmpty();
+        }
+
+        @Test
+        void shouldSendEventToSynchronizationManagerOnPauseCommandWithPausedField() {
+            // given
+            PlayerState pausedPlayerState = PlayerStateFaker
+                    .forUser(USER)
+                    .paused()
+                    .get();
+
+            EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+
+            EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                    .withPlayerState(pausedPlayerState)
+                    .withSynchronizationManager(synchronizationManagerMock)
+                    .build();
+            // when
+            testable.pause(USER)
+                    .map(it -> synchronizationManagerMock.getOccurredEvents().get(0))
+                    .as(StepVerifier::create)
+                    // then
+                    .assertNext(it -> assertThat(it.getCurrentPlayerState().isPlaying()).isFalse())
+                    .verifyComplete();
+        }
+
+        @Test
+        void shouldInvokeDelegatePause() {
+            CurrentPlayerState pausedPlayerState = CurrentPlayerStateFaker.create()
+                    .paused()
+                    .get();
+
+            BasicPlayerOperations delegateMock = mock(BasicPlayerOperations.class);
+
+            when(delegateMock.pause(any())).thenReturn(Mono.just(pausedPlayerState));
+
+            EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                    .withDelegate(delegateMock)
+                    .build();
+
+            testable.pause(USER)
+                    .as(StepVerifier::create)
+                    .assertNext(it -> verify(delegateMock, times(1)).pause(eq(USER)))
+                    .verifyComplete();
+        }
     }
-
-    @Test
-    void shouldNotSendAnyEventIfActiveDeviceIsNull() {
-        DeviceEntity activeDevice = DeviceEntityFaker.createInactiveDevice().get();
-        // given
-        PlayerState pausedPlayerState = PlayerStateFaker
-                .forUser(USER)
-                .paused()
-                .device(activeDevice)
-                .get();
-
-        EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
-
-        EventPublisherPlayerOperationsDecorator testable = testableBuilder()
-                .withPlayerState(pausedPlayerState)
-                .withSynchronizationManager(synchronizationManagerMock)
-                .build();
-        // when
-        testable.pause(USER)
-                .as(StepVerifier::create)
-                // then
-                .assertNext(it -> assertThat(synchronizationManagerMock.getOccurredEvents()).isEmpty())
-                .verifyComplete();
-    }
-
-    @Test
-    void shouldSendEventToSynchronizationManagerOnPauseCommandWithPausedField() {
-        // given
-        PlayerState pausedPlayerState = PlayerStateFaker
-                .forUser(USER)
-                .paused()
-                .get();
-
-        EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
-
-        EventPublisherPlayerOperationsDecorator testable = testableBuilder()
-                .withPlayerState(pausedPlayerState)
-                .withSynchronizationManager(synchronizationManagerMock)
-                .build();
-        // when
-        testable.pause(USER)
-                .map(it -> synchronizationManagerMock.getOccurredEvents().get(0))
-                .as(StepVerifier::create)
-                // then
-                .assertNext(it -> assertThat(it.getCurrentPlayerState().isPlaying()).isFalse())
-                .verifyComplete();
-    }
-
-    @Test
-    void shouldInvokeDelegatePause() {
-        CurrentPlayerState pausedPlayerState = CurrentPlayerStateFaker.create()
-                .paused()
-                .get();
-
-        BasicPlayerOperations delegateMock = mock(BasicPlayerOperations.class);
-
-        when(delegateMock.pause(any())).thenReturn(Mono.just(pausedPlayerState));
-
-        EventPublisherPlayerOperationsDecorator testable = testableBuilder()
-                .withDelegate(delegateMock)
-                .build();
-
-        testable.pause(USER)
-                .as(StepVerifier::create)
-                .assertNext(it -> verify(delegateMock, times(1)).pause(eq(USER)))
-                .verifyComplete();
-    }
-
 
     static class TestableBuilder {
         private final DefaultPlayerOperationsTestableBuilder delegateBuilder = DefaultPlayerOperationsTestableBuilder.testableBuilder();
