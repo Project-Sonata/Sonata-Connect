@@ -5,10 +5,12 @@ import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
+import com.odeyalo.sonata.connect.service.player.handler.PauseCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.support.factory.PlayerStateFactory;
 import com.odeyalo.sonata.connect.service.support.mapper.CurrentPlayerState2CurrentlyPlayingPlayerStateConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,23 +18,16 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
+@RequiredArgsConstructor
 public class DefaultPlayerOperations implements BasicPlayerOperations {
     private final PlayerStateRepository playerStateRepository;
     private final DeviceOperations deviceOperations;
     private final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport;
     private final PlayCommandHandlerDelegate playCommandHandlerDelegate;
     private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter;
+    private final PauseCommandHandlerDelegate pauseCommandHandlerDelegate;
     private final Logger logger = LoggerFactory.getLogger(DefaultPlayerOperations.class);
 
-    public DefaultPlayerOperations(PlayerStateRepository playerStateRepository,
-                                   DeviceOperations deviceOperations,
-                                   PlayerState2CurrentPlayerStateConverter playerStateConverterSupport, PlayCommandHandlerDelegate playCommandHandlerDelegate, CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter) {
-        this.playerStateRepository = playerStateRepository;
-        this.deviceOperations = deviceOperations;
-        this.playerStateConverterSupport = playerStateConverterSupport;
-        this.playCommandHandlerDelegate = playCommandHandlerDelegate;
-        this.playerStateConverter = playerStateConverter;
-    }
 
     @Override
     public Mono<CurrentPlayerState> currentState(User user) {
@@ -72,10 +67,7 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
 
     @Override
     public Mono<CurrentPlayerState> pause(User user) {
-        return playerStateRepository.findByUserId(user.getId())
-                .map(PlayerState::pause)
-                .flatMap(playerStateRepository::save)
-                .map(playerStateConverterSupport::convertTo);
+        return pauseCommandHandlerDelegate.pause(user);
     }
 
     private static PlayerState emptyState(User user) {

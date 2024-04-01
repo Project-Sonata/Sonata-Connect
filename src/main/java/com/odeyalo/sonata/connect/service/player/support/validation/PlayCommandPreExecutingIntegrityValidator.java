@@ -14,6 +14,6 @@ public interface PlayCommandPreExecutingIntegrityValidator {
      * @param currentState - current state associated with user
      * @return - PlayCommandIntegrityValidationResult#valid if context is valid, otherwise PlayCommandIntegrityValidationResult#invalid 
      */
-    Mono<PlayCommandIntegrityValidationResult> validate(PlayCommandContext context, PlayerState currentState);
+    Mono<PlayerCommandIntegrityValidationResult> validate(PlayCommandContext context, PlayerState currentState);
 
 }
