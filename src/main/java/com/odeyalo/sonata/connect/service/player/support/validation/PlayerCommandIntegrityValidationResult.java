@@ -10,7 +10,7 @@ import lombok.Value;
 @Value
 @AllArgsConstructor(staticName = "of")
 @Builder
-public class PlayCommandIntegrityValidationResult {
+public class PlayerCommandIntegrityValidationResult {
     boolean valid;
     // Contains info why this play command is invalid
     Throwable occurredException;
@@ -19,7 +19,7 @@ public class PlayCommandIntegrityValidationResult {
      * Create passed result and return it
      * @return - passed result
      */
-    public static PlayCommandIntegrityValidationResult valid() {
+    public static PlayerCommandIntegrityValidationResult valid() {
         return of(true, null);
     }
 
@@ -28,7 +28,7 @@ public class PlayCommandIntegrityValidationResult {
      * @param ex - exception to wrap and return
      * @return - wrapped failed result with exception
      */
-    public static PlayCommandIntegrityValidationResult invalid(Throwable ex) {
+    public static PlayerCommandIntegrityValidationResult invalid(Throwable ex) {
         return of(false, ex);
     }
 }

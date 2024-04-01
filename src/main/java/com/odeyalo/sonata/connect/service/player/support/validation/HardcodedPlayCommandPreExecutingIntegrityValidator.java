@@ -15,15 +15,15 @@ import reactor.core.publisher.Mono;
 public class HardcodedPlayCommandPreExecutingIntegrityValidator implements PlayCommandPreExecutingIntegrityValidator {
 
     @Override
-    public Mono<PlayCommandIntegrityValidationResult> validate(PlayCommandContext context, PlayerState currentState) {
+    public Mono<PlayerCommandIntegrityValidationResult> validate(PlayCommandContext context, PlayerState currentState) {
         if ( currentState.getDevicesEntity().size() == 0 ) {
             NoActiveDeviceException ex = new NoActiveDeviceException("There is no active device");
-            return Mono.just(PlayCommandIntegrityValidationResult.invalid(ex));
+            return Mono.just(PlayerCommandIntegrityValidationResult.invalid(ex));
         }
         if ( (context == null || context.getContextUri() == null) && currentState.getCurrentlyPlayingItem() == null ) {
             IllegalStateException ex = new IllegalStateException("Nothing is playing now and context is null!");
-            return Mono.just(PlayCommandIntegrityValidationResult.invalid(ex));
+            return Mono.just(PlayerCommandIntegrityValidationResult.invalid(ex));
         }
-        return Mono.just(PlayCommandIntegrityValidationResult.valid());
+        return Mono.just(PlayerCommandIntegrityValidationResult.valid());
     }
 }

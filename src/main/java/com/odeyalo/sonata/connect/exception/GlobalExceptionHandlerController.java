@@ -15,6 +15,8 @@ import static org.springframework.http.ResponseEntity.*;
 @RestControllerAdvice
 public class GlobalExceptionHandlerController {
 
+    public static final String NO_ACTIVE_DEVICE_ERROR_DESCRIPTION = "Player command failed: No active device found";
+
     @ExceptionHandler(WebExchangeBindException.class)
     public ResponseEntity<ExceptionMessages> handleWebExchangeBindException(WebExchangeBindException ex) {
         ExceptionMessages messages = ExceptionMessages.empty();
@@ -34,7 +36,7 @@ public class GlobalExceptionHandlerController {
 
     @ExceptionHandler(NoActiveDeviceException.class)
     public ResponseEntity<ReasonCodeAwareExceptionMessage> handleNoActiveDeviceException(NoActiveDeviceException ex) {
-        return badRequest().body(ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), ex.getMessage()));
+        return badRequest().body(ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), NO_ACTIVE_DEVICE_ERROR_DESCRIPTION));
     }
 
 
