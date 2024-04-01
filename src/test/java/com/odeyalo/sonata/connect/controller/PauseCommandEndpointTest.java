@@ -87,6 +87,16 @@ class PauseCommandEndpointTest {
                 .reasonCode().isEqualTo("no_active_device");
     }
 
+    @Test
+    void shouldReturnErrorDescription() {
+        WebTestClient.ResponseSpec responseSpec = sendPauseRequest();
+
+        ReasonCodeAwareExceptionMessage responseBody = responseSpec.expectBody(ReasonCodeAwareExceptionMessage.class).returnResult().getResponseBody();
+
+        ReasonCodeAwareExceptionMessageAssert.forMessage(responseBody)
+                .description().isEqualTo("Player command failed: No active device found");
+    }
+
     private void connectDevice() {
         ConnectDeviceRequest connectDeviceRequest = ConnectDeviceRequestFaker.create().get();
         sonataTestHttpOperations.connectDevice(VALID_ACCESS_TOKEN, connectDeviceRequest);
