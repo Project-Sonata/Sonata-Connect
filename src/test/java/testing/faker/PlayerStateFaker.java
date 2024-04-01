@@ -104,6 +104,12 @@ public class PlayerStateFaker {
         return this;
     }
 
+    public PlayerStateFaker device(DeviceEntity device) {
+        DevicesEntity devices = DevicesEntity.builder().item(device).build();
+        builder.devicesEntity(devices);
+        return this;
+    }
+
     public PlayerState get() {
         return builder.build();
     }

@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
+import com.odeyalo.sonata.connect.entity.DeviceEntity;
 import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.User;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import testing.factory.DefaultPlayerOperationsTestableBuilder;
 import testing.faker.CurrentPlayerStateFaker;
+import testing.faker.DeviceEntityFaker;
 import testing.faker.PlayerStateFaker;
 import testing.stub.NullDeviceOperations;
 
@@ -48,6 +50,31 @@ class EventPublisherPlayerOperationsDecoratorTest {
                 .as(StepVerifier::create)
                 // then
                 .assertNext(it -> assertThat(synchronizationManagerMock.getOccurredEvents()).hasSize(1))
+                .verifyComplete();
+    }
+
+    @Test
+    void shouldUseActiveDeviceIdForDeviceThatChanged() {
+        DeviceEntity activeDevice = DeviceEntityFaker.createActiveDevice().get();
+        // given
+        PlayerState pausedPlayerState = PlayerStateFaker
+                .forUser(USER)
+                .paused()
+                .device(activeDevice)
+                .get();
+
+        EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+
+        EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                .withPlayerState(pausedPlayerState)
+                .withSynchronizationManager(synchronizationManagerMock)
+                .build();
+        // when
+        testable.pause(USER)
+                .map(it -> synchronizationManagerMock.getOccurredEvents().get(0))
+                .as(StepVerifier::create)
+                // then
+                .assertNext(it -> assertThat(it.getDeviceThatChanged()).isEqualTo(activeDevice.getId()))
                 .verifyComplete();
     }
 
