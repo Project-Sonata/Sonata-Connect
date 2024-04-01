@@ -4,13 +4,12 @@ import com.github.javafaker.Faker;
 import com.odeyalo.sonata.connect.entity.*;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
+import com.odeyalo.sonata.connect.model.User;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.RandomStringUtils;
-
-import java.util.function.Function;
 
 @Setter
 @Accessors(chain = true)
@@ -47,6 +46,13 @@ public class PlayerStateFaker {
 
     public static PlayerStateFaker create() {
         return new PlayerStateFaker();
+    }
+
+    public static PlayerStateFaker forUser(User user) {
+        PlayerStateFaker playerStateFaker = new PlayerStateFaker();
+        UserEntity userEntity = UserEntity.builder().id(user.getId()).build();
+
+        return playerStateFaker.user(userEntity);
     }
 
     public static PlayerStateFaker createWithCustomNumberOfDevices(int deviceNumber) {
@@ -100,5 +106,9 @@ public class PlayerStateFaker {
 
     public PlayerState get() {
         return builder.build();
+    }
+
+    public PlayerStateFaker paused() {
+        return playing(false);
     }
 }
