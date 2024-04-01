@@ -3,6 +3,7 @@ package com.odeyalo.sonata.connect.controller;
 import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
 import com.odeyalo.sonata.connect.dto.PlayResumePlaybackRequest;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
+import com.odeyalo.sonata.connect.dto.ReasonCodeAwareExceptionMessage;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -15,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
 import testing.asserts.PlayerStateDtoAssert;
+import testing.asserts.ReasonCodeAwareExceptionMessageAssert;
 import testing.faker.ConnectDeviceRequestFaker;
 import testing.shared.SonataTestHttpOperations;
 import testing.spring.autoconfigure.AutoConfigureSonataHttpClient;
@@ -73,6 +75,16 @@ class PauseCommandEndpointTest {
         WebTestClient.ResponseSpec responseSpec = sendPauseRequest();
 
         responseSpec.expectStatus().isBadRequest();
+    }
+
+    @Test
+    void shouldReturnErrorReasonCode() {
+        WebTestClient.ResponseSpec responseSpec = sendPauseRequest();
+
+        ReasonCodeAwareExceptionMessage responseBody = responseSpec.expectBody(ReasonCodeAwareExceptionMessage.class).returnResult().getResponseBody();
+
+        ReasonCodeAwareExceptionMessageAssert.forMessage(responseBody)
+                .reasonCode().isEqualTo("no_active_device");
     }
 
     private void connectDevice() {
