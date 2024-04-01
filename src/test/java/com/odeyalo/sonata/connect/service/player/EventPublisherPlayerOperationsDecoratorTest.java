@@ -52,6 +52,29 @@ class EventPublisherPlayerOperationsDecoratorTest {
     }
 
     @Test
+    void shouldSendEventToSynchronizationManagerOnPauseCommandWithPausedField() {
+        // given
+        PlayerState pausedPlayerState = PlayerStateFaker
+                .forUser(USER)
+                .paused()
+                .get();
+
+        EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+
+        EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                .withPlayerState(pausedPlayerState)
+                .withSynchronizationManager(synchronizationManagerMock)
+                .build();
+        // when
+        testable.pause(USER)
+                .map(it -> synchronizationManagerMock.getOccurredEvents().get(0))
+                .as(StepVerifier::create)
+                // then
+                .assertNext(it -> assertThat(it.getCurrentPlayerState().isPlaying()).isFalse())
+                .verifyComplete();
+    }
+
+    @Test
     void shouldInvokeDelegatePause() {
         CurrentPlayerState pausedPlayerState = CurrentPlayerStateFaker.create()
                 .paused()
