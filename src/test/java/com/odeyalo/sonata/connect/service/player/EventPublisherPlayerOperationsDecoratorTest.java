@@ -79,6 +79,30 @@ class EventPublisherPlayerOperationsDecoratorTest {
     }
 
     @Test
+    void shouldNotSendAnyEventIfActiveDeviceIsNull() {
+        DeviceEntity activeDevice = DeviceEntityFaker.createInactiveDevice().get();
+        // given
+        PlayerState pausedPlayerState = PlayerStateFaker
+                .forUser(USER)
+                .paused()
+                .device(activeDevice)
+                .get();
+
+        EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+
+        EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                .withPlayerState(pausedPlayerState)
+                .withSynchronizationManager(synchronizationManagerMock)
+                .build();
+        // when
+        testable.pause(USER)
+                .as(StepVerifier::create)
+                // then
+                .assertNext(it -> assertThat(synchronizationManagerMock.getOccurredEvents()).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
     void shouldSendEventToSynchronizationManagerOnPauseCommandWithPausedField() {
         // given
         PlayerState pausedPlayerState = PlayerStateFaker
