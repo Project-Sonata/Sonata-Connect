@@ -5,10 +5,13 @@ import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
 import com.odeyalo.sonata.connect.model.Device;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.sync.PlayerSynchronizationManager;
+import com.odeyalo.sonata.connect.service.player.sync.event.PlayerEvent;
 import com.odeyalo.sonata.connect.service.player.sync.event.PlayerStateUpdatedPlayerEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
+
+import static com.odeyalo.sonata.connect.service.player.sync.event.PlayerEvent.EventType.PLAYER_STATE_UPDATED;
 
 /**
  * Decorator that can publish event to PlayerSynchronizationManager
@@ -51,11 +54,14 @@ public class EventPublisherPlayerOperationsDecorator implements BasicPlayerOpera
 
     @Override
     public Mono<CurrentPlayerState> pause(User user) {
-        return delegate.pause(user);
+        return delegate.pause(user)
+                .flatMap(it -> publishEvent(it, PLAYER_STATE_UPDATED, user));
     }
 
     @NotNull
-    private Mono<CurrentPlayerState> publishEvent(CurrentPlayerState currentPlayerState, User user) {
+    private Mono<CurrentPlayerState> publishEvent(@NotNull CurrentPlayerState currentPlayerState,
+                                                  @NotNull PlayerEvent.EventType eventType,
+                                                  @NotNull User user) {
         Device activeDevice = getActiveDevice(currentPlayerState);
         if (activeDevice == null) {
             return Mono.just(currentPlayerState);
@@ -64,6 +70,7 @@ public class EventPublisherPlayerOperationsDecorator implements BasicPlayerOpera
         PlayerStateUpdatedPlayerEvent stateUpdatedPlayerEvent = PlayerStateUpdatedPlayerEvent.builder()
                 .playerState(currentPlayerState)
                 .deviceThatChanged(activeDevice.getDeviceId())
+                .eventType(eventType)
                 .build();
 
         return synchronizationManager.publishUpdatedState(user, stateUpdatedPlayerEvent)

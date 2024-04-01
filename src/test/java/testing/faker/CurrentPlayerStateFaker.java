@@ -26,6 +26,11 @@ public final class CurrentPlayerStateFaker {
         return new CurrentPlayerStateFaker();
     }
 
+    public CurrentPlayerStateFaker paused() {
+        builder.playing(false);
+        return this;
+    }
+
     public CurrentPlayerState get() {
         return builder.build();
     }
