@@ -8,6 +8,8 @@ import com.odeyalo.sonata.connect.service.player.sync.PlayerSynchronizationManag
 import com.odeyalo.sonata.connect.service.player.sync.event.PlayerEvent;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+import testing.factory.DefaultPlayerOperationsTestableBuilder;
 import testing.faker.CurrentPlayerStateFaker;
 import testing.stub.NullDeviceOperations;
 
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.odeyalo.sonata.connect.service.player.EventPublisherPlayerOperationsDecoratorTest.TestableBuilder.testableBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -60,23 +63,47 @@ class EventPublisherPlayerOperationsDecoratorTest {
                 .paused()
                 .get();
 
-        EventPublisherPlayerOperationsDecorator delegateMock = mock(EventPublisherPlayerOperationsDecorator.class);
-        PlayerSynchronizationManager synchronizationManagerMock = new DefaultPlayerSynchronizationManager(
-                new InMemoryRoomHolder()
-        );
+        BasicPlayerOperations delegateMock = mock(BasicPlayerOperations.class);
 
         when(delegateMock.pause(any())).thenReturn(Mono.just(pausedPlayerState));
 
-        EventPublisherPlayerOperationsDecorator testable =
-                new EventPublisherPlayerOperationsDecorator(delegateMock,
-                        synchronizationManagerMock,
-                        new NullDeviceOperations()
-                );
+        EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                .withDelegate(delegateMock)
+                .build();
 
-        testable.pause(USER).block();
-
-        verify(delegateMock, times(1)).pause(eq(USER));
+        testable.pause(USER)
+                .as(StepVerifier::create)
+                .assertNext(it -> verify(delegateMock, times(1)).pause(eq(USER)))
+                .verifyComplete();
     }
 
 
+    static class TestableBuilder {
+        private BasicPlayerOperations delegate = DefaultPlayerOperationsTestableBuilder.testableBuilder().build();
+        private PlayerSynchronizationManager synchronizationManager = new DefaultPlayerSynchronizationManager(new InMemoryRoomHolder());
+        private DeviceOperations deviceOperations = new NullDeviceOperations();
+
+        public static TestableBuilder testableBuilder() {
+            return new TestableBuilder();
+        }
+
+        public TestableBuilder withDelegate(BasicPlayerOperations delegate) {
+            this.delegate = delegate;
+            return this;
+        }
+
+        public TestableBuilder withSynchronizationManager(PlayerSynchronizationManager synchronizationManager) {
+            this.synchronizationManager = synchronizationManager;
+            return this;
+        }
+
+        public TestableBuilder withDeviceOps(DeviceOperations deviceOperations) {
+            this.deviceOperations = deviceOperations;
+            return this;
+        }
+
+        public EventPublisherPlayerOperationsDecorator build() {
+            return new EventPublisherPlayerOperationsDecorator(delegate, synchronizationManager, deviceOperations);
+        }
+    }
 }
