@@ -44,13 +44,39 @@ class EventPublisherPlayerOperationsDecoratorTest {
         when(delegateMock.pause(any())).thenReturn(Mono.just(pausedPlayerState));
 
         EventPublisherPlayerOperationsDecorator testable =
-                new EventPublisherPlayerOperationsDecorator(delegateMock, synchronizationManagerMock,
-                new NullDeviceOperations());
+                new EventPublisherPlayerOperationsDecorator(delegateMock,
+                        synchronizationManagerMock,
+                        new NullDeviceOperations()
+                );
+
+        testable.pause(USER).block();
+
+        assertThat(events).hasSize(1);
+    }
+
+    @Test
+    void shouldInvokeDelegatePause() {
+        CurrentPlayerState pausedPlayerState = CurrentPlayerStateFaker.create()
+                .paused()
+                .get();
+
+        EventPublisherPlayerOperationsDecorator delegateMock = mock(EventPublisherPlayerOperationsDecorator.class);
+        PlayerSynchronizationManager synchronizationManagerMock = new DefaultPlayerSynchronizationManager(
+                new InMemoryRoomHolder()
+        );
+
+        when(delegateMock.pause(any())).thenReturn(Mono.just(pausedPlayerState));
+
+        EventPublisherPlayerOperationsDecorator testable =
+                new EventPublisherPlayerOperationsDecorator(delegateMock,
+                        synchronizationManagerMock,
+                        new NullDeviceOperations()
+                );
 
         testable.pause(USER).block();
 
         verify(delegateMock, times(1)).pause(eq(USER));
-
-        assertThat(events).hasSize(1);
     }
+
+
 }
