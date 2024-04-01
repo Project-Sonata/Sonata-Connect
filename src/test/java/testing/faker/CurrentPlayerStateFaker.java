@@ -31,6 +31,11 @@ public final class CurrentPlayerStateFaker {
         return this;
     }
 
+    public CurrentPlayerStateFaker progressed() {
+        builder.playing(true);
+        return this;
+    }
+
     public CurrentPlayerState get() {
         return builder.build();
     }
