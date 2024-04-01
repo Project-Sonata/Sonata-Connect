@@ -13,8 +13,8 @@ public class AuthorizeExchangeSpecConfigurer implements Customizer<AuthorizeExch
 
     @Override
     public void customize(AuthorizeExchangeSpec authorizeExchangeSpec) {
-        authorizeExchangeSpec.
-                pathMatchers(SCA_TOKEN_EXCHANGE_ENDPOINT).permitAll()
+        authorizeExchangeSpec
+                .pathMatchers(SCA_TOKEN_EXCHANGE_ENDPOINT).permitAll()
                 .anyExchange().authenticated();
     }
 }
