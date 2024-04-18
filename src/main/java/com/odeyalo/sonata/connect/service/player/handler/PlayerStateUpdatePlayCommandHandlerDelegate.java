@@ -8,7 +8,6 @@ import com.odeyalo.sonata.connect.entity.PlayerState;
 import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.PlayableItem;
-import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
@@ -67,9 +66,7 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
 
     private Mono<PlayerState> updateAndSave(PlayerState state, PlayableItem item) {
         CommonPlayableItemEntity playingItem = CommonPlayableItemEntity.of(item.getId(), item.getItemType());
-        state.setCurrentlyPlayingItem(playingItem);
-        state.setPlayingType(PlayingType.valueOf(item.getItemType().name()));
-        state.setPlaying(true);
+        state.playOrResume(playingItem);
         return playerStateRepository.save(state);
     }
 

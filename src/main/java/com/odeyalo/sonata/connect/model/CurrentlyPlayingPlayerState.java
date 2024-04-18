@@ -17,4 +17,5 @@ public class CurrentlyPlayingPlayerState {
     RepeatState repeatState;
     PlayableItem playableItem;
     Devices devices;
+    Long progressMs;
 }

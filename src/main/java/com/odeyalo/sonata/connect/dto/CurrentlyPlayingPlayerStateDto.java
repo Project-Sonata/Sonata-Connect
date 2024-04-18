@@ -24,6 +24,8 @@ public class CurrentlyPlayingPlayerStateDto {
     PlayingType currentlyPlayingType;
     @JsonProperty("repeat_state")
     RepeatState repeatState;
+    @JsonProperty("progress_ms")
+    Long progressMs;
     @JsonProperty("playing_item")
     PlayableItemDto currentlyPlayingItem;
     @JsonProperty("devices")

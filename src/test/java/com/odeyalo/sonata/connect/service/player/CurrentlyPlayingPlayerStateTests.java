@@ -75,6 +75,17 @@ class CurrentlyPlayingPlayerStateTests extends DefaultPlayerOperationsTest {
                 .verifyComplete();
     }
 
+    @Test
+    void shouldReturnProgressMs() {
+        PlayerState playingPlayerState = playingActivePlayerState();
+        DefaultPlayerOperations testable = testableBuilder().withState(playingPlayerState).build();
+
+        testable.currentState(EXISTING_USER)
+                .as(StepVerifier::create)
+                .expectNextMatches(it -> it.getProgressMs() >= 0)
+                .verifyComplete();
+    }
+
     private static PlayerState playingActivePlayerState() {
         return PlayerStateFaker.create().playing(true).user(existingUserEntity()).get();
     }
