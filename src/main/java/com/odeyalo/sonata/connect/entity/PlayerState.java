@@ -6,7 +6,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 
-import java.time.Instant;
+import java.util.Objects;
 
 @Builder
 @Data
@@ -19,16 +19,18 @@ public class PlayerState {
     boolean playing;
     RepeatState repeatState;
     boolean shuffleState;
-    Long progressMs;
+    Long progressMs = 0L;
     PlayingType playingType;
     DevicesEntity devicesEntity;
     UserEntity user;
-    // TODO: why is this a ENTITY, it should be PlayableItem
     PlayableItemEntity currentlyPlayingItem;
     int volume;
     @Getter(value = AccessLevel.PRIVATE)
     @Setter(value = AccessLevel.PRIVATE)
-    Instant lastInteractionPlayPauseTime;
+    long playStartTime = 0;
+    @Getter(value = AccessLevel.PRIVATE)
+    @Setter(value = AccessLevel.PRIVATE)
+    long lastPauseTime = 0;
 
     public static final boolean SHUFFLE_ENABLED = true;
     public static final boolean SHUFFLE_DISABLED = false;
@@ -57,22 +59,50 @@ public class PlayerState {
         if (currentlyPlayingItem == null) {
             return -1L;
         }
+
         if ( isPlaying() ) {
-            progressMs = Instant.now().minusSeconds(lastInteractionPlayPauseTime.getEpochSecond()).getEpochSecond();
+            return progressMs + calculateProgress();
         }
         return progressMs;
+
+    }
+
+    private Long calculateProgress() {
+        if ( isPlaying() ) {
+            return System.currentTimeMillis() - playStartTime;
+        } else {
+            return lastPauseTime - playStartTime;
+        }
     }
 
     public void playOrResume(PlayableItemEntity item) {
-        setCurrentlyPlayingItem(item);
-        setPlayingType(PlayingType.valueOf(item.getType().name()));
-        setPlaying(true);
-        lastInteractionPlayPauseTime = Instant.now();
+        if ( currentlyPlayingItem == null || isPaused() ) {
+            setCurrentlyPlayingItem(item);
+            setPlayingType(PlayingType.valueOf(item.getType().name()));
+            setPlaying(true);
+            playStartTime = System.currentTimeMillis();
+            return;
+        }
+
+        if ( !Objects.equals(item.getId(), currentlyPlayingItem.getId()) ) {
+            setCurrentlyPlayingItem(item);
+            setPlayingType(PlayingType.valueOf(item.getType().name()));
+            setPlaying(true);
+            playStartTime = System.currentTimeMillis();
+            progressMs = 0L;
+        }
     }
 
     public PlayerState pause() {
-        setPlaying(false);
-        lastInteractionPlayPauseTime = Instant.now();
+        if ( isPlaying() ) {
+            setPlaying(false);
+            lastPauseTime = System.currentTimeMillis();
+            progressMs += calculateProgress();
+        }
         return this;
+    }
+
+    public boolean isPaused() {
+        return !isPlaying();
     }
 }

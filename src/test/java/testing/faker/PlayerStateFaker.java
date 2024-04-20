@@ -11,8 +11,6 @@ import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import java.time.Instant;
-
 @Setter
 @Accessors(chain = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -36,8 +34,7 @@ public class PlayerStateFaker {
                 .shuffleState(faker.random().nextBoolean())
                 .progressMs(faker.random().nextLong())
                 .playingType(faker.options().option(PlayingType.class))
-                .user(UserEntityFaker.create().get())
-                .lastInteractionPlayPauseTime(Instant.now());
+                .user(UserEntityFaker.create().get());
 
         if ( numberOfDevices <= 0 ) {
             builder.devicesEntity(DevicesEntityFaker.create().get());
