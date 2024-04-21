@@ -42,7 +42,7 @@ class DefaultStorageDeviceOperationsTest {
     DefaultStorageDeviceOperations operations = new DefaultStorageDeviceOperations(playerStateRepository,
             new SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate(playerStateRepository, playerStateConverter), playerStateConverter,
             new DevicesEntity2DevicesConverter(new DeviceEntity2DeviceConverterImpl()),
-            new Device2DeviceEntityConverter());
+            new Device2DeviceEntityConverterImpl());
 
     User user;
     DeviceEntity activeDeviceEntity;
