@@ -14,11 +14,12 @@ import java.util.Objects;
 @Accessors(chain = true)
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PlayerState {
+public class PlayerStateEntity {
     Long id;
     boolean playing;
     RepeatState repeatState;
     boolean shuffleState;
+    @Builder.Default
     Long progressMs = 0L;
     PlayingType playingType;
     DevicesEntity devicesEntity;
@@ -93,7 +94,7 @@ public class PlayerState {
         }
     }
 
-    public PlayerState pause() {
+    public PlayerStateEntity pause() {
         if ( isPlaying() ) {
             setPlaying(false);
             lastPauseTime = System.currentTimeMillis();

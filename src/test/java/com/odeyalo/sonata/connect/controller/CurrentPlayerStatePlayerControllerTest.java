@@ -64,9 +64,9 @@ class CurrentPlayerStatePlayerControllerTest {
                     .build();
             UserEntity user = UserEntityFaker.create().setId(VALID_USER_ID).get();
 
-            PlayerState playerState = PlayerStateFaker.createWithCustomNumberOfDevices(1)
+            PlayerStateEntity playerState = PlayerStateFaker.createWithCustomNumberOfDevices(1)
                     .id(1L)
-                    .shuffleState(PlayerState.SHUFFLE_DISABLED)
+                    .shuffleState(PlayerStateEntity.SHUFFLE_DISABLED)
                     .progressMs(0L)
                     .playing(true)
                     .playingType(PlayingType.TRACK)

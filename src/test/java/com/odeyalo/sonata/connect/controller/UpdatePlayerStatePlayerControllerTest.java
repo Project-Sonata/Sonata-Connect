@@ -4,7 +4,7 @@ package com.odeyalo.sonata.connect.controller;
 import com.odeyalo.sonata.connect.dto.ExceptionMessage;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.entity.DevicesEntity;
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import org.jetbrains.annotations.NotNull;
@@ -110,7 +110,7 @@ public class UpdatePlayerStatePlayerControllerTest {
                             .setActive(true)
                             .asInMemoryDevice())
                     .build();
-            PlayerState playerState = PlayerStateFaker.createWithCustomNumberOfDevices(1)
+            PlayerStateEntity playerState = PlayerStateFaker.createWithCustomNumberOfDevices(1)
                     .devicesEntity(devices)
                     .get();
             playerStateRepository.save(playerState).block();

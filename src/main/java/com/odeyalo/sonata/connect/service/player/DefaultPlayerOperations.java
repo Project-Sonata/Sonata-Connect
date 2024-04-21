@@ -1,6 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
 import com.odeyalo.sonata.connect.model.User;
@@ -33,7 +33,7 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     public Mono<CurrentPlayerState> currentState(User user) {
         return playerStateRepository.findByUserId(user.getId())
                 .switchIfEmpty(Mono.defer(() -> {
-                    PlayerState state = emptyState(user);
+                    PlayerStateEntity state = emptyState(user);
                     logger.info("Created new empty player state due to missing for the user: {}", user);
                     return playerStateRepository.save(state);
                 }))
@@ -70,12 +70,12 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
         return pauseCommandHandlerDelegate.pause(user);
     }
 
-    private static PlayerState emptyState(User user) {
+    private static PlayerStateEntity emptyState(User user) {
         return PlayerStateFactory.createEmpty(user);
     }
 
     @NotNull
-    private static PlayerState doChangeShuffleMode(PlayerState state, boolean shuffleMode) {
+    private static PlayerStateEntity doChangeShuffleMode(PlayerStateEntity state, boolean shuffleMode) {
         state.setShuffleState(shuffleMode);
         return state;
     }

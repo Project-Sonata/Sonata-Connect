@@ -1,6 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.ReasonCodeAware;
 import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
@@ -18,7 +18,7 @@ class PlayResumeCommandTests extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldUpdatePlayerStateWithCorrectPlayableItemId() {
-        PlayerState playerState = existingPlayerState();
+        PlayerStateEntity playerState = existingPlayerState();
         DefaultPlayerOperations testable = testableBuilder().withState(playerState).build();
 
         testable.playOrResume(DefaultPlayerOperationsTest.EXISTING_USER, PlayCommandContext.of(EXISTING_PLAYABLE_ITEM_CONTEXT), CURRENT_DEVICE)
@@ -31,7 +31,7 @@ class PlayResumeCommandTests extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldUpdatePlayerStateWithCorrectPlayableItemType() {
-        PlayerState playerState = existingPlayerState();
+        PlayerStateEntity playerState = existingPlayerState();
         DefaultPlayerOperations testable = testableBuilder().withState(playerState).build();
 
         testable.playOrResume(DefaultPlayerOperationsTest.EXISTING_USER, PlayCommandContext.of(EXISTING_PLAYABLE_ITEM_CONTEXT), CURRENT_DEVICE)
@@ -44,7 +44,7 @@ class PlayResumeCommandTests extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldThrowExceptionIfContextUriIsInvalid() {
-        PlayerState playerState = existingPlayerState();
+        PlayerStateEntity playerState = existingPlayerState();
 
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(playerState)
@@ -58,7 +58,7 @@ class PlayResumeCommandTests extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldContainReasonCodeIfContextUriIsInvalid() {
-        PlayerState playerState = existingPlayerState();
+        PlayerStateEntity playerState = existingPlayerState();
 
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(playerState)

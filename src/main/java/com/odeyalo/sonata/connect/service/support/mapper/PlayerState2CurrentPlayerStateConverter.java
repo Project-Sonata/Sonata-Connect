@@ -2,7 +2,7 @@ package com.odeyalo.sonata.connect.service.support.mapper;
 
 import com.odeyalo.sonata.connect.entity.DevicesEntity;
 import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.PlayableItem;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * Convert PersistablePlayerState entity to CurrentPlayerState
  */
 @Component
-public class PlayerState2CurrentPlayerStateConverter implements Converter<PlayerState, CurrentPlayerState> {
+public class PlayerState2CurrentPlayerStateConverter implements Converter<PlayerStateEntity, CurrentPlayerState> {
     private final DevicesEntity2DevicesConverter devicesConverterSupport;
     private final PlayableItemEntity2PlayableItemConverter playableItemConverterSupport;
 
@@ -23,7 +23,7 @@ public class PlayerState2CurrentPlayerStateConverter implements Converter<Player
     }
 
     @Override
-    public CurrentPlayerState convertTo(PlayerState state) {
+    public CurrentPlayerState convertTo(PlayerStateEntity state) {
         return CurrentPlayerState.builder()
                 .id(state.getId())
                 .playingType(state.getPlayingType())
@@ -36,7 +36,7 @@ public class PlayerState2CurrentPlayerStateConverter implements Converter<Player
                 .build();
     }
 
-    private PlayableItem toPlayableItem(PlayerState state) {
+    private PlayableItem toPlayableItem(PlayerStateEntity state) {
         PlayableItemEntity item = state.getCurrentlyPlayingItem();
         return item != null ? playableItemConverterSupport.convertTo(item) : null;
     }

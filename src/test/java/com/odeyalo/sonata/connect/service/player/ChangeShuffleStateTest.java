@@ -1,6 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.entity.UserEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.User;
@@ -17,7 +17,7 @@ class ChangeShuffleStateTest extends DefaultPlayerOperationsTest {
 
     @Test
     void changeShuffleToEnabled_andExpectShuffleToChange() {
-        PlayerState withShuffleDisabled = playerStateWithShuffleDisabled();
+        PlayerStateEntity withShuffleDisabled = playerStateWithShuffleDisabled();
 
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(withShuffleDisabled)
@@ -32,7 +32,7 @@ class ChangeShuffleStateTest extends DefaultPlayerOperationsTest {
 
     @Test
     void changeShuffleToDisabled_andExpectShuffleToChange() {
-        PlayerState withShuffleDisabled = playerStateWithShuffleEnabled();
+        PlayerStateEntity withShuffleDisabled = playerStateWithShuffleEnabled();
 
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(withShuffleDisabled)
@@ -47,7 +47,7 @@ class ChangeShuffleStateTest extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldChangeNothingIfShuffleStateIsEqual() {
-        PlayerState state = existingPlayerState();
+        PlayerStateEntity state = existingPlayerState();
         boolean expectedShuffleState = state.getShuffleState();
 
         DefaultPlayerOperations testable = testableBuilder()
@@ -63,7 +63,7 @@ class ChangeShuffleStateTest extends DefaultPlayerOperationsTest {
 
     }
 
-    private PlayerState playerStateWithShuffleEnabled() {
+    private PlayerStateEntity playerStateWithShuffleEnabled() {
         UserEntity user = existingUserEntity();
 
         return PlayerStateFaker
@@ -73,7 +73,7 @@ class ChangeShuffleStateTest extends DefaultPlayerOperationsTest {
                 .get();
     }
 
-    private static PlayerState playerStateWithShuffleDisabled() {
+    private static PlayerStateEntity playerStateWithShuffleDisabled() {
         UserEntity user = existingUserEntity();
 
         return PlayerStateFaker

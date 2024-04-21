@@ -1,6 +1,6 @@
 package com.odeyalo.sonata.connect.service.player.handler;
 
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
@@ -23,13 +23,13 @@ public final class PlayerStateUpdatePauseCommandHandlerDelegate implements Pause
     public Mono<CurrentPlayerState> pause(@NotNull User user) {
         return playerStateRepository.findByUserId(user.getId())
                 .flatMap(state -> validate(state))
-                .map(PlayerState::pause)
+                .map(PlayerStateEntity::pause)
                 .flatMap(playerStateRepository::save)
                 .map(playerStateConverterSupport::convertTo);
     }
 
     @NotNull
-    private Mono<PlayerState> validate(PlayerState state) {
+    private Mono<PlayerStateEntity> validate(PlayerStateEntity state) {
         return preExecutingIntegrityValidator.validate(state)
                 .flatMap(validationResult -> {
                     if ( validationResult.isValid() ) {

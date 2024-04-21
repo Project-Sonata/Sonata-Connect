@@ -1,20 +1,20 @@
 package testing.asserts;
 
 import com.odeyalo.sonata.connect.entity.DevicesEntity;
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.model.RepeatState;
 import org.assertj.core.api.AbstractAssert;
 import org.springframework.util.Assert;
 
 import static org.apache.commons.lang.BooleanUtils.isFalse;
 
-public class PlayerStateAssert extends AbstractAssert<PlayerStateAssert, PlayerState> {
+public class PlayerStateAssert extends AbstractAssert<PlayerStateAssert, PlayerStateEntity> {
 
-    private PlayerStateAssert(PlayerState actual) {
+    private PlayerStateAssert(PlayerStateEntity actual) {
         super(actual, PlayerStateAssert.class);
     }
 
-    public static PlayerStateAssert forState(PlayerState actual) {
+    public static PlayerStateAssert forState(PlayerStateEntity actual) {
         Assert.notNull(actual, "Actual value must be not null!");
         return new PlayerStateAssert(actual);
     }

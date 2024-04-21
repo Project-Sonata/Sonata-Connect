@@ -2,7 +2,7 @@ package testing.factory;
 
 import com.odeyalo.sonata.common.context.HardcodedContextUriParser;
 import com.odeyalo.sonata.connect.config.Converters;
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.DefaultPlayerOperations;
@@ -34,7 +34,7 @@ public final class DefaultPlayerOperationsTestableBuilder {
         return new DefaultPlayerOperationsTestableBuilder();
     }
 
-    public DefaultPlayerOperationsTestableBuilder withState(PlayerState state) {
+    public DefaultPlayerOperationsTestableBuilder withState(PlayerStateEntity state) {
         playerStateRepository.save(state).block();
         return this;
     }

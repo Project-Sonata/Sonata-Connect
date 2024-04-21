@@ -1,7 +1,7 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.DeviceNotFoundException;
 import com.odeyalo.sonata.connect.exception.MultipleTargetDevicesNotSupportedException;
 import com.odeyalo.sonata.connect.exception.SingleTargetDeactivationDeviceRequiredException;
@@ -50,7 +50,7 @@ class DefaultStorageDeviceOperationsTest {
 
     @BeforeEach
     void prepare() {
-        PlayerState playerState = playerStateRepository.save(PlayerStateFaker.createWithCustomNumberOfDevices(3).get()).block();
+        PlayerStateEntity playerState = playerStateRepository.save(PlayerStateFaker.createWithCustomNumberOfDevices(3).get()).block();
         user = User.of(playerState.getUser().getId());
         activeDeviceEntity = getActiveDevice(playerState);
         inactiveDeviceEntity = getInactiveDevice(playerState);
@@ -158,7 +158,7 @@ class DefaultStorageDeviceOperationsTest {
         playerStateRepository.clear().block();
     }
 
-    private static DeviceEntity getActiveDevice(PlayerState playerState) {
+    private static DeviceEntity getActiveDevice(PlayerStateEntity playerState) {
         List<DeviceEntity> activeDeviceEntities = playerState.getDevices().getActiveDevices();
         if ( activeDeviceEntities.size() == 0 ) {
             throw new IllegalStateException("At least one device must be active");
@@ -166,7 +166,7 @@ class DefaultStorageDeviceOperationsTest {
         return activeDeviceEntities.get(0);
     }
 
-    private static DeviceEntity getInactiveDevice(PlayerState playerState) {
+    private static DeviceEntity getInactiveDevice(PlayerStateEntity playerState) {
         return playerState.getDevices().stream().filter(not(DeviceEntity::isActive)).findFirst()
                 .orElseThrow((() -> new IllegalStateException("At least one device must be inactive")));
     }

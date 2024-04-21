@@ -1,7 +1,7 @@
 package com.odeyalo.sonata.connect.service.player.support;
 
 import com.odeyalo.sonata.common.context.ContextUri;
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
 import reactor.core.publisher.Mono;
@@ -18,5 +18,5 @@ public interface PlayableItemResolver {
      * @param currentState The current state of the player that can be used for resolving the item.
      * @return A Mono representing the resolved PlayableItem, or an empty Mono if no item could be resolved.
      */
-    Mono<PlayableItem> resolveItem(ContextUri contextUri, PlayCommandContext playContext, PlayerState currentState);
+    Mono<PlayableItem> resolveItem(ContextUri contextUri, PlayCommandContext playContext, PlayerStateEntity currentState);
 }

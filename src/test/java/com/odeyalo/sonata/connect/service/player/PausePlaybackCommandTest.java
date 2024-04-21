@@ -1,7 +1,7 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.entity.UserEntity;
 import com.odeyalo.sonata.connect.exception.NoActiveDeviceException;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ class PausePlaybackCommandTest extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldReturnUpdatedPlayerState() {
-        PlayerState playerState = activePlayerState();
+        PlayerStateEntity playerState = activePlayerState();
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(playerState)
                 .build();
@@ -29,7 +29,7 @@ class PausePlaybackCommandTest extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldReturnPlayingSetToFalse() {
-        PlayerState playerState = activePlayerState();
+        PlayerStateEntity playerState = activePlayerState();
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(playerState)
                 .build();
@@ -42,7 +42,7 @@ class PausePlaybackCommandTest extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldReturnErrorIfNoActiveDevice() {
-        PlayerState playerState = activePlayerStateWithNoActiveDevice();
+        PlayerStateEntity playerState = activePlayerStateWithNoActiveDevice();
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(playerState)
                 .build();
@@ -53,13 +53,13 @@ class PausePlaybackCommandTest extends DefaultPlayerOperationsTest {
                 .verify();
     }
 
-    private PlayerState activePlayerStateWithNoActiveDevice() {
+    private PlayerStateEntity activePlayerStateWithNoActiveDevice() {
         UserEntity userEntity = existingUserEntity();
         DeviceEntity inactiveDevice = DeviceEntityFaker.createInactiveDevice().get();
         return PlayerStateFaker.create().playing(true).user(userEntity).device(inactiveDevice).get();
     }
 
-    private static PlayerState activePlayerState() {
+    private static PlayerStateEntity activePlayerState() {
         UserEntity userEntity = existingUserEntity();
         return PlayerStateFaker.create().playing(true).user(userEntity).get();
     }

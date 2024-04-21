@@ -15,7 +15,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 @Accessors(chain = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PlayerStateFaker {
-    PlayerState.PlayerStateBuilder builder = PlayerState.builder();
+    PlayerStateEntity.PlayerStateEntityBuilder builder = PlayerStateEntity.builder();
 
     final Faker faker = Faker.instance();
 
@@ -110,7 +110,7 @@ public class PlayerStateFaker {
         return this;
     }
 
-    public PlayerState get() {
+    public PlayerStateEntity get() {
         return builder.build();
     }
 

@@ -1,6 +1,6 @@
 package testing;
 
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.repository.PlayerStatePersistentOperations;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -13,123 +13,123 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 public class PlayerStatePersistentOperationsTestAdapter {
 
     final PlayerStatePersistentOperations testTarget;
-    final TestEntityGenerator<? extends PlayerState> entityGenerator;
+    final TestEntityGenerator<? extends PlayerStateEntity> entityGenerator;
 
-    protected PlayerState entity;
+    protected PlayerStateEntity entity;
 
     public PlayerStatePersistentOperationsTestAdapter(PlayerStatePersistentOperations testTarget,
-                                                      TestEntityGenerator<? extends PlayerState> entityGenerator) {
+                                                      TestEntityGenerator<? extends PlayerStateEntity> entityGenerator) {
         this.testTarget = testTarget;
         this.entityGenerator = entityGenerator;
     }
 
     @BeforeAll
     void prepare() {
-        PlayerState playerState = entityGenerator.generateValidEntity();
+        PlayerStateEntity playerState = entityGenerator.generateValidEntity();
         this.entity = testTarget.save(playerState).block();
 
     }
 
     @Test
     public void shouldSave() {
-        PlayerState validEntity = entityGenerator.generateValidEntity();
+        PlayerStateEntity validEntity = entityGenerator.generateValidEntity();
 
-        PlayerState result = testTarget.save(validEntity).block();
+        PlayerStateEntity result = testTarget.save(validEntity).block();
 
         assertThat(result).isNotNull();
     }
 
     @Test
     void shouldSaveId() {
-        PlayerState validEntity = entityGenerator.generateValidEntity();
+        PlayerStateEntity validEntity = entityGenerator.generateValidEntity();
 
-        PlayerState result = testTarget.save(validEntity).block();
+        PlayerStateEntity result = testTarget.save(validEntity).block();
 
         assertThat(result.getId()).isEqualTo(validEntity.getId());
     }
 
     @Test
     void shouldSavePlayingFlag() {
-        PlayerState validEntity = entityGenerator.generateValidEntity();
+        PlayerStateEntity validEntity = entityGenerator.generateValidEntity();
 
-        PlayerState result = testTarget.save(validEntity).block();
+        PlayerStateEntity result = testTarget.save(validEntity).block();
 
         assertThat(result.isPlaying()).isEqualTo(validEntity.isPlaying());
     }
 
     @Test
     void shouldSaveShuffleState() {
-        PlayerState validEntity = entityGenerator.generateValidEntity();
+        PlayerStateEntity validEntity = entityGenerator.generateValidEntity();
 
-        PlayerState result = testTarget.save(validEntity).block();
+        PlayerStateEntity result = testTarget.save(validEntity).block();
 
         assertThat(result.getShuffleState()).isEqualTo(validEntity.getShuffleState());
     }
 
     @Test
     void shouldSaveRepeatState() {
-        PlayerState validEntity = entityGenerator.generateValidEntity();
+        PlayerStateEntity validEntity = entityGenerator.generateValidEntity();
 
-        PlayerState result = testTarget.save(validEntity).block();
+        PlayerStateEntity result = testTarget.save(validEntity).block();
 
         assertThat(result.getRepeatState()).isEqualTo(validEntity.getRepeatState());
     }
 
     @Test
     void shouldSaveCurrentlyPlayingType() {
-        PlayerState validEntity = entityGenerator.generateValidEntity();
+        PlayerStateEntity validEntity = entityGenerator.generateValidEntity();
 
-        PlayerState result = testTarget.save(validEntity).block();
+        PlayerStateEntity result = testTarget.save(validEntity).block();
 
         assertThat(result.getCurrentlyPlayingType()).isEqualTo(validEntity.getCurrentlyPlayingType());
     }
 
     @Test
     void shouldSaveProgressMs() {
-        PlayerState validEntity = entityGenerator.generateValidEntity();
+        PlayerStateEntity validEntity = entityGenerator.generateValidEntity();
 
-        PlayerState result = testTarget.save(validEntity).block();
+        PlayerStateEntity result = testTarget.save(validEntity).block();
 
         assertThat(result.getProgressMs()).isEqualTo(validEntity.getProgressMs());
     }
 
     @Test
     void shouldSaveUser() {
-        PlayerState validEntity = entityGenerator.generateValidEntity();
+        PlayerStateEntity validEntity = entityGenerator.generateValidEntity();
 
-        PlayerState result = testTarget.save(validEntity).block();
+        PlayerStateEntity result = testTarget.save(validEntity).block();
 
         assertThat(result.getUser()).isEqualTo(validEntity.getUser());
     }
 
     @Test
     void shouldSaveDevices() {
-        PlayerState validEntity = entityGenerator.generateValidEntity();
+        PlayerStateEntity validEntity = entityGenerator.generateValidEntity();
 
-        PlayerState result = testTarget.save(validEntity).block();
+        PlayerStateEntity result = testTarget.save(validEntity).block();
 
         assertThat(result.getDevices()).isEqualTo(validEntity.getDevices());
     }
 
     @Test
     void shouldSavePlayableItem() {
-        PlayerState validEntity = entityGenerator.generateValidEntity();
+        PlayerStateEntity validEntity = entityGenerator.generateValidEntity();
 
-        PlayerState result = testTarget.save(validEntity).block();
+        PlayerStateEntity result = testTarget.save(validEntity).block();
 
         assertThat(result.getCurrentlyPlayingItem()).isNotNull();
     }
 
     @Test
     public void shouldNotSave() {
-        PlayerState entity = entityGenerator.generateInvalidEntity();
+        PlayerStateEntity entity = entityGenerator.generateInvalidEntity();
         assertThatThrownBy(() -> testTarget.save(entity).block())
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void shouldRetrieveEntityById() {
-        PlayerState state = testTarget.findById(entity.getId()).block();
+        PlayerStateEntity state = testTarget.findById(entity.getId()).block();
         assertThat(state)
                 .as("Player state must be found")
                 .isNotNull()
@@ -138,7 +138,7 @@ public class PlayerStatePersistentOperationsTestAdapter {
 
     @Test
     public void shouldNullForNotExistingId() {
-        PlayerState state = testTarget.findById(-1L).block();
+        PlayerStateEntity state = testTarget.findById(-1L).block();
         assertThat(state)
                 .as("Player state must be null if ID does not exist")
                 .isNull();
@@ -148,7 +148,7 @@ public class PlayerStatePersistentOperationsTestAdapter {
     public void shouldDeleteById() {
         testTarget.deleteById(entity.getId()).block();
 
-        PlayerState afterDeletion = testTarget.findById(entity.getId()).block();
+        PlayerStateEntity afterDeletion = testTarget.findById(entity.getId()).block();
 
         assertThat(afterDeletion)
                 .as("After deletion player should be deleted")
@@ -168,7 +168,7 @@ public class PlayerStatePersistentOperationsTestAdapter {
 
     @Test
     public void shouldFindByUserId() {
-        PlayerState result = this.testTarget.findByUserId(entity.getUser().getId()).block();
+        PlayerStateEntity result = this.testTarget.findByUserId(entity.getUser().getId()).block();
 
         assertThat(result)
                 .as("Entity must be found by user id!")
