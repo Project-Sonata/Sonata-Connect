@@ -1,54 +1,24 @@
 package com.odeyalo.sonata.connect.service.support.mapper.dto;
 
-import com.odeyalo.sonata.connect.dto.DevicesDto;
-import com.odeyalo.sonata.connect.dto.PlayableItemDto;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.Devices;
-import com.odeyalo.sonata.connect.model.PlayableItem;
-import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.service.support.mapper.Converter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.mapstruct.InjectionStrategy;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class CurrentPlayerState2PlayerStateDtoConverter implements Converter<CurrentPlayerState, PlayerStateDto> {
-    private final PlayableItem2PlayableItemDtoConverter playableItemDtoConverterSupport;
-    private final Devices2DevicesDtoConverter devicesDtoConverterSupport;
+@Mapper(componentModel = "spring",
+        injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+        uses = {
+                PlayableItem2PlayableItemDtoConverter.class,
+                Devices2DevicesDtoConverter.class
+        })
+public interface CurrentPlayerState2PlayerStateDtoConverter extends Converter<CurrentPlayerState, PlayerStateDto> {
 
-    @Autowired
-    public CurrentPlayerState2PlayerStateDtoConverter(PlayableItem2PlayableItemDtoConverter playableItemDtoConverterSupport,
-                                                      Devices2DevicesDtoConverter devicesDtoConverterSupport) {
-        this.playableItemDtoConverterSupport = playableItemDtoConverterSupport;
-        this.devicesDtoConverterSupport = devicesDtoConverterSupport;
-    }
-
-    @Override
-    public PlayerStateDto convertTo(CurrentPlayerState state) {
-        return PlayerStateDto.builder()
-                .currentlyPlayingType(playingTypeOrNull(state))
-                .isPlaying(state.isPlaying())
-                .repeatState(state.getRepeatState())
-                .progressMs(state.getProgressMs())
-                .devices(toDevicesDto(state.getDevices()))
-                .shuffleState(state.getShuffleState())
-                .playingItem(toPlayableItemOrNull(state))
-                .build();
-    }
-
-    private DevicesDto toDevicesDto(Devices devices) {
-        return devicesDtoConverterSupport.convertTo(devices);
-    }
-
-    private PlayableItemDto toPlayableItemOrNull(CurrentPlayerState state) {
-        PlayableItem item = state.getPlayableItem();
-        return item != null ? playableItemDtoConverterSupport.convertTo(item) : null;
-    }
-
-    private static String playingTypeOrNull(CurrentPlayerState state) {
-
-        PlayingType playingType = state.getPlayingType();
-
-        return playingType != null ? playingType.name().toLowerCase() : null;
-    }
+    @Mapping(source = "playing", target = "isPlaying")
+    @Mapping(target = "currentlyPlayingType",
+            expression = "java(currentPlayerState.getPlayingType() != null ?" +
+                    " currentPlayerState.getPlayingType().toString().toLowerCase() " +
+                    ": null)")
+    PlayerStateDto convertTo(CurrentPlayerState currentPlayerState);
 }
