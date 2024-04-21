@@ -14,7 +14,11 @@ public class PlayableItemEntity2PlayableItemConverter implements Converter<Playa
 
     @Override
     public PlayableItem convertTo(PlayableItemEntity item) {
-        if (item.getType() == PlayableItemType.TRACK) {
+        if ( item == null ) {
+            return null;
+        }
+
+        if ( item.getType() == PlayableItemType.TRACK ) {
             return toTrackItem(item);
         }
 

@@ -5,7 +5,7 @@ import com.odeyalo.sonata.connect.service.support.mapper.*;
 public class Converters {
 
     public PlayerState2CurrentPlayerStateConverter playerState2CurrentPlayerStateConverter() {
-        return new PlayerState2CurrentPlayerStateConverter(
+        return new PlayerState2CurrentPlayerStateConverterImpl(
                 devicesEntity2DevicesConverter(),
                 playableItemEntity2PlayableItemConverter()
         );
