@@ -7,7 +7,7 @@ import com.odeyalo.sonata.connect.model.TrackItem;
 import org.springframework.stereotype.Component;
 
 /**
- * Convert PlayableItemEntity to PlayableItem
+ * Convert {@link PlayableItemEntity} to {@link PlayableItem}
  */
 @Component
 public class PlayableItemEntity2PlayableItemConverter implements Converter<PlayableItemEntity, PlayableItem> {
