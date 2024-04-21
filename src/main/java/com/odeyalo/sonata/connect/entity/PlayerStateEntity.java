@@ -5,6 +5,8 @@ import com.odeyalo.sonata.connect.model.RepeatState;
 import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -17,13 +19,17 @@ import java.util.Objects;
 public class PlayerStateEntity {
     Long id;
     boolean playing;
+    @Nullable
     RepeatState repeatState;
     boolean shuffleState;
     @Builder.Default
     Long progressMs = 0L;
+    @Nullable
     PlayingType playingType;
     DevicesEntity devicesEntity;
+    @NotNull
     UserEntity user;
+    @Nullable
     PlayableItemEntity currentlyPlayingItem;
     int volume;
     @Getter(value = AccessLevel.PRIVATE)
@@ -48,6 +54,7 @@ public class PlayerStateEntity {
         return devicesEntity;
     }
 
+    @Nullable
     public PlayableItemEntity getCurrentlyPlayingItem() {
         return currentlyPlayingItem;
     }
