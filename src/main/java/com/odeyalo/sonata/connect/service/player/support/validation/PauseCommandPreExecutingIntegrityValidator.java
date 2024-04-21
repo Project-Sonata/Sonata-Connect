@@ -1,6 +1,6 @@
 package com.odeyalo.sonata.connect.service.player.support.validation;
 
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -15,6 +15,6 @@ public interface PauseCommandPreExecutingIntegrityValidator {
      * otherwise {@link Mono} with {@link PlayerCommandIntegrityValidationResult#invalid}
      */
     @NotNull
-    Mono<PlayerCommandIntegrityValidationResult> validate(@NotNull PlayerState currentState);
+    Mono<PlayerCommandIntegrityValidationResult> validate(@NotNull PlayerStateEntity currentState);
 
 }

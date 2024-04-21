@@ -2,7 +2,7 @@ package com.odeyalo.sonata.connect.service.player.handler;
 
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
 import com.odeyalo.sonata.connect.entity.DevicesEntity;
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.*;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.User;
@@ -51,7 +51,7 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
     }
 
     @NotNull
-    private Mono<PlayerState> delegateTransferPlayback(TargetDevices targetDevices, PlayerState state) {
+    private Mono<PlayerStateEntity> delegateTransferPlayback(TargetDevices targetDevices, PlayerStateEntity state) {
         DevicesEntity connectedDevicesEntity = state.getDevicesEntity();
         TargetDevice targetDevice = targetDevices.peekFirst();
 
@@ -62,9 +62,9 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
         return Mono.error(DeviceNotFoundException.defaultException());
     }
 
-    private Mono<PlayerState> doTransferPlayback(PlayerState state,
-                                                 TargetDevice deviceToTransferPlayback,
-                                                 DevicesEntity connectedDevicesEntity) {
+    private Mono<PlayerStateEntity> doTransferPlayback(PlayerStateEntity state,
+                                                       TargetDevice deviceToTransferPlayback,
+                                                       DevicesEntity connectedDevicesEntity) {
 
         DevicesEntity updatedDevicesEntity = updateCurrentlyConnectedDevices(connectedDevicesEntity, deviceToTransferPlayback);
 

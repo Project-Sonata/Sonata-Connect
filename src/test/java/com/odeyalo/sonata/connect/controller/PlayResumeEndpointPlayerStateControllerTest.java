@@ -182,7 +182,7 @@ public class PlayResumeEndpointPlayerStateControllerTest {
             ReasonCodeAwareExceptionMessage body = responseSpec.expectBody(ReasonCodeAwareExceptionMessage.class).returnResult().getResponseBody();
 
             ReasonCodeAwareExceptionMessageAssert.forMessage(body)
-                    .description().isEqualTo("There is no active device");
+                    .description().isEqualTo("Player command failed: No active device found");
         }
 
         @Test

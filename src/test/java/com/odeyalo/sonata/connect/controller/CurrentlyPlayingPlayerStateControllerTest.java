@@ -4,7 +4,7 @@ import com.odeyalo.sonata.connect.dto.CurrentlyPlayingPlayerStateDto;
 import com.odeyalo.sonata.connect.dto.DevicesDto;
 import com.odeyalo.sonata.connect.entity.DevicesEntity;
 import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.entity.UserEntity;
 import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
@@ -58,11 +58,11 @@ public class CurrentlyPlayingPlayerStateControllerTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class CurrentlyPlayingForValidUser {
-        PlayerState expectedState;
+        PlayerStateEntity expectedState;
 
         @BeforeEach
         void beforeEach() {
-            PlayerState playerState = createPlayingState();
+            PlayerStateEntity playerState = createPlayingState();
 
             expectedState = playerStateRepository.save(playerState).block();
         }
@@ -153,7 +153,7 @@ public class CurrentlyPlayingPlayerStateControllerTest {
             return responseSpec.expectBody(CurrentlyPlayingPlayerStateDto.class).returnResult().getResponseBody();
         }
 
-        private PlayerState createPlayingState() {
+        private PlayerStateEntity createPlayingState() {
             return PlayerStateFaker.create()
                     .playing(true)
                     .user(new UserEntity(VALID_USER_ID))

@@ -1,6 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.User;
@@ -24,7 +24,7 @@ class CurrentPlayerStateTest extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldReturnNotNullExistedState() {
-        PlayerState state = existingPlayerState();
+        PlayerStateEntity state = existingPlayerState();
 
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(state)
@@ -38,7 +38,7 @@ class CurrentPlayerStateTest extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldReturnIdForExistedState() {
-        PlayerState state = existingPlayerState();
+        PlayerStateEntity state = existingPlayerState();
 
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(state)
@@ -53,7 +53,7 @@ class CurrentPlayerStateTest extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldReturnRepeatState() {
-        PlayerState state = existingPlayerState();
+        PlayerStateEntity state = existingPlayerState();
 
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(state)
@@ -68,7 +68,7 @@ class CurrentPlayerStateTest extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldReturnShuffleState() {
-        PlayerState state = existingPlayerState();
+        PlayerStateEntity state = existingPlayerState();
 
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(state)
@@ -83,7 +83,7 @@ class CurrentPlayerStateTest extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldReturnProgressMs() {
-        PlayerState state = existingPlayerState();
+        PlayerStateEntity state = existingPlayerState();
 
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(state)
@@ -98,7 +98,7 @@ class CurrentPlayerStateTest extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldReturnPlayingType() {
-        PlayerState state = existingPlayerState();
+        PlayerStateEntity state = existingPlayerState();
 
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(state)
@@ -113,7 +113,7 @@ class CurrentPlayerStateTest extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldReturnCurrentlyPlayingItemId() {
-        PlayerState state = existingPlayerState();
+        PlayerStateEntity state = existingPlayerState();
 
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(state)
@@ -129,7 +129,7 @@ class CurrentPlayerStateTest extends DefaultPlayerOperationsTest {
 
     @Test
     void shouldReturnCurrentlyPlayingItemType() {
-        PlayerState state = existingPlayerState();
+        PlayerStateEntity state = existingPlayerState();
 
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(state)

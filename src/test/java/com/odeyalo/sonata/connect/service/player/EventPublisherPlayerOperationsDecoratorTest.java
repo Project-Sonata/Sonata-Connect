@@ -1,7 +1,7 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.NoActiveDeviceException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.User;
@@ -44,7 +44,7 @@ class EventPublisherPlayerOperationsDecoratorTest {
         @Test
         void shouldSendEventOnPlayCommand() {
             // given
-            PlayerState pausedPlayerState = PlayerStateFaker
+            PlayerStateEntity pausedPlayerState = PlayerStateFaker
                     .forUser(USER)
                     .paused()
                     .get();
@@ -67,7 +67,7 @@ class EventPublisherPlayerOperationsDecoratorTest {
         void shouldUseActiveDeviceIdForDeviceThatChanged() {
             DeviceEntity activeDevice = DeviceEntityFaker.createActiveDevice().get();
             // given
-            PlayerState pausedPlayerState = PlayerStateFaker
+            PlayerStateEntity pausedPlayerState = PlayerStateFaker
                     .forUser(USER)
                     .paused()
                     .device(activeDevice)
@@ -91,7 +91,7 @@ class EventPublisherPlayerOperationsDecoratorTest {
         @Test
         void shouldSendEventToSynchronizationManagerOnPlayCommandWithPlayingActive() {
             // given
-            PlayerState pausedPlayerState = PlayerStateFaker
+            PlayerStateEntity pausedPlayerState = PlayerStateFaker
                     .forUser(USER)
                     .paused()
                     .get();
@@ -139,7 +139,7 @@ class EventPublisherPlayerOperationsDecoratorTest {
         @Test
         void shouldSendEventToSynchronizationManagerOnPauseCommand() {
             // given
-            PlayerState pausedPlayerState = PlayerStateFaker
+            PlayerStateEntity pausedPlayerState = PlayerStateFaker
                     .forUser(USER)
                     .paused()
                     .get();
@@ -162,7 +162,7 @@ class EventPublisherPlayerOperationsDecoratorTest {
         void shouldUseActiveDeviceIdForDeviceThatChanged() {
             DeviceEntity activeDevice = DeviceEntityFaker.createActiveDevice().get();
             // given
-            PlayerState pausedPlayerState = PlayerStateFaker
+            PlayerStateEntity pausedPlayerState = PlayerStateFaker
                     .forUser(USER)
                     .paused()
                     .device(activeDevice)
@@ -187,7 +187,7 @@ class EventPublisherPlayerOperationsDecoratorTest {
         void shouldNotSendAnyEventIfActiveDeviceIsNull() {
             DeviceEntity activeDevice = DeviceEntityFaker.createInactiveDevice().get();
             // given
-            PlayerState pausedPlayerState = PlayerStateFaker
+            PlayerStateEntity pausedPlayerState = PlayerStateFaker
                     .forUser(USER)
                     .paused()
                     .device(activeDevice)
@@ -207,7 +207,7 @@ class EventPublisherPlayerOperationsDecoratorTest {
         @Test
         void shouldSendEventToSynchronizationManagerOnPauseCommandWithPausedField() {
             // given
-            PlayerState pausedPlayerState = PlayerStateFaker
+            PlayerStateEntity pausedPlayerState = PlayerStateFaker
                     .forUser(USER)
                     .paused()
                     .get();
@@ -273,7 +273,7 @@ class EventPublisherPlayerOperationsDecoratorTest {
             return new EventPublisherPlayerOperationsDecorator(delegate, synchronizationManager, deviceOperations);
         }
 
-        public TestableBuilder withPlayerState(PlayerState playerState) {
+        public TestableBuilder withPlayerState(PlayerStateEntity playerState) {
             delegateBuilder.withState(playerState);
             return this;
         }

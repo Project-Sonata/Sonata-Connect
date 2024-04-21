@@ -2,7 +2,7 @@ package com.odeyalo.sonata.connect.service.player.support;
 
 import com.odeyalo.sonata.common.context.ContextEntityType;
 import com.odeyalo.sonata.common.context.ContextUri;
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.TrackItem;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
@@ -20,7 +20,7 @@ import static com.odeyalo.sonata.common.context.ContextEntityType.TRACK;
 public class HardcodedPlayableItemResolver implements PlayableItemResolver {
 
     @Override
-    public Mono<PlayableItem> resolveItem(ContextUri contextUri, PlayCommandContext playContext, PlayerState currentState) {
+    public Mono<PlayableItem> resolveItem(ContextUri contextUri, PlayCommandContext playContext, PlayerStateEntity currentState) {
         ContextEntityType type = contextUri.getType();
         if (type != TRACK) {
             return Mono.error(new NotSupportedException("Only track is supported"));

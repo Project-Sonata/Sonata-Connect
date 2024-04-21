@@ -1,7 +1,7 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.Device;
 import com.odeyalo.sonata.connect.model.Devices;
@@ -67,11 +67,11 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
     @Override
     public Mono<Devices> getConnectedDevices(User user) {
         return playerStateRepository.findByUserId(user.getId())
-                .map(PlayerState::getDevicesEntity)
+                .map(PlayerStateEntity::getDevicesEntity)
                 .map(devicesEntity2DevicesConverter::convertTo);
     }
 
-    private DeviceEntity createDeviceEntity(Device device, PlayerState state) {
+    private DeviceEntity createDeviceEntity(Device device, PlayerStateEntity state) {
         boolean isActive = doesNotContainActiveDevice(state);
         return deviceWithActiveStatus(device, isActive);
     }
@@ -83,7 +83,7 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
         return deviceEntity;
     }
 
-    private static boolean doesNotContainActiveDevice(PlayerState state) {
+    private static boolean doesNotContainActiveDevice(PlayerStateEntity state) {
         return state.getDevicesEntity().hasNotActiveDevice();
     }
 }

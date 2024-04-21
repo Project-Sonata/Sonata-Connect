@@ -3,6 +3,7 @@ package com.odeyalo.sonata.connect.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
+import org.jetbrains.annotations.NotNull;
 
 /**
  *  Model that represent User
@@ -11,6 +12,7 @@ import lombok.Value;
 @Builder
 @Value
 public class User {
+    @NotNull
     String id;
 }
 

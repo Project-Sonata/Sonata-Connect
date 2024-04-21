@@ -19,6 +19,7 @@ public class CurrentPlayerState2CurrentlyPlayingPlayerStateConverter implements 
                 .playing(state.isPlaying())
                 .currentlyPlayingType(state.getPlayingType())
                 .devices(state.getDevices())
+                .progressMs(state.getProgressMs())
                 .build();
     }
 }

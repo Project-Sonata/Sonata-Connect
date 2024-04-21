@@ -4,11 +4,10 @@ import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.common.context.ContextUriParser;
 import com.odeyalo.sonata.common.context.MalformedContextUriException;
 import com.odeyalo.sonata.connect.entity.CommonPlayableItemEntity;
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.PlayableItem;
-import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
@@ -51,7 +50,7 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
                 .map(playerStateConverterSupport::convertTo);
     }
 
-    private Mono<PlayerState> saveOrError(PlayCommandContext context, PlayerState state) {
+    private Mono<PlayerStateEntity> saveOrError(PlayCommandContext context, PlayerStateEntity state) {
         try {
             return save(context, state);
         } catch (MalformedContextUriException e) {
@@ -59,22 +58,20 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
         }
     }
 
-    private Mono<PlayerState> save(PlayCommandContext context, PlayerState state) throws MalformedContextUriException {
+    private Mono<PlayerStateEntity> save(PlayCommandContext context, PlayerStateEntity state) throws MalformedContextUriException {
         ContextUri contextUri = contextUriParser.parse(context.getContextUri());
         return playableItemResolver.resolveItem(contextUri, context, state)
                 .flatMap(item -> updateAndSave(state, item));
     }
 
-    private Mono<PlayerState> updateAndSave(PlayerState state, PlayableItem item) {
+    private Mono<PlayerStateEntity> updateAndSave(PlayerStateEntity state, PlayableItem item) {
         CommonPlayableItemEntity playingItem = CommonPlayableItemEntity.of(item.getId(), item.getItemType());
-        state.setCurrentlyPlayingItem(playingItem);
-        state.setPlayingType(PlayingType.valueOf(item.getItemType().name()));
-        state.setPlaying(true);
+        state.playOrResume(playingItem);
         return playerStateRepository.save(state);
     }
 
     @NotNull
-    private Mono<PlayerState> validateCommand(PlayCommandContext context, PlayerState state) {
+    private Mono<PlayerStateEntity> validateCommand(PlayCommandContext context, PlayerStateEntity state) {
         return integrityValidator.validate(context, state)
                 .flatMap(result -> result.isValid() ? Mono.just(state) : Mono.error(result.getOccurredException()));
     }

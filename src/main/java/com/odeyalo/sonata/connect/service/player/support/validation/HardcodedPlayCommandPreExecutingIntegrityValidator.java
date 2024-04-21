@@ -1,6 +1,6 @@
 package com.odeyalo.sonata.connect.service.player.support.validation;
 
-import com.odeyalo.sonata.connect.entity.PlayerState;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.NoActiveDeviceException;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 public class HardcodedPlayCommandPreExecutingIntegrityValidator implements PlayCommandPreExecutingIntegrityValidator {
 
     @Override
-    public Mono<PlayerCommandIntegrityValidationResult> validate(PlayCommandContext context, PlayerState currentState) {
+    public Mono<PlayerCommandIntegrityValidationResult> validate(PlayCommandContext context, PlayerStateEntity currentState) {
         if ( currentState.getDevicesEntity().size() == 0 ) {
             NoActiveDeviceException ex = new NoActiveDeviceException("There is no active device");
             return Mono.just(PlayerCommandIntegrityValidationResult.invalid(ex));

@@ -31,6 +31,7 @@ public class CurrentlyPlayingPlayerStateDtoConverter implements Converter<Curren
                 .currentlyPlayingType(state.getCurrentlyPlayingType())
                 .currentlyPlayingItem(convertToPlayableItem(state))
                 .devices(convertDevices(state))
+                .progressMs(state.getProgressMs())
                 .build();
     }
 
