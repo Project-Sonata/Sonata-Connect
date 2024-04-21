@@ -28,11 +28,11 @@ public class PlayerStateFaker {
     }
 
     private void initializeWithFakedValues(int numberOfDevices) {
-        builder.id((long) faker.random().nextInt(100000))
+        builder.id(faker.random().nextLong(100000))
                 .playing(faker.random().nextBoolean())
                 .repeatState(faker.options().option(RepeatState.class))
                 .shuffleState(faker.random().nextBoolean())
-                .progressMs(faker.random().nextLong())
+                .progressMs(faker.random().nextLong(1000000))
                 .playingType(faker.options().option(PlayingType.class))
                 .user(UserEntityFaker.create().get());
 
@@ -46,6 +46,14 @@ public class PlayerStateFaker {
 
     public static PlayerStateFaker create() {
         return new PlayerStateFaker();
+    }
+
+    public static PlayerStateFaker active() {
+        TrackItemEntity item = TrackItemEntity.of(RandomStringUtils.randomAlphanumeric(16));
+
+        return new PlayerStateFaker()
+                .playing(true)
+                .currentlyPlayingItem(item);
     }
 
     public static PlayerStateFaker forUser(User user) {

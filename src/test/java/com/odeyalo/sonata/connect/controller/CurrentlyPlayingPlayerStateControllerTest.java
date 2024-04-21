@@ -154,8 +154,7 @@ public class CurrentlyPlayingPlayerStateControllerTest {
         }
 
         private PlayerStateEntity createPlayingState() {
-            return PlayerStateFaker.create()
-                    .playing(true)
+            return PlayerStateFaker.active()
                     .user(new UserEntity(VALID_USER_ID))
                     .get();
         }

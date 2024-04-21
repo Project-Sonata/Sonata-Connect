@@ -25,6 +25,6 @@ public class Converters {
 
 
     public CurrentPlayerState2CurrentlyPlayingPlayerStateConverter currentPlayerStateConverter() {
-        return new CurrentPlayerState2CurrentlyPlayingPlayerStateConverter();
+        return new CurrentPlayerState2CurrentlyPlayingPlayerStateConverterImpl();
     }
 }
