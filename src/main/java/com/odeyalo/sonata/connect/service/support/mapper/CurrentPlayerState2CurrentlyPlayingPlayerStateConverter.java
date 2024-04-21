@@ -2,24 +2,16 @@ package com.odeyalo.sonata.connect.service.support.mapper;
 
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 /**
- * Convert CurrentPlayerState to CurrentlyPlayingPlayerState
+ * Convert {@link CurrentPlayerState} to {@link CurrentlyPlayingPlayerState}
  */
-@Component
-public class CurrentPlayerState2CurrentlyPlayingPlayerStateConverter implements Converter<CurrentPlayerState, CurrentlyPlayingPlayerState> {
+@Mapper(componentModel = "spring")
+public interface CurrentPlayerState2CurrentlyPlayingPlayerStateConverter extends Converter<CurrentPlayerState, CurrentlyPlayingPlayerState> {
 
-    @Override
-    public CurrentlyPlayingPlayerState convertTo(CurrentPlayerState state) {
-        return CurrentlyPlayingPlayerState.builder()
-                .playableItem(state.getPlayableItem())
-                .shuffleState(state.getShuffleState())
-                .repeatState(state.getRepeatState())
-                .playing(state.isPlaying())
-                .currentlyPlayingType(state.getPlayingType())
-                .devices(state.getDevices())
-                .progressMs(state.getProgressMs())
-                .build();
-    }
+
+    @Mapping(source = "playingType", target = "currentlyPlayingType")
+    CurrentlyPlayingPlayerState convertTo(CurrentPlayerState state);
 }

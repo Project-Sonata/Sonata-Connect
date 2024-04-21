@@ -7,14 +7,18 @@ import com.odeyalo.sonata.connect.model.TrackItem;
 import org.springframework.stereotype.Component;
 
 /**
- * Convert PlayableItemEntity to PlayableItem
+ * Convert {@link PlayableItemEntity} to {@link PlayableItem}
  */
 @Component
 public class PlayableItemEntity2PlayableItemConverter implements Converter<PlayableItemEntity, PlayableItem> {
 
     @Override
     public PlayableItem convertTo(PlayableItemEntity item) {
-        if (item.getType() == PlayableItemType.TRACK) {
+        if ( item == null ) {
+            return null;
+        }
+
+        if ( item.getType() == PlayableItemType.TRACK ) {
             return toTrackItem(item);
         }
 

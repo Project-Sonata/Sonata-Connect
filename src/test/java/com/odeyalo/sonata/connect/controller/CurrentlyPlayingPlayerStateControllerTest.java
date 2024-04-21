@@ -1,15 +1,10 @@
 package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.connect.dto.CurrentlyPlayingPlayerStateDto;
-import com.odeyalo.sonata.connect.dto.DevicesDto;
-import com.odeyalo.sonata.connect.entity.DevicesEntity;
-import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
-import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
-import com.odeyalo.sonata.connect.entity.UserEntity;
-import com.odeyalo.sonata.connect.model.Devices;
+import com.odeyalo.sonata.connect.dto.DeviceDto;
+import com.odeyalo.sonata.connect.entity.*;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
-import com.odeyalo.sonata.connect.service.support.mapper.DevicesEntity2DevicesConverter;
-import com.odeyalo.sonata.connect.service.support.mapper.dto.Devices2DevicesDtoConverter;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -17,11 +12,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
 import testing.asserts.CurrentlyPlayingPlayerStateDtoAssert;
 import testing.faker.PlayerStateFaker;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode.REMOTE;
@@ -32,7 +32,7 @@ import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerPro
 @AutoConfigureStubRunner(stubsMode = REMOTE,
         repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
         ids = "com.odeyalo.sonata:authorization:+")
-@TestPropertySource(locations = "classpath:application-test.properties")
+@ActiveProfiles("test")
 public class CurrentlyPlayingPlayerStateControllerTest {
 
     @Autowired
@@ -40,11 +40,6 @@ public class CurrentlyPlayingPlayerStateControllerTest {
 
     @Autowired
     PlayerStateRepository playerStateRepository;
-
-    @Autowired
-    DevicesEntity2DevicesConverter devicesEntity2DevicesConverter;
-    @Autowired
-    Devices2DevicesDtoConverter devicesDtoConverter;
 
     final String VALID_ACCESS_TOKEN = "Bearer mikunakanoisthebestgirl";
     final String VALID_USER_ID = "1";
@@ -132,20 +127,82 @@ public class CurrentlyPlayingPlayerStateControllerTest {
         }
 
         @Test
-        void shouldReturnAvailableDevices() {
-            DevicesEntity expectedDevicesEntity = expectedState.getDevicesEntity();
+        void shouldReturnAvailableDeviceIds() {
+            List<String> expectedDeviceIds = getExpectedDeviceX(expectedState, DeviceEntity::getId);
 
             CurrentlyPlayingPlayerStateDto body = sendAndGetBody();
 
-            CurrentlyPlayingPlayerStateDtoAssert.forBody(body)
-                    .devices().length(expectedDevicesEntity.size());
+            List<String> actualDeviceIds = getActualDeviceX(body, DeviceDto::getDeviceId);
 
-            Devices model = devicesEntity2DevicesConverter.convertTo(expectedDevicesEntity);
+            assertThat(actualDeviceIds).containsAll(expectedDeviceIds);
+        }
 
-            DevicesDto dto = devicesDtoConverter.convertTo(model);
+        @Test
+        void shouldReturnAvailableDeviceNames() {
+            List<String> expectedDeviceNames = getExpectedDeviceX(expectedState, DeviceEntity::getName);
 
-            DevicesDto devices = body.getDevices();
-            assertThat(devices.getDevices()).containsAll(dto.getDevices());
+            CurrentlyPlayingPlayerStateDto body = sendAndGetBody();
+
+            List<String> actualDeviceNames = getActualDeviceX(body, DeviceDto::getDeviceName);
+
+            assertThat(actualDeviceNames).containsAll(expectedDeviceNames);
+        }
+
+        @Test
+        void shouldReturnAvailableDeviceTypes() {
+            DevicesEntity devices = expectedState.getDevices();
+
+            CurrentlyPlayingPlayerStateDto body = sendAndGetBody();
+
+            assertDevicesHaveCorrectDeviceType(devices, body);
+        }
+
+        @Test
+        void shouldReturnAvailableDeviceVolumes() {
+            DevicesEntity devices = expectedState.getDevices();
+
+            CurrentlyPlayingPlayerStateDto body = sendAndGetBody();
+
+            assertDevicesHaveCorrectDeviceVolume(devices, body);
+        }
+
+        private void assertDevicesHaveCorrectDeviceType(DevicesEntity devices, CurrentlyPlayingPlayerStateDto body) {
+            assertDeviceHaveCorrectX(devices, body,
+                    (deviceEntity, deviceDto) -> assertThat(deviceEntity.getDeviceType()).isEqualTo(deviceDto.getDeviceType())
+            );
+        }
+
+        private void assertDevicesHaveCorrectDeviceVolume(DevicesEntity devices, CurrentlyPlayingPlayerStateDto body) {
+            assertDeviceHaveCorrectX(devices, body,
+                    (deviceEntity, deviceDto) -> assertThat(deviceEntity.getVolume()).isEqualTo(deviceDto.getVolume())
+            );
+        }
+
+        private void assertDeviceHaveCorrectX(DevicesEntity devices, CurrentlyPlayingPlayerStateDto body, BiConsumer<DeviceEntity, DeviceDto> requirement) {
+            assertThat(body.getDevices().getDevices())
+                    .allSatisfy(deviceDto -> {
+                        Optional<DeviceEntity> found = devices.findById(deviceDto.getDeviceId());
+                        assertThat(found).isPresent();
+
+                        requirement.accept(found.get(), deviceDto);
+                    });
+        }
+
+        @NotNull
+        private <T> List<T> getExpectedDeviceX(PlayerStateEntity playerState, Function<DeviceEntity, T> mapper) {
+            return playerState.getDevices()
+                    .stream()
+                    .map(mapper)
+                    .toList();
+        }
+
+        @NotNull
+        private <T> List<T> getActualDeviceX(CurrentlyPlayingPlayerStateDto body, Function<DeviceDto, T> mapper) {
+            return body.getDevices()
+                    .getDevices()
+                    .stream()
+                    .map(mapper)
+                    .toList();
         }
 
         private CurrentlyPlayingPlayerStateDto sendAndGetBody() {
@@ -154,8 +211,7 @@ public class CurrentlyPlayingPlayerStateControllerTest {
         }
 
         private PlayerStateEntity createPlayingState() {
-            return PlayerStateFaker.create()
-                    .playing(true)
+            return PlayerStateFaker.active()
                     .user(new UserEntity(VALID_USER_ID))
                     .get();
         }

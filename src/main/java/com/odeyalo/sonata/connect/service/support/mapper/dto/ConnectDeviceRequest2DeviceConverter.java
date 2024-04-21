@@ -3,13 +3,14 @@ package com.odeyalo.sonata.connect.service.support.mapper.dto;
 import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
 import com.odeyalo.sonata.connect.model.Device;
 import com.odeyalo.sonata.connect.service.support.mapper.Converter;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class ConnectDeviceRequest2DeviceConverter implements Converter<ConnectDeviceRequest, Device> {
+@Mapper(componentModel = "spring")
+public interface ConnectDeviceRequest2DeviceConverter extends Converter<ConnectDeviceRequest, Device> {
 
-    @Override
-    public Device convertTo(ConnectDeviceRequest body) {
-        return Device.of(body.getId(), body.getName(), body.getDeviceType(), body.getVolume(), true);
-    }
+    @Mapping(target = "deviceId", source = "id")
+    @Mapping(target = "deviceName", source = "name")
+    @Mapping(target = "active", expression = "java(true)")
+    Device convertTo(ConnectDeviceRequest body);
 }

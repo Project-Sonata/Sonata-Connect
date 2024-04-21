@@ -12,7 +12,10 @@ public class PlayableItem2PlayableItemDtoConverter implements Converter<Playable
 
     @Override
     public PlayableItemDto convertTo(PlayableItem playableItem) {
-        if (playableItem.getItemType() == PlayableItemType.TRACK) {
+        if ( playableItem == null ) {
+            return null;
+        }
+        if ( playableItem.getItemType() == PlayableItemType.TRACK ) {
             return TrackItemDto.of(playableItem.getId());
         }
         throw new UnsupportedOperationException(String.format("PlayableItem2PlayableItemDtoConverter does not support: %s", playableItem.getItemType()));

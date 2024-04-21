@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
+import com.odeyalo.sonata.connect.config.Converters;
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.DeviceNotFoundException;
@@ -34,15 +35,12 @@ class DefaultStorageDeviceOperationsTest {
 
     PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
 
-    PlayerState2CurrentPlayerStateConverter playerStateConverter =
-            new PlayerState2CurrentPlayerStateConverter(
-                    new DevicesEntity2DevicesConverter(new DeviceEntity2DeviceConverter()),
-                    new PlayableItemEntity2PlayableItemConverter());
+    PlayerState2CurrentPlayerStateConverter playerStateConverter = new Converters().playerState2CurrentPlayerStateConverter();
 
     DefaultStorageDeviceOperations operations = new DefaultStorageDeviceOperations(playerStateRepository,
             new SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate(playerStateRepository, playerStateConverter), playerStateConverter,
-            new DevicesEntity2DevicesConverter(new DeviceEntity2DeviceConverter()),
-            new Device2DeviceEntityConverter());
+            new DevicesEntity2DevicesConverter(new DeviceEntity2DeviceConverterImpl()),
+            new Device2DeviceEntityConverterImpl());
 
     User user;
     DeviceEntity activeDeviceEntity;

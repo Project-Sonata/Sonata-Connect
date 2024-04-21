@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Convert Devices entity to DevicesModel
+ * Convert {@link DevicesEntity} entity to {@link Devices}
  */
 @Component
 public class DevicesEntity2DevicesConverter implements Converter<DevicesEntity, Devices> {

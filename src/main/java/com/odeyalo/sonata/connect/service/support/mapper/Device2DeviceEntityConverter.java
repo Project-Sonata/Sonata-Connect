@@ -2,22 +2,16 @@ package com.odeyalo.sonata.connect.service.support.mapper;
 
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
 import com.odeyalo.sonata.connect.model.Device;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 /**
- * Convert Device to DeviceModel
+ * Convert {@link Device} to {@link DeviceEntity}
  */
-@Component
-public class Device2DeviceEntityConverter implements Converter<Device, DeviceEntity> {
+@Mapper(componentModel = "spring")
+public interface Device2DeviceEntityConverter extends Converter<Device, DeviceEntity> {
 
-    @Override
-    public DeviceEntity convertTo(Device deviceEntity) {
-        return DeviceEntity.builder()
-                .id(deviceEntity.getDeviceId())
-                .name(deviceEntity.getDeviceName())
-                .deviceType(deviceEntity.getDeviceType())
-                .volume(deviceEntity.getVolume())
-                .active(deviceEntity.isActive())
-                .build();
-    }
+    @Mapping(source = "deviceId", target = "id")
+    @Mapping(source = "deviceName", target = "name")
+    DeviceEntity convertTo(Device deviceEntity);
 }
