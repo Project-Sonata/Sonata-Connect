@@ -36,12 +36,12 @@ class DefaultStorageDeviceOperationsTest {
 
     PlayerState2CurrentPlayerStateConverter playerStateConverter =
             new PlayerState2CurrentPlayerStateConverter(
-                    new DevicesEntity2DevicesConverter(new DeviceEntity2DeviceConverter()),
+                    new DevicesEntity2DevicesConverter(new DeviceEntity2DeviceConverterImpl()),
                     new PlayableItemEntity2PlayableItemConverter());
 
     DefaultStorageDeviceOperations operations = new DefaultStorageDeviceOperations(playerStateRepository,
             new SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate(playerStateRepository, playerStateConverter), playerStateConverter,
-            new DevicesEntity2DevicesConverter(new DeviceEntity2DeviceConverter()),
+            new DevicesEntity2DevicesConverter(new DeviceEntity2DeviceConverterImpl()),
             new Device2DeviceEntityConverter());
 
     User user;

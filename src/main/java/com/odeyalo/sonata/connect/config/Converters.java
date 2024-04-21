@@ -16,7 +16,7 @@ public class Converters {
     }
 
     public DeviceEntity2DeviceConverter deviceEntity2DeviceConverter() {
-        return new DeviceEntity2DeviceConverter();
+        return new DeviceEntity2DeviceConverterImpl();
     }
 
     public PlayableItemEntity2PlayableItemConverter playableItemEntity2PlayableItemConverter() {
