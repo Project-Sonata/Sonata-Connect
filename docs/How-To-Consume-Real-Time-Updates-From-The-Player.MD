@@ -9,7 +9,7 @@ Sonata Player API message protocol is simple:
 - All messages are in JSON format
 - WebSocket write commands are ignored
 - All messages contain player state 
-- 
+
 #### Types of the events:
 - PLAYER_STATE_UPDATED - player state has been changed
 - QUEUE_STATE_CHANGED - queue of the player has been changed(added track, removed track, changed positions)
