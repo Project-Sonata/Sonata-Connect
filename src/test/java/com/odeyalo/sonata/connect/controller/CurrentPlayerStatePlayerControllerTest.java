@@ -73,7 +73,7 @@ class CurrentPlayerStatePlayerControllerTest {
                     .repeatState(RepeatState.OFF)
                     .devicesEntity(devices)
                     .user(user)
-                    .currentlyPlayingItem(TrackItemEntity.of("mikuyouaremyqueen"))
+                    .currentlyPlayingItem(TrackItemEntity.of("mikuyouaremyqueen", "my_track_name"))
                     .get();
             playerStateRepository.save(playerState).block();
         }
@@ -219,6 +219,16 @@ class CurrentPlayerStatePlayerControllerTest {
 
             PlayerStateDtoAssert.forState(body)
                     .track().id().isEqualTo("mikuyouaremyqueen");
+        }
+
+        @Test
+        void shouldReturnCurrentTrackName() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .track().hasName("my_track_name");
         }
 
         private WebTestClient.ResponseSpec sendCurrentPlayerStateRequest() {

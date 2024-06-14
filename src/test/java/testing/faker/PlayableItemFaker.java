@@ -1,5 +1,6 @@
 package testing.faker;
 
+import com.github.javafaker.Faker;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.TrackItem;
 import lombok.AccessLevel;
@@ -23,6 +24,27 @@ public class PlayableItemFaker {
     }
 
     public PlayableItem get() {
-        return TrackItem.of(id);
+        return TrackItemFaker.create().get();
+    }
+
+
+    public static class TrackItemFaker extends PlayableItemFaker {
+        private final TrackItem.TrackItemBuilder builder = TrackItem.builder();
+        private final Faker faker = Faker.instance();
+
+        public TrackItemFaker() {
+            super();
+            builder.name(faker.internet().domainWord());
+        }
+
+        public static TrackItemFaker create() {
+            return new TrackItemFaker();
+        }
+
+        @Override
+        public TrackItem get() {
+            return builder.id(id)
+                    .build();
+        }
     }
 }

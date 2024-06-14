@@ -4,6 +4,7 @@ import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.PlayableItemType;
 import com.odeyalo.sonata.connect.model.TrackItem;
+import com.odeyalo.sonata.connect.model.TrackItemSpec;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,13 +20,13 @@ public class PlayableItemEntity2PlayableItemConverter implements Converter<Playa
         }
 
         if ( item.getType() == PlayableItemType.TRACK ) {
-            return toTrackItem(item);
+            return toTrackItem((TrackItemSpec) item);
         }
 
         throw new UnsupportedOperationException(String.format("%s does not supported", item.getType()));
     }
 
-    private static TrackItem toTrackItem(PlayableItemEntity item) {
-        return TrackItem.of(item.getId());
+    private static TrackItem toTrackItem(TrackItemSpec item) {
+        return TrackItem.of(item.getId(), item.getName());
     }
 }

@@ -3,8 +3,9 @@ package com.odeyalo.sonata.connect.service.player.handler;
 import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.common.context.ContextUriParser;
 import com.odeyalo.sonata.common.context.MalformedContextUriException;
-import com.odeyalo.sonata.connect.entity.CommonPlayableItemEntity;
+import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
+import com.odeyalo.sonata.connect.entity.TrackItemEntity;
 import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.PlayableItem;
@@ -12,7 +13,7 @@ import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
-import com.odeyalo.sonata.connect.service.player.support.PlayableItemResolver;
+import com.odeyalo.sonata.connect.service.player.support.PlayableItemLoader;
 import com.odeyalo.sonata.connect.service.player.support.validation.PlayCommandPreExecutingIntegrityValidator;
 import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
 import org.jetbrains.annotations.NotNull;
@@ -27,18 +28,19 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
     private final PlayerStateRepository playerStateRepository;
     private final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport;
     private final ContextUriParser contextUriParser;
-    private final PlayableItemResolver playableItemResolver;
+    private final PlayableItemLoader playableItemLoader;
     private final PlayCommandPreExecutingIntegrityValidator integrityValidator;
+    private final TrackItemEntity.Factory factory = new TrackItemEntity.Factory();
 
     public PlayerStateUpdatePlayCommandHandlerDelegate(PlayerStateRepository playerStateRepository,
                                                        PlayerState2CurrentPlayerStateConverter playerStateConverterSupport,
                                                        ContextUriParser contextUriParser,
-                                                       PlayableItemResolver playableItemResolver,
+                                                       PlayableItemLoader playableItemLoader,
                                                        PlayCommandPreExecutingIntegrityValidator integrityValidator) {
         this.playerStateRepository = playerStateRepository;
         this.playerStateConverterSupport = playerStateConverterSupport;
         this.contextUriParser = contextUriParser;
-        this.playableItemResolver = playableItemResolver;
+        this.playableItemLoader = playableItemLoader;
         this.integrityValidator = integrityValidator;
     }
 
@@ -60,13 +62,13 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
 
     private Mono<PlayerStateEntity> save(PlayCommandContext context, PlayerStateEntity state) throws MalformedContextUriException {
         ContextUri contextUri = contextUriParser.parse(context.getContextUri());
-        return playableItemResolver.resolveItem(contextUri, context, state)
+        return playableItemLoader.resolveItem(contextUri)
                 .flatMap(item -> updateAndSave(state, item));
     }
 
     private Mono<PlayerStateEntity> updateAndSave(PlayerStateEntity state, PlayableItem item) {
-        CommonPlayableItemEntity playingItem = CommonPlayableItemEntity.of(item.getId(), item.getItemType());
-        state.playOrResume(playingItem);
+        PlayableItemEntity playableItemEntity = factory.create(item);
+        state.playOrResume(playableItemEntity);
         return playerStateRepository.save(state);
     }
 

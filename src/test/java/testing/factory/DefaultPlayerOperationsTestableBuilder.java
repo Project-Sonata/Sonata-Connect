@@ -11,7 +11,7 @@ import com.odeyalo.sonata.connect.service.player.handler.PauseCommandHandlerDele
 import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePauseCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePlayCommandHandlerDelegate;
-import com.odeyalo.sonata.connect.service.player.support.HardcodedPlayableItemResolver;
+import com.odeyalo.sonata.connect.service.player.support.HardcodedPlayableItemLoader;
 import com.odeyalo.sonata.connect.service.player.support.validation.HardCodedPauseCommandPreExecutingIntegrityValidator;
 import com.odeyalo.sonata.connect.service.player.support.validation.HardcodedPlayCommandPreExecutingIntegrityValidator;
 import com.odeyalo.sonata.connect.service.support.mapper.CurrentPlayerState2CurrentlyPlayingPlayerStateConverter;
@@ -24,7 +24,7 @@ public final class DefaultPlayerOperationsTestableBuilder {
     private final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport = new Converters().playerState2CurrentPlayerStateConverter();
     private final PlayCommandHandlerDelegate playCommandHandlerDelegate = new PlayerStateUpdatePlayCommandHandlerDelegate(playerStateRepository, playerStateConverterSupport,
             new HardcodedContextUriParser(),
-            new HardcodedPlayableItemResolver(),
+            new HardcodedPlayableItemLoader(),
             new HardcodedPlayCommandPreExecutingIntegrityValidator());
     private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter = new Converters().currentPlayerStateConverter();
     private final PauseCommandHandlerDelegate pauseCommandHandlerDelegate =

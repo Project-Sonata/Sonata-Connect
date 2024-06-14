@@ -8,15 +8,11 @@ import org.jetbrains.annotations.NotNull;
 @Value
 @AllArgsConstructor(staticName = "of")
 @Builder
-public class TrackItem implements PlayableItem {
+public class TrackItem implements TrackItemSpec {
     @NotNull
     String id;
-
-    @Override
     @NotNull
-    public String getId() {
-        return id;
-    }
+    String name;
 
     @Override
     @NotNull
