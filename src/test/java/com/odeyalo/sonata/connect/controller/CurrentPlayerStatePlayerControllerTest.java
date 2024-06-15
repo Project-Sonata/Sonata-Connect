@@ -2,7 +2,10 @@ package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.connect.dto.ExceptionMessage;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
-import com.odeyalo.sonata.connect.entity.*;
+import com.odeyalo.sonata.connect.entity.DevicesEntity;
+import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
+import com.odeyalo.sonata.connect.entity.TrackItemEntity;
+import com.odeyalo.sonata.connect.entity.UserEntity;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
@@ -22,6 +25,7 @@ import testing.faker.DeviceEntityFaker;
 import testing.faker.PlayerStateFaker;
 import testing.faker.UserEntityFaker;
 
+import static com.odeyalo.sonata.connect.model.PlayableItemDuration.ofMilliseconds;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode.REMOTE;
 
@@ -73,7 +77,12 @@ class CurrentPlayerStatePlayerControllerTest {
                     .repeatState(RepeatState.OFF)
                     .devicesEntity(devices)
                     .user(user)
-                    .currentlyPlayingItem(TrackItemEntity.of("mikuyouaremyqueen", "my_track_name"))
+                    .currentlyPlayingItem(
+                            TrackItemEntity.builder()
+                                    .id("mikuyouaremyqueen")
+                                    .name("my_track_name")
+                                    .duration(ofMilliseconds(148_000L))
+                                    .build())
                     .get();
             playerStateRepository.save(playerState).block();
         }
@@ -229,6 +238,16 @@ class CurrentPlayerStatePlayerControllerTest {
 
             PlayerStateDtoAssert.forState(body)
                     .track().hasName("my_track_name");
+        }
+
+        @Test
+        void shouldReturnCurrentTrackDurationMs() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .track().hasDurationMs(148_000L);
         }
 
         private WebTestClient.ResponseSpec sendCurrentPlayerStateRequest() {

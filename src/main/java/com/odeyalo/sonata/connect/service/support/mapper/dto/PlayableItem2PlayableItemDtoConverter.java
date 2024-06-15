@@ -19,6 +19,7 @@ public class PlayableItem2PlayableItemDtoConverter implements Converter<Playable
             return TrackItemDto.builder()
                     .id(trackSpec.getId())
                     .name(trackSpec.getName())
+                    .durationMs(trackSpec.getDuration().asMilliseconds())
                     .build();
         }
         throw new UnsupportedOperationException(String.format("PlayableItem2PlayableItemDtoConverter does not support: %s", playableItem.getItemType()));

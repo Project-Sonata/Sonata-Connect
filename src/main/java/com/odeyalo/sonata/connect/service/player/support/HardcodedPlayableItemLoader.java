@@ -3,6 +3,7 @@ package com.odeyalo.sonata.connect.service.player.support;
 import com.odeyalo.sonata.common.context.ContextEntityType;
 import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.model.PlayableItem;
+import com.odeyalo.sonata.connect.model.PlayableItemDuration;
 import com.odeyalo.sonata.connect.model.TrackItem;
 import jakarta.ws.rs.NotSupportedException;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +26,6 @@ public class HardcodedPlayableItemLoader implements PlayableItemLoader {
         if (type != TRACK) {
             return Mono.error(new NotSupportedException("Only track is supported"));
         }
-        return Mono.just(TrackItem.of(contextUri.getEntityId(), "mock"));
+        return Mono.just(TrackItem.of(contextUri.getEntityId(), "mock", PlayableItemDuration.ofSeconds(100)));
     }
 }

@@ -14,4 +14,9 @@ public class TrackItemDtoAssert extends PlayingItemDtoAssert<TrackItemDtoAssert,
         assertThat(actual.getName()).isEqualTo(expected);
         return this;
     }
+
+    public TrackItemDtoAssert hasDurationMs(final long expectedDurationMs) {
+        assertThat(actual.getDurationMs()).isEqualTo(expectedDurationMs);
+        return this;
+    }
 }

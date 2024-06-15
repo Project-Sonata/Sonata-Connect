@@ -13,6 +13,8 @@ public class TrackItem implements TrackItemSpec {
     String id;
     @NotNull
     String name;
+    @NotNull
+    PlayableItemDuration duration;
 
     @Override
     @NotNull

@@ -12,6 +12,8 @@ public interface TrackItemSpec extends PlayableItem {
     @NotNull
     String getName();
 
+    @NotNull
+    PlayableItemDuration getDuration();
 
     @Override
     @NotNull

@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public class TrackItemDto extends PlayableItemDto {
     @NotNull
     String name;
+    long durationMs;
 
     public TrackItemDto(String id, String uri) {
         super(id, uri);

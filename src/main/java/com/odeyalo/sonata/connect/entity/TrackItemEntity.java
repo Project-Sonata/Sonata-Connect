@@ -2,6 +2,7 @@ package com.odeyalo.sonata.connect.entity;
 
 import com.odeyalo.sonata.connect.entity.factory.PlayableItemEntityFactory;
 import com.odeyalo.sonata.connect.model.PlayableItem;
+import com.odeyalo.sonata.connect.model.PlayableItemDuration;
 import com.odeyalo.sonata.connect.model.PlayableItemType;
 import com.odeyalo.sonata.connect.model.TrackItemSpec;
 import lombok.*;
@@ -21,6 +22,8 @@ public class TrackItemEntity implements PlayableItemEntity, TrackItemSpec {
     String id;
     @NotNull
     String name;
+    @NotNull
+    PlayableItemDuration duration;
 
     @Override
     @NotNull
@@ -47,6 +50,7 @@ public class TrackItemEntity implements PlayableItemEntity, TrackItemSpec {
             return TrackItemEntity.builder()
                     .id(trackSpec.getId())
                     .name(trackSpec.getName())
+                    .duration(trackSpec.getDuration())
                     .build();
         }
     }

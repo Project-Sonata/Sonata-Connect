@@ -27,6 +27,10 @@ public class PlayableItemEntity2PlayableItemConverter implements Converter<Playa
     }
 
     private static TrackItem toTrackItem(TrackItemSpec item) {
-        return TrackItem.of(item.getId(), item.getName());
+        return TrackItem.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .duration(item.getDuration())
+                .build();
     }
 }

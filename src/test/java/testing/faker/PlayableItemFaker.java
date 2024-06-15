@@ -9,6 +9,8 @@ import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import static com.odeyalo.sonata.connect.model.PlayableItemDuration.ofMilliseconds;
+
 @Setter
 @Accessors(chain = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -34,7 +36,8 @@ public class PlayableItemFaker {
 
         public TrackItemFaker() {
             super();
-            builder.name(faker.internet().domainWord());
+            builder.name(faker.internet().domainWord())
+                    .duration(ofMilliseconds(faker.random().nextLong(256_000L)));
         }
 
         public static TrackItemFaker create() {
