@@ -24,4 +24,9 @@ public class TrackItemDtoAssert extends PlayingItemDtoAssert<TrackItemDtoAssert,
         assertThat(actual.getContextUri()).isEqualTo(expectedContextUri);
         return this;
     }
+
+    public TrackItemDtoAssert isExplicit(final boolean expected) {
+        assertThat(actual.isExplicit()).isEqualTo(expected);
+        return this;
+    }
 }

@@ -17,7 +17,8 @@ public final class TrackItemEntityFaker {
                 .duration(PlayableItemDuration.ofMilliseconds(
                         faker.random().nextLong(256_000L)
                 ))
-                .contextUri(ContextUri.forTrack(trackId));
+                .contextUri(ContextUri.forTrack(trackId))
+                .explicit(faker.random().nextBoolean());
     }
 
     public static TrackItemEntityFaker create() {

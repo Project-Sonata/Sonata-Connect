@@ -84,6 +84,7 @@ class CurrentPlayerStatePlayerControllerTest {
                                     .name("my_track_name")
                                     .duration(ofMilliseconds(148_000L))
                                     .contextUri(ContextUri.forTrack("mikuyouaremyqueen"))
+                                    .explicit(true)
                                     .build())
                     .get();
             playerStateRepository.save(playerState).block();
@@ -260,6 +261,16 @@ class CurrentPlayerStatePlayerControllerTest {
 
             PlayerStateDtoAssert.forState(body)
                     .track().hasContextUri("sonata:track:mikuyouaremyqueen");
+        }
+
+        @Test
+        void shouldReturnCurrentTrackExplicitState() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .track().isExplicit(true);
         }
 
         private WebTestClient.ResponseSpec sendCurrentPlayerStateRequest() {

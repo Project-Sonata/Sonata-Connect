@@ -27,6 +27,7 @@ public class TrackItemEntity implements PlayableItemEntity, TrackItemSpec {
     PlayableItemDuration duration;
     @NotNull
     ContextUri contextUri;
+    boolean explicit;
 
     @Override
     @NotNull
@@ -49,6 +50,7 @@ public class TrackItemEntity implements PlayableItemEntity, TrackItemSpec {
                     .name(trackSpec.getName())
                     .duration(trackSpec.getDuration())
                     .contextUri(trackSpec.getContextUri())
+                    .explicit(trackSpec.isExplicit())
                     .build();
         }
     }

@@ -18,6 +18,7 @@ public class TrackItem implements TrackItemSpec {
     PlayableItemDuration duration;
     @NotNull
     ContextUri contextUri;
+    boolean explicit;
 
     @Override
     @NotNull

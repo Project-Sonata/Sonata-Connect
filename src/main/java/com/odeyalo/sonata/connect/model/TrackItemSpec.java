@@ -19,6 +19,8 @@ public interface TrackItemSpec extends PlayableItem {
     @NotNull
     ContextUri getContextUri();
 
+    boolean isExplicit();
+
     @Override
     @NotNull
     default PlayableItemType getItemType() {

@@ -32,6 +32,7 @@ public class PlayableItemEntity2PlayableItemConverter implements Converter<Playa
                 .name(item.getName())
                 .duration(item.getDuration())
                 .contextUri(item.getContextUri())
+                .explicit(item.isExplicit())
                 .build();
     }
 }

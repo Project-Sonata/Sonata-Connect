@@ -29,7 +29,9 @@ public class HardcodedPlayableItemLoader implements PlayableItemLoader {
         return Mono.just(TrackItem.of(contextUri.getEntityId(),
                 "mock",
                 PlayableItemDuration.ofSeconds(100),
-                ContextUri.forTrack("mock"))
+                ContextUri.forTrack("mock"),
+                false
+                )
         );
     }
 }

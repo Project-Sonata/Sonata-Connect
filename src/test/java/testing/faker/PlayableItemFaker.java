@@ -37,9 +37,11 @@ public class PlayableItemFaker {
 
         public TrackItemFaker() {
             super();
-            builder.name(faker.internet().domainWord())
+            builder
+                    .name(faker.internet().domainWord())
                     .duration(ofMilliseconds(faker.random().nextLong(256_000L)))
-                    .contextUri(ContextUri.forTrack(id));
+                    .contextUri(ContextUri.forTrack(id))
+                    .explicit(faker.random().nextBoolean());
         }
 
         public static TrackItemFaker create() {

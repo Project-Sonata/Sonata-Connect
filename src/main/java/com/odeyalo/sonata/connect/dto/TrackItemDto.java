@@ -18,6 +18,7 @@ public class TrackItemDto extends PlayableItemDto {
     long durationMs;
     @NotNull
     String contextUri;
+    boolean explicit;
 
     public TrackItemDto(String id, String uri) {
         super(id, uri);
