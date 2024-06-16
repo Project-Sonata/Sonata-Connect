@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.controller;
 
+import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.dto.ExceptionMessage;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.entity.DevicesEntity;
@@ -82,6 +83,7 @@ class CurrentPlayerStatePlayerControllerTest {
                                     .id("mikuyouaremyqueen")
                                     .name("my_track_name")
                                     .duration(ofMilliseconds(148_000L))
+                                    .contextUri(ContextUri.forTrack("mikuyouaremyqueen"))
                                     .build())
                     .get();
             playerStateRepository.save(playerState).block();
@@ -248,6 +250,16 @@ class CurrentPlayerStatePlayerControllerTest {
 
             PlayerStateDtoAssert.forState(body)
                     .track().hasDurationMs(148_000L);
+        }
+
+        @Test
+        void shouldReturnCurrentTrackContextUri() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .track().hasContextUri("sonata:track:mikuyouaremyqueen");
         }
 
         private WebTestClient.ResponseSpec sendCurrentPlayerStateRequest() {

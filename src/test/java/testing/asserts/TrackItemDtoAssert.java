@@ -19,4 +19,9 @@ public class TrackItemDtoAssert extends PlayingItemDtoAssert<TrackItemDtoAssert,
         assertThat(actual.getDurationMs()).isEqualTo(expectedDurationMs);
         return this;
     }
+
+    public TrackItemDtoAssert hasContextUri(final String expectedContextUri) {
+        assertThat(actual.getContextUri()).isEqualTo(expectedContextUri);
+        return this;
+    }
 }

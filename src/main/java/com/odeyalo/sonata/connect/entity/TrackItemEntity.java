@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.entity;
 
+import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.entity.factory.PlayableItemEntityFactory;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.PlayableItemDuration;
@@ -24,12 +25,8 @@ public class TrackItemEntity implements PlayableItemEntity, TrackItemSpec {
     String name;
     @NotNull
     PlayableItemDuration duration;
-
-    @Override
     @NotNull
-    public String getId() {
-        return id;
-    }
+    ContextUri contextUri;
 
     @Override
     @NotNull
@@ -41,7 +38,7 @@ public class TrackItemEntity implements PlayableItemEntity, TrackItemSpec {
 
         @Override
         @NotNull
-        public PlayableItemEntity create(@NotNull final PlayableItem item) {
+        public TrackItemEntity create(@NotNull final PlayableItem item) {
 
             if ( !(item instanceof TrackItemSpec trackSpec) ) {
                 throw new UnsupportedOperationException("Factory only supports type TRACK");
@@ -51,6 +48,7 @@ public class TrackItemEntity implements PlayableItemEntity, TrackItemSpec {
                     .id(trackSpec.getId())
                     .name(trackSpec.getName())
                     .duration(trackSpec.getDuration())
+                    .contextUri(trackSpec.getContextUri())
                     .build();
         }
     }

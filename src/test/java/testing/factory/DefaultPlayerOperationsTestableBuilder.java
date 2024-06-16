@@ -1,6 +1,5 @@
 package testing.factory;
 
-import com.odeyalo.sonata.common.context.HardcodedContextUriParser;
 import com.odeyalo.sonata.connect.config.Converters;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
@@ -23,7 +22,6 @@ public final class DefaultPlayerOperationsTestableBuilder {
     private final DeviceOperations deviceOperations = new NullDeviceOperations();
     private final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport = new Converters().playerState2CurrentPlayerStateConverter();
     private final PlayCommandHandlerDelegate playCommandHandlerDelegate = new PlayerStateUpdatePlayCommandHandlerDelegate(playerStateRepository, playerStateConverterSupport,
-            new HardcodedContextUriParser(),
             new HardcodedPlayableItemLoader(),
             new HardcodedPlayCommandPreExecutingIntegrityValidator());
     private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter = new Converters().currentPlayerStateConverter();

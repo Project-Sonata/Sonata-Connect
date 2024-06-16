@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.model;
 
+import com.odeyalo.sonata.common.context.ContextUri;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -14,6 +15,9 @@ public interface TrackItemSpec extends PlayableItem {
 
     @NotNull
     PlayableItemDuration getDuration();
+
+    @NotNull
+    ContextUri getContextUri();
 
     @Override
     @NotNull

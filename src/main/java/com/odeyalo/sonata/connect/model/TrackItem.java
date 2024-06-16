@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.model;
 
+import com.odeyalo.sonata.common.context.ContextUri;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
@@ -15,6 +16,8 @@ public class TrackItem implements TrackItemSpec {
     String name;
     @NotNull
     PlayableItemDuration duration;
+    @NotNull
+    ContextUri contextUri;
 
     @Override
     @NotNull

@@ -19,7 +19,7 @@
         <spring-cloud.version>2022.0.4</spring-cloud.version>
         <suite.security.version>1.0.2</suite.security.version>
         <suite.reactive.version>1.0.9</suite.reactive.version>
-        <suite.version>0.0.8</suite.version>
+        <suite.version>1.0.0</suite.version>
         <javafaker.version>1.0.2</javafaker.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
     </properties>

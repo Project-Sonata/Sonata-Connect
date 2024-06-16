@@ -26,6 +26,10 @@ public class HardcodedPlayableItemLoader implements PlayableItemLoader {
         if (type != TRACK) {
             return Mono.error(new NotSupportedException("Only track is supported"));
         }
-        return Mono.just(TrackItem.of(contextUri.getEntityId(), "mock", PlayableItemDuration.ofSeconds(100)));
+        return Mono.just(TrackItem.of(contextUri.getEntityId(),
+                "mock",
+                PlayableItemDuration.ofSeconds(100),
+                ContextUri.forTrack("mock"))
+        );
     }
 }
