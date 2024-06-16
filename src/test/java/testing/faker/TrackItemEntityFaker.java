@@ -19,7 +19,8 @@ public final class TrackItemEntityFaker {
                 ))
                 .contextUri(ContextUri.forTrack(trackId))
                 .explicit(faker.random().nextBoolean())
-                .discNumber(faker.random().nextInt(0, 2));
+                .discNumber(faker.random().nextInt(0, 2))
+                .index(faker.random().nextInt(0, 10));
     }
 
     public static TrackItemEntityFaker create() {

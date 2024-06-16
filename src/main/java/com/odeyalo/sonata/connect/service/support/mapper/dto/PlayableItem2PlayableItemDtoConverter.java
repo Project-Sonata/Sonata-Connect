@@ -23,6 +23,7 @@ public class PlayableItem2PlayableItemDtoConverter implements Converter<Playable
                     .contextUri(trackSpec.getContextUri().asString())
                     .explicit(trackSpec.isExplicit())
                     .discNumber(trackSpec.getDiscNumber())
+                    .index(trackSpec.getIndex())
                     .build();
         }
         throw new UnsupportedOperationException(String.format("PlayableItem2PlayableItemDtoConverter does not support: %s", playableItem.getItemType()));

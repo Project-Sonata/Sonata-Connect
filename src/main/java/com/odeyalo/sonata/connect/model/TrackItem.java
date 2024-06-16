@@ -20,6 +20,7 @@ public class TrackItem implements TrackItemSpec {
     ContextUri contextUri;
     boolean explicit;
     int discNumber;
+    int index;
 
     @Override
     @NotNull

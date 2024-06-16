@@ -23,6 +23,8 @@ public interface TrackItemSpec extends PlayableItem {
 
     int getDiscNumber();
 
+    int getIndex();
+
     @Override
     @NotNull
     default PlayableItemType getItemType() {

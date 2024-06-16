@@ -34,6 +34,7 @@ public class PlayableItemEntity2PlayableItemConverter implements Converter<Playa
                 .contextUri(item.getContextUri())
                 .explicit(item.isExplicit())
                 .discNumber(item.getDiscNumber())
+                .index(item.getIndex())
                 .build();
     }
 }
