@@ -28,6 +28,7 @@ public class TrackItemEntity implements PlayableItemEntity, TrackItemSpec {
     @NotNull
     ContextUri contextUri;
     boolean explicit;
+    int discNumber;
 
     @Override
     @NotNull
@@ -51,6 +52,7 @@ public class TrackItemEntity implements PlayableItemEntity, TrackItemSpec {
                     .duration(trackSpec.getDuration())
                     .contextUri(trackSpec.getContextUri())
                     .explicit(trackSpec.isExplicit())
+                    .discNumber(trackSpec.getDiscNumber())
                     .build();
         }
     }

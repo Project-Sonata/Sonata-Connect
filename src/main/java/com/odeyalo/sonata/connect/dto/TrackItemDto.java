@@ -19,6 +19,7 @@ public class TrackItemDto extends PlayableItemDto {
     @NotNull
     String contextUri;
     boolean explicit;
+    int discNumber;
 
     public TrackItemDto(String id, String uri) {
         super(id, uri);

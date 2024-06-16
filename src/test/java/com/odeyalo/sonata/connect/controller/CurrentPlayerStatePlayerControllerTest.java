@@ -85,6 +85,7 @@ class CurrentPlayerStatePlayerControllerTest {
                                     .duration(ofMilliseconds(148_000L))
                                     .contextUri(ContextUri.forTrack("mikuyouaremyqueen"))
                                     .explicit(true)
+                                    .discNumber(1)
                                     .build())
                     .get();
             playerStateRepository.save(playerState).block();
@@ -271,6 +272,16 @@ class CurrentPlayerStatePlayerControllerTest {
 
             PlayerStateDtoAssert.forState(body)
                     .track().isExplicit(true);
+        }
+
+        @Test
+        void shouldReturnCurrentTrackDiscNumber() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .track().hasDiscNumber(1);
         }
 
         private WebTestClient.ResponseSpec sendCurrentPlayerStateRequest() {

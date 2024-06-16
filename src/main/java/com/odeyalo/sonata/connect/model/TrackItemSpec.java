@@ -21,6 +21,8 @@ public interface TrackItemSpec extends PlayableItem {
 
     boolean isExplicit();
 
+    int getDiscNumber();
+
     @Override
     @NotNull
     default PlayableItemType getItemType() {

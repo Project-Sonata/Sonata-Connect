@@ -29,4 +29,9 @@ public class TrackItemDtoAssert extends PlayingItemDtoAssert<TrackItemDtoAssert,
         assertThat(actual.isExplicit()).isEqualTo(expected);
         return this;
     }
+
+    public TrackItemDtoAssert hasDiscNumber(final int expectedDiscNumber) {
+        assertThat(actual.getDiscNumber()).isEqualTo(expectedDiscNumber);
+        return this;
+    }
 }

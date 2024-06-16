@@ -30,7 +30,8 @@ public class HardcodedPlayableItemLoader implements PlayableItemLoader {
                 "mock",
                 PlayableItemDuration.ofSeconds(100),
                 ContextUri.forTrack("mock"),
-                false
+                false,
+                0
                 )
         );
     }
