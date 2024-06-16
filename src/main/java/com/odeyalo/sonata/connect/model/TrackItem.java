@@ -19,8 +19,8 @@ public class TrackItem implements TrackItemSpec {
     @NotNull
     ContextUri contextUri;
     boolean explicit;
-    int discNumber;
-    int index;
+    @NotNull
+    Order order;
 
     @Override
     @NotNull

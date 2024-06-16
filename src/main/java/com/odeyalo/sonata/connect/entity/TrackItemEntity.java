@@ -28,8 +28,8 @@ public class TrackItemEntity implements PlayableItemEntity, TrackItemSpec {
     @NotNull
     ContextUri contextUri;
     boolean explicit;
-    int discNumber;
-    int index;
+    @NotNull
+    Order order;
 
     @Override
     @NotNull
@@ -53,8 +53,7 @@ public class TrackItemEntity implements PlayableItemEntity, TrackItemSpec {
                     .duration(trackSpec.getDuration())
                     .contextUri(trackSpec.getContextUri())
                     .explicit(trackSpec.isExplicit())
-                    .discNumber(trackSpec.getDiscNumber())
-                    .index(trackSpec.getIndex())
+                    .order(trackSpec.getOrder())
                     .build();
         }
     }

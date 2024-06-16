@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.TrackItem;
+import com.odeyalo.sonata.connect.model.TrackItemSpec;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -41,8 +42,11 @@ public class PlayableItemFaker {
                     .name(faker.internet().domainWord())
                     .duration(ofMilliseconds(faker.random().nextLong(256_000L)))
                     .contextUri(ContextUri.forTrack(id))
-                    .explicit(faker.random().nextBoolean());
-        }
+                    .explicit(faker.random().nextBoolean())
+                    .order(TrackItemSpec.Order.of(
+                            faker.random().nextInt(0, 2),
+                            faker.random().nextInt(0, 10)
+                    ));        }
 
         public static TrackItemFaker create() {
             return new TrackItemFaker();

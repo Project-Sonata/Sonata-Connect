@@ -10,6 +10,7 @@ import com.odeyalo.sonata.connect.entity.UserEntity;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
+import com.odeyalo.sonata.connect.model.TrackItemSpec;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,8 +86,7 @@ class CurrentPlayerStatePlayerControllerTest {
                                     .duration(ofMilliseconds(148_000L))
                                     .contextUri(ContextUri.forTrack("mikuyouaremyqueen"))
                                     .explicit(true)
-                                    .discNumber(1)
-                                    .index(3)
+                                    .order(TrackItemSpec.Order.of(1, 3))
                                     .build())
                     .get();
             playerStateRepository.save(playerState).block();

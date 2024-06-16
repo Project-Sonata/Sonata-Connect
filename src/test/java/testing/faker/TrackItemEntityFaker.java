@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.entity.TrackItemEntity;
 import com.odeyalo.sonata.connect.model.PlayableItemDuration;
+import com.odeyalo.sonata.connect.model.TrackItemSpec;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public final class TrackItemEntityFaker {
@@ -19,8 +20,10 @@ public final class TrackItemEntityFaker {
                 ))
                 .contextUri(ContextUri.forTrack(trackId))
                 .explicit(faker.random().nextBoolean())
-                .discNumber(faker.random().nextInt(0, 2))
-                .index(faker.random().nextInt(0, 10));
+                .order(TrackItemSpec.Order.of(
+                                faker.random().nextInt(0, 2),
+                                faker.random().nextInt(0, 10)
+                        ));
     }
 
     public static TrackItemEntityFaker create() {
