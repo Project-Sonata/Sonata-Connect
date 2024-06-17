@@ -38,7 +38,7 @@ import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerPro
         repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
         ids = "com.odeyalo.sonata:authorization:+")
 @TestPropertySource(locations = "classpath:application-test.properties")
-class CurrentPlayerStatePlayerControllerTest {
+class CurrentPlayerStateEndpointTest {
 
     @Autowired
     WebTestClient webTestClient;
@@ -338,6 +338,7 @@ class CurrentPlayerStatePlayerControllerTest {
 
             ExceptionMessage message = responseSpec.expectBody(ExceptionMessage.class).returnResult().getResponseBody();
 
+            assertThat(message).isNotNull();
             assertThat(message.getDescription())
                     .as("Body must contain message with description")
                     .isEqualTo("Missing access token or token has been expired");
