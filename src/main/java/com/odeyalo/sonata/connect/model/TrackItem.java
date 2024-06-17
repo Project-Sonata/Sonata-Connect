@@ -22,9 +22,14 @@ public class TrackItem implements TrackItemSpec {
     @NotNull
     Order order;
 
-    @Override
-    @NotNull
-    public PlayableItemType getItemType() {
-        return PlayableItemType.TRACK;
+    public static TrackItem fromSpec(@NotNull final TrackItemSpec item) {
+            return TrackItem.builder()
+                    .id(item.getId())
+                    .name(item.getName())
+                    .duration(item.getDuration())
+                    .contextUri(item.getContextUri())
+                    .explicit(item.isExplicit())
+                    .order(item.getOrder())
+                    .build();
     }
 }
