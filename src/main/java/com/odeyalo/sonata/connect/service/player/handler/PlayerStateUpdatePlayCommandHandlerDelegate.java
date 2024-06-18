@@ -5,7 +5,6 @@ import com.odeyalo.sonata.common.context.MalformedContextUriException;
 import com.odeyalo.sonata.connect.entity.PlayableItemEntity;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.entity.TrackItemEntity;
-import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.User;
@@ -43,27 +42,19 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
     @Override
     public Mono<CurrentPlayerState> playOrResume(User user, PlayCommandContext context, TargetDevice targetDevice) {
         return playerStateRepository.findByUserId(user.getId())
-                .flatMap((state) -> validateCommand(context, state))
-                .flatMap((state) -> saveOrError(context, state))
+                .flatMap(state -> validateCommand(context, state))
+                .flatMap(state -> save(context, state))
                 .map(playerStateConverterSupport::convertTo);
-    }
-
-    private Mono<PlayerStateEntity> saveOrError(PlayCommandContext context, PlayerStateEntity state) {
-        try {
-            return save(context, state);
-        } catch (MalformedContextUriException e) {
-            return Mono.error(wrapException(context, e));
-        }
     }
 
     private Mono<PlayerStateEntity> save(PlayCommandContext context, PlayerStateEntity state) throws MalformedContextUriException {
         ContextUri contextUri = ContextUri.fromString(context.getContextUri());
 
         return playableItemLoader.resolveItem(contextUri)
-                .flatMap(item -> updateAndSave(state, item));
+                .flatMap(item -> updateAndSavePlayerState(state, item));
     }
 
-    private Mono<PlayerStateEntity> updateAndSave(PlayerStateEntity state, PlayableItem item) {
+    private Mono<PlayerStateEntity> updateAndSavePlayerState(PlayerStateEntity state, PlayableItem item) {
         PlayableItemEntity playableItemEntity = factory.create(item);
         state.playOrResume(playableItemEntity);
         return playerStateRepository.save(state);
@@ -73,10 +64,5 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
     private Mono<PlayerStateEntity> validateCommand(PlayCommandContext context, PlayerStateEntity state) {
         return integrityValidator.validate(context, state)
                 .flatMap(result -> result.isValid() ? Mono.just(state) : Mono.error(result.getOccurredException()));
-    }
-
-    @NotNull
-    private static ReasonCodeAwareMalformedContextUriException wrapException(PlayCommandContext context, MalformedContextUriException e) {
-        return new ReasonCodeAwareMalformedContextUriException("Context uri is malformed", e, context.getContextUri());
     }
 }
