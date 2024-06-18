@@ -1,6 +1,7 @@
 package com.odeyalo.sonata.connect.model;
 
 import com.odeyalo.sonata.common.context.ContextUri;
+import com.odeyalo.sonata.connect.model.track.AlbumSpec;
 import com.odeyalo.sonata.connect.model.track.ArtistListSpec;
 import com.odeyalo.sonata.connect.model.track.ArtistSpec;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +30,9 @@ public interface TrackItemSpec extends PlayableItem {
 
     @NotNull
     ArtistListSpec<? extends ArtistSpec> getArtists();
+
+    @NotNull
+    AlbumSpec getAlbum();
 
     @Override
     @NotNull

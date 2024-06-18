@@ -25,6 +25,8 @@ public class TrackItemDto extends PlayableItemDto {
     int index;
     @NotNull
     List<ArtistDto> artists;
+    @NotNull
+    AlbumDto album;
 
     public TrackItemDto(String id, String uri) {
         super(id, uri);

@@ -3,6 +3,8 @@ package com.odeyalo.sonata.connect.service.player.support;
 import com.odeyalo.sonata.common.context.ContextEntityType;
 import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.model.*;
+import com.odeyalo.sonata.connect.model.track.Album;
+import com.odeyalo.sonata.connect.model.track.AlbumSpec;
 import com.odeyalo.sonata.connect.model.track.ArtistSpec;
 import jakarta.ws.rs.NotSupportedException;
 import org.jetbrains.annotations.NotNull;
@@ -31,8 +33,10 @@ public class HardcodedPlayableItemLoader implements PlayableItemLoader {
                 ContextUri.forTrack("mock"),
                 false,
                 TrackItemSpec.Order.of(0, 1),
-                ArtistList.solo(Artist.of(ArtistSpec.ArtistId.of("123"), "BONES", ContextUri.forArtist("123")))
-                )
+                ArtistList.solo(Artist.of(ArtistSpec.ArtistId.of("123"), "BONES", ContextUri.forArtist("123"))),
+                Album.of(
+                        AlbumSpec.AlbumId.of("123")
+                ))
         );
     }
 }

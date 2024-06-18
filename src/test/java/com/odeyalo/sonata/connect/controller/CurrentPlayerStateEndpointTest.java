@@ -8,6 +8,7 @@ import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
 import com.odeyalo.sonata.connect.model.TrackItemSpec;
+import com.odeyalo.sonata.connect.model.track.AlbumSpec;
 import com.odeyalo.sonata.connect.model.track.ArtistSpec;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import org.junit.jupiter.api.*;
@@ -92,6 +93,11 @@ class CurrentPlayerStateEndpointTest {
                                                     ContextUri.forArtist("123")
                                             )
                                     ))
+                                    .album(
+                                            AlbumEntity.builder()
+                                                    .id(AlbumSpec.AlbumId.of("miku"))
+                                                    .build()
+                                    )
                                     .build())
                     .get();
             playerStateRepository.save(playerState).block();
@@ -341,6 +347,16 @@ class CurrentPlayerStateEndpointTest {
             PlayerStateDtoAssert.forState(body)
                     .artists().peekFirst()
                     .hasContextUri("sonata:artist:123");
+        }
+
+        @Test
+        void shouldReturnCurrentTrackAlbumId() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .album().hasId("miku");
         }
 
         private WebTestClient.ResponseSpec sendCurrentPlayerStateRequest() {

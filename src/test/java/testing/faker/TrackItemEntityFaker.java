@@ -26,7 +26,8 @@ public final class TrackItemEntityFaker {
                         ))
                 .artists(
                         ArtistListEntityFaker.create().get()
-                );
+                )
+                .album(AlbumEntityFaker.create().get());
     }
 
     public static TrackItemEntityFaker create() {

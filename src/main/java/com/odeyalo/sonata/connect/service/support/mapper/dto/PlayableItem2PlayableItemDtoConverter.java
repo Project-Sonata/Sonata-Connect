@@ -35,7 +35,8 @@ public class PlayableItem2PlayableItemDtoConverter implements Converter<Playable
     }
 
     @Mapper(componentModel = SPRING, uses = {
-            ArtistListDtoMapper.class
+            ArtistListDtoMapper.class,
+            AlbumDtoMapper.class
     }, injectionStrategy = CONSTRUCTOR)
     public interface TrackItemSpec2TrackItemDtoConverter {
 

@@ -49,7 +49,8 @@ public class PlayableItemFaker {
                     ))
                     .artists(
                             ArtistListFaker.create().get()
-                    );
+                    )
+                    .album(AlbumFaker.create().get());
         }
 
         public static TrackItemFaker create() {
