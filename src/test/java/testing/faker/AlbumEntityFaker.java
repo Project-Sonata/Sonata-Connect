@@ -15,7 +15,8 @@ public final class AlbumEntityFaker {
                 .id(albumId)
                 .name(faker.music().chord())
                 .albumType(faker.options().option(AlbumSpec.AlbumType.class))
-                .totalTrackCount(faker.random().nextInt(1, 10));
+                .totalTrackCount(faker.random().nextInt(1, 10))
+                .artists(ArtistListEntityFaker.create().get());
     }
 
     public static AlbumEntityFaker create() {

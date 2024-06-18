@@ -16,6 +16,8 @@ public class AlbumEntity implements AlbumSpec {
     String name;
     @NotNull
     AlbumType albumType;
+    @NotNull
+    ArtistListEntity artists;
     int totalTrackCount;
 
     @NotNull
@@ -25,6 +27,7 @@ public class AlbumEntity implements AlbumSpec {
                 .name(spec.getName())
                 .albumType(spec.getAlbumType())
                 .totalTrackCount(spec.getTotalTrackCount())
+                .artists(ArtistListEntity.fromSpec(spec.getArtists()))
                 .build();
     }
 }

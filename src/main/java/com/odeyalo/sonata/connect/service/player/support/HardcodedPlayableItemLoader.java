@@ -25,20 +25,23 @@ public class HardcodedPlayableItemLoader implements PlayableItemLoader {
     @NotNull
     public Mono<PlayableItem> resolveItem(@NotNull final ContextUri contextUri) {
         ContextEntityType type = contextUri.getType();
-        if (type != TRACK) {
+        if ( type != TRACK ) {
             return Mono.error(new NotSupportedException("Only track is supported"));
         }
+        ArtistList artists = ArtistList.solo(Artist.of(ArtistSpec.ArtistId.of("123"), "BONES", ContextUri.forArtist("123")));
+
         return Mono.just(TrackItem.of(contextUri.getEntityId(),
                 "mock",
                 PlayableItemDuration.ofSeconds(100),
                 ContextUri.forTrack("mock"),
                 false,
                 TrackItemSpec.Order.of(0, 1),
-                ArtistList.solo(Artist.of(ArtistSpec.ArtistId.of("123"), "BONES", ContextUri.forArtist("123"))),
+                artists,
                 Album.of(
                         AlbumSpec.AlbumId.of("123"),
                         "something",
                         SINGLE,
+                        artists,
                         2
                 ))
         );

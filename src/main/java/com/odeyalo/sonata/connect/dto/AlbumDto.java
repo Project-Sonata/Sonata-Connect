@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 @Value
 @Builder
 @AllArgsConstructor(onConstructor_ = {@JsonCreator(mode = JsonCreator.Mode.PROPERTIES)})
@@ -20,4 +22,6 @@ public class AlbumDto {
     @NotNull
     AlbumType albumType;
     int totalTrackCount;
+    @NotNull
+    List<ArtistDto> artists;
 }

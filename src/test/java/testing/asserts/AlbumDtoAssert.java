@@ -3,6 +3,7 @@ package testing.asserts;
 import com.odeyalo.sonata.connect.dto.AlbumDto;
 import com.odeyalo.sonata.connect.model.track.AlbumSpec;
 import org.assertj.core.api.AbstractAssert;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,5 +36,9 @@ public final class AlbumDtoAssert extends AbstractAssert<AlbumDtoAssert, AlbumDt
     public AlbumDtoAssert hasTotalTrackCount(final int expected) {
         assertThat(actual.getTotalTrackCount()).isEqualTo(expected);
         return this;
+    }
+
+    public ArtistsDtoAssert artists() {
+        return new ArtistsDtoAssert(actual.getArtists());
     }
 }

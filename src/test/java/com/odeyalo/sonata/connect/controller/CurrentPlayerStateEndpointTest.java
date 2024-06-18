@@ -4,10 +4,7 @@ import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.dto.ExceptionMessage;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.entity.*;
-import com.odeyalo.sonata.connect.model.DeviceType;
-import com.odeyalo.sonata.connect.model.PlayingType;
-import com.odeyalo.sonata.connect.model.RepeatState;
-import com.odeyalo.sonata.connect.model.TrackItemSpec;
+import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.model.track.AlbumSpec;
 import com.odeyalo.sonata.connect.model.track.ArtistSpec;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
@@ -70,6 +67,13 @@ class CurrentPlayerStateEndpointTest {
                     .build();
             UserEntity user = UserEntityFaker.create().setId(VALID_USER_ID).get();
 
+            ArtistListEntity artists = ArtistListEntity.solo(
+                    ArtistEntity.of(
+                            ArtistSpec.ArtistId.of("123"),
+                            "BONES",
+                            ContextUri.forArtist("123")
+                    )
+            );
             PlayerStateEntity playerState = PlayerStateFaker.createWithCustomNumberOfDevices(1)
                     .id(1L)
                     .shuffleState(PlayerStateEntity.SHUFFLE_DISABLED)
@@ -87,19 +91,14 @@ class CurrentPlayerStateEndpointTest {
                                     .contextUri(ContextUri.forTrack("mikuyouaremyqueen"))
                                     .explicit(true)
                                     .order(TrackItemSpec.Order.of(1, 3))
-                                    .artists(ArtistListEntity.solo(
-                                            ArtistEntity.of(
-                                                    ArtistSpec.ArtistId.of("123"),
-                                                    "BONES",
-                                                    ContextUri.forArtist("123")
-                                            )
-                                    ))
+                                    .artists(artists)
                                     .album(
                                             AlbumEntity.builder()
                                                     .id(AlbumSpec.AlbumId.of("miku"))
                                                     .name("melanchole")
                                                     .albumType(SINGLE)
                                                     .totalTrackCount(2)
+                                                    .artists(artists)
                                                     .build()
                                     )
                                     .build())
@@ -401,6 +400,52 @@ class CurrentPlayerStateEndpointTest {
 
             PlayerStateDtoAssert.forState(body)
                     .album().hasTotalTrackCount(2);
+        }
+
+        @Test
+        void shouldReturnCurrentTrackAlbumArtists() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .album().artists().hasSize(1);
+        }
+
+        @Test
+        void shouldReturnCurrentTrackAlbumArtistName() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .album()
+                    .artists().peekFirst()
+                    .hasName("BONES");
+        }
+
+        @Test
+        void shouldReturnCurrentTrackAlbumArtistId() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .album()
+                    .artists().peekFirst()
+                    .hasId("123");
+        }
+
+        @Test
+        void shouldReturnCurrentTrackAlbumArtistContextUri() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .album()
+                    .artists().peekFirst()
+                    .hasContextUri("sonata:artist:123");
         }
 
         private WebTestClient.ResponseSpec sendCurrentPlayerStateRequest() {
