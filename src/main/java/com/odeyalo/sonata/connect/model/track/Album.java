@@ -11,11 +11,14 @@ import org.jetbrains.annotations.NotNull;
 public class Album implements AlbumSpec {
     @NotNull
     AlbumId id;
+    @NotNull
+    String name;
 
     @NotNull
     public static Album fromSpec(@NotNull final AlbumSpec spec) {
         return builder()
                 .id(spec.getId())
+                .name(spec.getName())
                 .build();
     }
 }

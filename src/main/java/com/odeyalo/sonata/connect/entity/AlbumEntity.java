@@ -12,11 +12,14 @@ import org.jetbrains.annotations.NotNull;
 public class AlbumEntity implements AlbumSpec {
     @NotNull
     AlbumId id;
+    @NotNull
+    String name;
 
     @NotNull
     public static AlbumEntity fromSpec(@NotNull final AlbumSpec spec) {
         return builder()
                 .id(spec.getId())
+                .name(spec.getName())
                 .build();
     }
 }

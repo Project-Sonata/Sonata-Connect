@@ -35,7 +35,8 @@ public class HardcodedPlayableItemLoader implements PlayableItemLoader {
                 TrackItemSpec.Order.of(0, 1),
                 ArtistList.solo(Artist.of(ArtistSpec.ArtistId.of("123"), "BONES", ContextUri.forArtist("123"))),
                 Album.of(
-                        AlbumSpec.AlbumId.of("123")
+                        AlbumSpec.AlbumId.of("123"),
+                        "something"
                 ))
         );
     }

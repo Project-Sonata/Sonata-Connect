@@ -15,4 +15,9 @@ public final class AlbumDtoAssert extends AbstractAssert<AlbumDtoAssert, AlbumDt
         assertThat(actual.getId()).isEqualTo(id);
         return this;
     }
+
+    public AlbumDtoAssert hasName(final String name) {
+        assertThat(actual.getName()).isEqualTo(name);
+        return this;
+    }
 }

@@ -8,6 +8,9 @@ public interface AlbumSpec {
     @NotNull
     AlbumId getId();
 
+    @NotNull
+    String getName();
+
     record AlbumId(@NotNull String value) {
 
         public static AlbumId of(@NotNull final String value) {

@@ -12,4 +12,6 @@ import org.jetbrains.annotations.NotNull;
 public class AlbumDto {
     @NotNull
     String id;
+    @NotNull
+    String name;
 }
