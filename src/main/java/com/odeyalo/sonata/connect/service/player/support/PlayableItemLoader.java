@@ -17,5 +17,5 @@ public interface PlayableItemLoader {
      * @return A {@link Mono} representing the resolved {@link PlayableItem}, or an empty {@link Mono} if no item could be load.
      */
     @NotNull
-    Mono<PlayableItem> resolveItem(@NotNull ContextUri contextUri);
+    Mono<PlayableItem> loadPlayableItem(@NotNull ContextUri contextUri);
 }

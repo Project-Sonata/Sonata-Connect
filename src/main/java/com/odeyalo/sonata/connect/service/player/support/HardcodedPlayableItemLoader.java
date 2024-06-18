@@ -24,7 +24,7 @@ public class HardcodedPlayableItemLoader implements PlayableItemLoader {
 
     @Override
     @NotNull
-    public Mono<PlayableItem> resolveItem(@NotNull final ContextUri contextUri) {
+    public Mono<PlayableItem> loadPlayableItem(@NotNull final ContextUri contextUri) {
         ContextEntityType type = contextUri.getType();
         if ( type != TRACK ) {
             return Mono.error(new NotSupportedException("Only track is supported"));

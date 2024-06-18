@@ -50,7 +50,7 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
     private Mono<PlayerStateEntity> save(PlayCommandContext context, PlayerStateEntity state) throws MalformedContextUriException {
         ContextUri contextUri = ContextUri.fromString(context.getContextUri());
 
-        return playableItemLoader.resolveItem(contextUri)
+        return playableItemLoader.loadPlayableItem(contextUri)
                 .flatMap(item -> updateAndSavePlayerState(state, item));
     }
 
