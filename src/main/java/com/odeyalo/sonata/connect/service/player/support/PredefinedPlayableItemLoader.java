@@ -1,50 +1,42 @@
 package com.odeyalo.sonata.connect.service.player.support;
 
-import com.odeyalo.sonata.common.context.ContextEntityType;
 import com.odeyalo.sonata.common.context.ContextUri;
-import com.odeyalo.sonata.connect.model.*;
-import com.odeyalo.sonata.connect.model.track.Album;
-import com.odeyalo.sonata.connect.model.track.AlbumSpec;
-import com.odeyalo.sonata.connect.model.track.ArtistSpec;
-import com.odeyalo.sonata.connect.model.track.ImageList;
-import jakarta.ws.rs.NotSupportedException;
+import com.odeyalo.sonata.connect.model.PlayableItem;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.odeyalo.sonata.common.context.ContextEntityType.TRACK;
-import static com.odeyalo.sonata.connect.model.track.AlbumSpec.AlbumType.SINGLE;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of a {@link PlayableItemLoader} that returns predefined set of {@link PlayableItem}
  */
 @Component
 public final class PredefinedPlayableItemLoader implements PlayableItemLoader {
+    private final Map<ContextUri, PlayableItem> cache;
+
+    public PredefinedPlayableItemLoader() {
+        this.cache = new ConcurrentHashMap<>();
+    }
+
+    public PredefinedPlayableItemLoader(final List<PlayableItem> items) {
+        this.cache = items.stream().collect(
+                Collectors.toMap(
+                        PlayableItem::getContextUri,
+                        Function.identity()
+                )
+        );
+    }
 
     @Override
     @NotNull
     public Mono<PlayableItem> loadPlayableItem(@NotNull final ContextUri contextUri) {
-        ContextEntityType type = contextUri.getType();
-        if ( type != TRACK ) {
-            return Mono.error(new NotSupportedException("Only track is supported"));
-        }
-        ArtistList artists = ArtistList.solo(Artist.of(ArtistSpec.ArtistId.of("123"), "BONES", ContextUri.forArtist("123")));
-
-        return Mono.just(TrackItem.of(contextUri.getEntityId(),
-                "mock",
-                PlayableItemDuration.ofSeconds(100),
-                ContextUri.forTrack("mock"),
-                false,
-                TrackItemSpec.Order.of(0, 1),
-                artists,
-                Album.of(
-                        AlbumSpec.AlbumId.of("123"),
-                        "something",
-                        SINGLE,
-                        artists,
-                        ImageList.empty(),
-                        2
-                ))
+        return Mono.just(
+                cache.get(contextUri)
         );
     }
 }
