@@ -16,11 +16,10 @@ import static com.odeyalo.sonata.common.context.ContextEntityType.TRACK;
 import static com.odeyalo.sonata.connect.model.track.AlbumSpec.AlbumType.SINGLE;
 
 /**
- * Implementation of a PlayableItemResolver that is hardcoded and not designed to be easily scalable
- * It can be used in tests to reduce object creation.
+ * Implementation of a {@link PlayableItemLoader} that returns predefined set of {@link PlayableItem}
  */
 @Component
-public class HardcodedPlayableItemLoader implements PlayableItemLoader {
+public final class PredefinedPlayableItemLoader implements PlayableItemLoader {
 
     @Override
     @NotNull
