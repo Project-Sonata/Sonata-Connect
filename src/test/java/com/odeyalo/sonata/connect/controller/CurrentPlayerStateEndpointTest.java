@@ -99,6 +99,7 @@ class CurrentPlayerStateEndpointTest {
                                                     .id(AlbumSpec.AlbumId.of("miku"))
                                                     .name("melanchole")
                                                     .albumType(SINGLE)
+                                                    .totalTrackCount(2)
                                                     .build()
                                     )
                                     .build())
@@ -390,6 +391,16 @@ class CurrentPlayerStateEndpointTest {
 
             PlayerStateDtoAssert.forState(body)
                     .album().hasAlbumType(SINGLE);
+        }
+
+        @Test
+        void shouldReturnCurrentTrackAlbumTotalTracksCount() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .album().hasTotalTrackCount(2);
         }
 
         private WebTestClient.ResponseSpec sendCurrentPlayerStateRequest() {

@@ -15,6 +15,7 @@ public class Album implements AlbumSpec {
     String name;
     @NotNull
     AlbumType albumType;
+    int totalTrackCount;
 
     @NotNull
     public static Album fromSpec(@NotNull final AlbumSpec spec) {
@@ -22,6 +23,7 @@ public class Album implements AlbumSpec {
                 .id(spec.getId())
                 .name(spec.getName())
                 .albumType(spec.getAlbumType())
+                .totalTrackCount(spec.getTotalTrackCount())
                 .build();
     }
 }

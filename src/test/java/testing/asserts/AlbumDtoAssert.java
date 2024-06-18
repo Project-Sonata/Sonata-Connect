@@ -31,4 +31,9 @@ public final class AlbumDtoAssert extends AbstractAssert<AlbumDtoAssert, AlbumDt
         assertThat(actual.getAlbumType()).isEqualTo(albumType);
         return this;
     }
+
+    public AlbumDtoAssert hasTotalTrackCount(final int expected) {
+        assertThat(actual.getTotalTrackCount()).isEqualTo(expected);
+        return this;
+    }
 }

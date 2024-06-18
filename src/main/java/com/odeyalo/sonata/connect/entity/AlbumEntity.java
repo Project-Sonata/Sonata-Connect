@@ -16,6 +16,7 @@ public class AlbumEntity implements AlbumSpec {
     String name;
     @NotNull
     AlbumType albumType;
+    int totalTrackCount;
 
     @NotNull
     public static AlbumEntity fromSpec(@NotNull final AlbumSpec spec) {
@@ -23,6 +24,7 @@ public class AlbumEntity implements AlbumSpec {
                 .id(spec.getId())
                 .name(spec.getName())
                 .albumType(spec.getAlbumType())
+                .totalTrackCount(spec.getTotalTrackCount())
                 .build();
     }
 }

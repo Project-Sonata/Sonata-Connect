@@ -15,6 +15,8 @@ public interface AlbumSpec {
     @NotNull
     AlbumType getAlbumType();
 
+    int getTotalTrackCount();
+
     @NotNull
     default ContextUri getContextUri() {
         return getId().toContextUrI();

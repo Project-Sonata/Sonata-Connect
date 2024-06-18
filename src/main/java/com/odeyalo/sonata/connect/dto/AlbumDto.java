@@ -19,4 +19,5 @@ public class AlbumDto {
     String contextUri;
     @NotNull
     AlbumType albumType;
+    int totalTrackCount;
 }

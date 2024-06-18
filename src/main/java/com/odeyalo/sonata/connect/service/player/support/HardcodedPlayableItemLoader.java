@@ -38,7 +38,8 @@ public class HardcodedPlayableItemLoader implements PlayableItemLoader {
                 Album.of(
                         AlbumSpec.AlbumId.of("123"),
                         "something",
-                        SINGLE
+                        SINGLE,
+                        2
                 ))
         );
     }
