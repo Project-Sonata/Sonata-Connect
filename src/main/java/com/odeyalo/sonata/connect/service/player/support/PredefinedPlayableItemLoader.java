@@ -35,7 +35,7 @@ public final class PredefinedPlayableItemLoader implements PlayableItemLoader {
     @Override
     @NotNull
     public Mono<PlayableItem> loadPlayableItem(@NotNull final ContextUri contextUri) {
-        return Mono.just(
+        return Mono.justOrEmpty(
                 cache.get(contextUri)
         );
     }
