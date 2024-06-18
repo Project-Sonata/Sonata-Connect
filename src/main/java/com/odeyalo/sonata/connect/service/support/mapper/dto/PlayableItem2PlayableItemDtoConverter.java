@@ -9,6 +9,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.stereotype.Component;
 
+import static org.mapstruct.InjectionStrategy.CONSTRUCTOR;
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
+
 @Component
 public class PlayableItem2PlayableItemDtoConverter implements Converter<PlayableItem, PlayableItemDto> {
     private final TrackItemSpec2TrackItemDtoConverter trackConverter;
@@ -31,7 +34,9 @@ public class PlayableItem2PlayableItemDtoConverter implements Converter<Playable
         throw new UnsupportedOperationException(String.format("PlayableItem2PlayableItemDtoConverter does not support: %s", playableItem.getItemType()));
     }
 
-    @Mapper(componentModel = "spring")
+    @Mapper(componentModel = SPRING, uses = {
+            ArtistListDtoMapper.class
+    }, injectionStrategy = CONSTRUCTOR)
     public interface TrackItemSpec2TrackItemDtoConverter {
 
         @Mapping(target = "discNumber", expression = "java( spec.getOrder().discNumber() )")

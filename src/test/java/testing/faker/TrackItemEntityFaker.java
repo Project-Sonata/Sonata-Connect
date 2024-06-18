@@ -23,7 +23,10 @@ public final class TrackItemEntityFaker {
                 .order(TrackItemSpec.Order.of(
                                 faker.random().nextInt(0, 2),
                                 faker.random().nextInt(0, 10)
-                        ));
+                        ))
+                .artists(
+                        ArtistListEntityFaker.create().get()
+                );
     }
 
     public static TrackItemEntityFaker create() {

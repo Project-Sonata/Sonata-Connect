@@ -3,14 +3,12 @@ package com.odeyalo.sonata.connect.controller;
 import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.dto.ExceptionMessage;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
-import com.odeyalo.sonata.connect.entity.DevicesEntity;
-import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
-import com.odeyalo.sonata.connect.entity.TrackItemEntity;
-import com.odeyalo.sonata.connect.entity.UserEntity;
+import com.odeyalo.sonata.connect.entity.*;
 import com.odeyalo.sonata.connect.model.DeviceType;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
 import com.odeyalo.sonata.connect.model.TrackItemSpec;
+import com.odeyalo.sonata.connect.model.track.ArtistSpec;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +85,13 @@ class CurrentPlayerStateEndpointTest {
                                     .contextUri(ContextUri.forTrack("mikuyouaremyqueen"))
                                     .explicit(true)
                                     .order(TrackItemSpec.Order.of(1, 3))
+                                    .artists(ArtistListEntity.solo(
+                                            ArtistEntity.of(
+                                                    ArtistSpec.ArtistId.of("123"),
+                                                    "BONES",
+                                                    ContextUri.forArtist("123")
+                                            )
+                                    ))
                                     .build())
                     .get();
             playerStateRepository.save(playerState).block();
@@ -286,13 +291,56 @@ class CurrentPlayerStateEndpointTest {
         }
 
         @Test
-        void shouldReturnCurrentTrackNumber() {
+        void shouldReturnCurrentTrack() {
             WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
 
             PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
 
             PlayerStateDtoAssert.forState(body)
                     .track().hasNumber(3);
+        }
+
+        @Test
+        void shouldReturnCurrentTrackArtists() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .artists().hasSize(1);
+        }
+
+        @Test
+        void shouldReturnCurrentTrackArtistName() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .artists().peekFirst()
+                    .hasName("BONES");
+        }
+
+        @Test
+        void shouldReturnCurrentTrackArtistId() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .artists().peekFirst()
+                    .hasId("123");
+        }
+
+        @Test
+        void shouldReturnCurrentTrackArtistContextUri() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .artists().peekFirst()
+                    .hasContextUri("sonata:artist:123");
         }
 
         private WebTestClient.ResponseSpec sendCurrentPlayerStateRequest() {

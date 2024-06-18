@@ -1,6 +1,8 @@
 package com.odeyalo.sonata.connect.model;
 
 import com.odeyalo.sonata.common.context.ContextUri;
+import com.odeyalo.sonata.connect.model.track.ArtistListSpec;
+import com.odeyalo.sonata.connect.model.track.ArtistSpec;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.Assert;
 
@@ -10,9 +12,7 @@ import java.util.Comparator;
  * Represent a Track item that can be played
  */
 public interface TrackItemSpec extends PlayableItem {
-    /**
-     * @return name of the track
-     */
+
     @NotNull
     String getName();
 
@@ -26,6 +26,9 @@ public interface TrackItemSpec extends PlayableItem {
 
     @NotNull
     Order getOrder();
+
+    @NotNull
+    ArtistListSpec<? extends ArtistSpec> getArtists();
 
     @Override
     @NotNull
@@ -42,7 +45,7 @@ public interface TrackItemSpec extends PlayableItem {
      * {@link Order} implements a {@link Comparator} and by default sort the elements from
      * first to last, considering disc number and index of the tracK!
      *
-     * @param discNumber - sode of the disc on which this track appears
+     * @param discNumber - number of the disc on which this track appears
      * @param index - index of the track
      */
     record Order(int discNumber, int index) implements Comparable<Order> {

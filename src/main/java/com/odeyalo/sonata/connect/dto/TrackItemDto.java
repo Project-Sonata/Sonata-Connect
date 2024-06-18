@@ -6,6 +6,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
@@ -21,6 +23,8 @@ public class TrackItemDto extends PlayableItemDto {
     boolean explicit;
     int discNumber;
     int index;
+    @NotNull
+    List<ArtistDto> artists;
 
     public TrackItemDto(String id, String uri) {
         super(id, uri);

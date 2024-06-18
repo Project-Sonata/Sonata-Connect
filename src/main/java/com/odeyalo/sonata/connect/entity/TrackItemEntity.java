@@ -30,6 +30,8 @@ public class TrackItemEntity implements PlayableItemEntity, TrackItemSpec {
     boolean explicit;
     @NotNull
     Order order;
+    @NotNull
+    ArtistListEntity artists;
 
     @Override
     @NotNull
@@ -54,6 +56,7 @@ public class TrackItemEntity implements PlayableItemEntity, TrackItemSpec {
                     .contextUri(trackSpec.getContextUri())
                     .explicit(trackSpec.isExplicit())
                     .order(trackSpec.getOrder())
+                    .artists(ArtistListEntity.fromSpec(trackSpec.getArtists()))
                     .build();
         }
     }

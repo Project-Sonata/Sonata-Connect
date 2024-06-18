@@ -46,7 +46,11 @@ public class PlayableItemFaker {
                     .order(TrackItemSpec.Order.of(
                             faker.random().nextInt(0, 2),
                             faker.random().nextInt(0, 10)
-                    ));        }
+                    ))
+                    .artists(
+                            ArtistListFaker.create().get()
+                    );
+        }
 
         public static TrackItemFaker create() {
             return new TrackItemFaker();

@@ -21,6 +21,8 @@ public class TrackItem implements TrackItemSpec {
     boolean explicit;
     @NotNull
     Order order;
+    @NotNull
+    ArtistList artists;
 
     public static TrackItem fromSpec(@NotNull final TrackItemSpec item) {
             return TrackItem.builder()
@@ -30,6 +32,7 @@ public class TrackItem implements TrackItemSpec {
                     .contextUri(item.getContextUri())
                     .explicit(item.isExplicit())
                     .order(item.getOrder())
+                    .artists(ArtistList.fromSpec(item.getArtists()))
                     .build();
     }
 }

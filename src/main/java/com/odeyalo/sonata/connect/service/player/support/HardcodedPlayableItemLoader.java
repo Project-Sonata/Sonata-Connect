@@ -2,10 +2,8 @@ package com.odeyalo.sonata.connect.service.player.support;
 
 import com.odeyalo.sonata.common.context.ContextEntityType;
 import com.odeyalo.sonata.common.context.ContextUri;
-import com.odeyalo.sonata.connect.model.PlayableItem;
-import com.odeyalo.sonata.connect.model.PlayableItemDuration;
-import com.odeyalo.sonata.connect.model.TrackItem;
-import com.odeyalo.sonata.connect.model.TrackItemSpec;
+import com.odeyalo.sonata.connect.model.*;
+import com.odeyalo.sonata.connect.model.track.ArtistSpec;
 import jakarta.ws.rs.NotSupportedException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -32,7 +30,8 @@ public class HardcodedPlayableItemLoader implements PlayableItemLoader {
                 PlayableItemDuration.ofSeconds(100),
                 ContextUri.forTrack("mock"),
                 false,
-                TrackItemSpec.Order.of(0, 1)
+                TrackItemSpec.Order.of(0, 1),
+                ArtistList.solo(Artist.of(ArtistSpec.ArtistId.of("123"), "BONES", ContextUri.forArtist("123")))
                 )
         );
     }

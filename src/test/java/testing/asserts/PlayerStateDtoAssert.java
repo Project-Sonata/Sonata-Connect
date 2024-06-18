@@ -61,6 +61,10 @@ public class PlayerStateDtoAssert extends AbstractAssert<PlayerStateDtoAssert, P
         return new TrackItemDtoAssert((TrackItemDto) actual.getPlayingItem());
     }
 
+    public ArtistsDtoAssert artists() {
+        return new ArtistsDtoAssert(((TrackItemDto) actual.getPlayingItem()).getArtists());
+    }
+
     interface ParentAssertAware {
         PlayerStateDtoAssert and();
     }
