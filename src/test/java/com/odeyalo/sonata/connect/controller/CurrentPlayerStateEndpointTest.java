@@ -370,6 +370,16 @@ class CurrentPlayerStateEndpointTest {
                     .album().hasName("melanchole");
         }
 
+        @Test
+        void shouldReturnCurrentTrackAlbumContextUri() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .album().hasContextUri("sonata:album:miku");
+        }
+
         private WebTestClient.ResponseSpec sendCurrentPlayerStateRequest() {
             return webTestClient.get()
                     .uri("/player/state")

@@ -20,4 +20,9 @@ public final class AlbumDtoAssert extends AbstractAssert<AlbumDtoAssert, AlbumDt
         assertThat(actual.getName()).isEqualTo(name);
         return this;
     }
+
+    public AlbumDtoAssert hasContextUri(final String contextUri) {
+        assertThat(actual.getContextUri()).isEqualTo(contextUri);
+        return this;
+    }
 }

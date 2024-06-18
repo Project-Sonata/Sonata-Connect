@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.model.track;
 
+import com.odeyalo.sonata.common.context.ContextUri;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,6 +11,11 @@ public interface AlbumSpec {
 
     @NotNull
     String getName();
+
+    @NotNull
+    default ContextUri getContextUri() {
+        return getId().toContextUrI();
+    }
 
     record AlbumId(@NotNull String value) {
 
@@ -26,6 +32,10 @@ public interface AlbumSpec {
             return of(
                     RandomStringUtils.randomAlphanumeric(22)
             );
+        }
+
+        public ContextUri toContextUrI() {
+            return ContextUri.forAlbum(value);
         }
     }
 }

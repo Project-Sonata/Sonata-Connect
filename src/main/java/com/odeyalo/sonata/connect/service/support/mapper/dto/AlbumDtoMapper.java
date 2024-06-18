@@ -11,6 +11,7 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 public interface AlbumDtoMapper {
 
     @Mapping(target = "id", expression = "java( source.getId().value() )")
+    @Mapping(target = "contextUri", expression = "java( source.getContextUri().asString() )")
     AlbumDto toAlbumDto(AlbumSpec source);
 
 }

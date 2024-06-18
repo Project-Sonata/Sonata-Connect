@@ -14,4 +14,6 @@ public class AlbumDto {
     String id;
     @NotNull
     String name;
+    @NotNull
+    String contextUri;
 }
