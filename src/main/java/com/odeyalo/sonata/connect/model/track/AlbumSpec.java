@@ -21,6 +21,9 @@ public interface AlbumSpec {
     ArtistListSpec<? extends ArtistSpec> getArtists();
 
     @NotNull
+    ImageListSpec<? extends ImageSpec> getImages();
+
+    @NotNull
     default ContextUri getContextUri() {
         return getId().toContextUrI();
     }

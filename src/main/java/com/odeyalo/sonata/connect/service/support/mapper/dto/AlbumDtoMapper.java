@@ -9,7 +9,8 @@ import static org.mapstruct.InjectionStrategy.CONSTRUCTOR;
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 @Mapper(componentModel = SPRING, uses = {
-        ArtistListDtoMapper.class
+        ArtistListDtoMapper.class,
+        ImageListDtoMapper.class
 }, injectionStrategy = CONSTRUCTOR)
 public interface AlbumDtoMapper {
 

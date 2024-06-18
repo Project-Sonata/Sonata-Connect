@@ -1,6 +1,5 @@
 package com.odeyalo.sonata.connect.model.track;
 
-import com.odeyalo.sonata.connect.entity.ArtistListEntity;
 import com.odeyalo.sonata.connect.model.ArtistList;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +18,8 @@ public class Album implements AlbumSpec {
     AlbumType albumType;
     @NotNull
     ArtistList artists;
+    @NotNull
+    ImageList images;
     int totalTrackCount;
 
     @NotNull
@@ -29,6 +30,7 @@ public class Album implements AlbumSpec {
                 .albumType(spec.getAlbumType())
                 .totalTrackCount(spec.getTotalTrackCount())
                 .artists(ArtistList.fromSpec(spec.getArtists()))
+                .images(ImageList.fromSpec(spec.getImages()))
                 .build();
     }
 }

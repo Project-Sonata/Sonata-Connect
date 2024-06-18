@@ -7,6 +7,7 @@ import com.odeyalo.sonata.connect.entity.*;
 import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.model.track.AlbumSpec;
 import com.odeyalo.sonata.connect.model.track.ArtistSpec;
+import com.odeyalo.sonata.connect.model.track.Image;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ import testing.asserts.PlayerStateDtoAssert;
 import testing.faker.DeviceEntityFaker;
 import testing.faker.PlayerStateFaker;
 import testing.faker.UserEntityFaker;
+
+import java.net.URI;
 
 import static com.odeyalo.sonata.connect.model.PlayableItemDuration.ofMilliseconds;
 import static com.odeyalo.sonata.connect.model.track.AlbumSpec.AlbumType.SINGLE;
@@ -99,6 +102,14 @@ class CurrentPlayerStateEndpointTest {
                                                     .albumType(SINGLE)
                                                     .totalTrackCount(2)
                                                     .artists(artists)
+                                                    .images(
+                                                            ImageListEntity.single(
+                                                                    ImageEntity.builder()
+                                                                            .url(URI.create("http://localhost:3000/image/123"))
+                                                                            .height(300)
+                                                                            .width(300)
+                                                                            .build()
+                                                    ))
                                                     .build()
                                     )
                                     .build())
@@ -446,6 +457,53 @@ class CurrentPlayerStateEndpointTest {
                     .album()
                     .artists().peekFirst()
                     .hasContextUri("sonata:artist:123");
+        }
+
+        @Test
+        void shouldReturnAlbumImages() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .album()
+                    .images().hasSize(1);
+        }
+
+        @Test
+        void shouldReturnAlbumImageUri() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .album()
+                    .images().first()
+                    .hasUri("http://localhost:3000/image/123");
+        }
+
+        @Test
+        void shouldReturnAlbumImageWidth() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .album()
+                    .images().first()
+                    .hasWidth(300);
+        }
+
+        @Test
+        void shouldReturnAlbumImageHeight() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .album()
+                    .images().first()
+                    .hasHeight(300);
         }
 
         private WebTestClient.ResponseSpec sendCurrentPlayerStateRequest() {

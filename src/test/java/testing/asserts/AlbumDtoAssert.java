@@ -41,4 +41,8 @@ public final class AlbumDtoAssert extends AbstractAssert<AlbumDtoAssert, AlbumDt
     public ArtistsDtoAssert artists() {
         return new ArtistsDtoAssert(actual.getArtists());
     }
+
+    public ImageDtoListAssert images() {
+        return new ImageDtoListAssert(actual.getImages());
+    }
 }

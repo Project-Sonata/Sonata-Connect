@@ -16,7 +16,8 @@ public final class AlbumFaker {
                 .name(faker.music().chord())
                 .albumType(faker.options().option(AlbumSpec.AlbumType.class))
                 .totalTrackCount(faker.random().nextInt(1, 10))
-                .artists(ArtistListFaker.create().get());
+                .artists(ArtistListFaker.create().get())
+                .images(ImageListFaker.create().get());
     }
 
     public static AlbumFaker create() {

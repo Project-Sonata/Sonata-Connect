@@ -6,6 +6,7 @@ import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.model.track.Album;
 import com.odeyalo.sonata.connect.model.track.AlbumSpec;
 import com.odeyalo.sonata.connect.model.track.ArtistSpec;
+import com.odeyalo.sonata.connect.model.track.ImageList;
 import jakarta.ws.rs.NotSupportedException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -42,6 +43,7 @@ public class HardcodedPlayableItemLoader implements PlayableItemLoader {
                         "something",
                         SINGLE,
                         artists,
+                        ImageList.empty(),
                         2
                 ))
         );

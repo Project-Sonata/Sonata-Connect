@@ -24,4 +24,6 @@ public class AlbumDto {
     int totalTrackCount;
     @NotNull
     List<ArtistDto> artists;
+    @NotNull
+    List<ImageDto> images;
 }
