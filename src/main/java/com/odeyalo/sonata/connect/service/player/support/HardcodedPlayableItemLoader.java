@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import static com.odeyalo.sonata.common.context.ContextEntityType.TRACK;
+import static com.odeyalo.sonata.connect.model.track.AlbumSpec.AlbumType.SINGLE;
 
 /**
  * Implementation of a PlayableItemResolver that is hardcoded and not designed to be easily scalable
@@ -36,7 +37,8 @@ public class HardcodedPlayableItemLoader implements PlayableItemLoader {
                 ArtistList.solo(Artist.of(ArtistSpec.ArtistId.of("123"), "BONES", ContextUri.forArtist("123"))),
                 Album.of(
                         AlbumSpec.AlbumId.of("123"),
-                        "something"
+                        "something",
+                        SINGLE
                 ))
         );
     }

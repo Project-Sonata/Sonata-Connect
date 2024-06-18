@@ -13,7 +13,8 @@ public final class AlbumEntityFaker {
 
         builder
                 .id(albumId)
-                .name(faker.music().chord());
+                .name(faker.music().chord())
+                .albumType(faker.options().option(AlbumSpec.AlbumType.class));
     }
 
     public static AlbumEntityFaker create() {

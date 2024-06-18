@@ -13,6 +13,9 @@ public interface AlbumSpec {
     String getName();
 
     @NotNull
+    AlbumType getAlbumType();
+
+    @NotNull
     default ContextUri getContextUri() {
         return getId().toContextUrI();
     }
@@ -37,5 +40,11 @@ public interface AlbumSpec {
         public ContextUri toContextUrI() {
             return ContextUri.forAlbum(value);
         }
+    }
+
+    enum AlbumType {
+        SINGLE,
+        EPISODE,
+        ALBUM
     }
 }

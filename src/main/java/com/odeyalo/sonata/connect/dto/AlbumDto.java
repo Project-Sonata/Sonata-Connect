@@ -1,6 +1,7 @@
 package com.odeyalo.sonata.connect.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.odeyalo.sonata.connect.model.track.AlbumSpec.AlbumType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
@@ -16,4 +17,6 @@ public class AlbumDto {
     String name;
     @NotNull
     String contextUri;
+    @NotNull
+    AlbumType albumType;
 }

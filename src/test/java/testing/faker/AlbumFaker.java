@@ -13,7 +13,8 @@ public final class AlbumFaker {
 
         builder
                 .id(albumId)
-                .name(faker.music().chord());
+                .name(faker.music().chord())
+                .albumType(faker.options().option(AlbumSpec.AlbumType.class));
     }
 
     public static AlbumFaker create() {

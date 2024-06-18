@@ -27,6 +27,7 @@ import testing.faker.PlayerStateFaker;
 import testing.faker.UserEntityFaker;
 
 import static com.odeyalo.sonata.connect.model.PlayableItemDuration.ofMilliseconds;
+import static com.odeyalo.sonata.connect.model.track.AlbumSpec.AlbumType.SINGLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode.REMOTE;
 
@@ -97,6 +98,7 @@ class CurrentPlayerStateEndpointTest {
                                             AlbumEntity.builder()
                                                     .id(AlbumSpec.AlbumId.of("miku"))
                                                     .name("melanchole")
+                                                    .albumType(SINGLE)
                                                     .build()
                                     )
                                     .build())
@@ -378,6 +380,16 @@ class CurrentPlayerStateEndpointTest {
 
             PlayerStateDtoAssert.forState(body)
                     .album().hasContextUri("sonata:album:miku");
+        }
+
+        @Test
+        void shouldReturnCurrentTrackAlbumType() {
+            WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
+
+            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
+
+            PlayerStateDtoAssert.forState(body)
+                    .album().hasAlbumType(SINGLE);
         }
 
         private WebTestClient.ResponseSpec sendCurrentPlayerStateRequest() {

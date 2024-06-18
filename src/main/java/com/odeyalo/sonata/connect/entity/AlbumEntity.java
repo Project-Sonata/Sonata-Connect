@@ -14,12 +14,15 @@ public class AlbumEntity implements AlbumSpec {
     AlbumId id;
     @NotNull
     String name;
+    @NotNull
+    AlbumType albumType;
 
     @NotNull
     public static AlbumEntity fromSpec(@NotNull final AlbumSpec spec) {
         return builder()
                 .id(spec.getId())
                 .name(spec.getName())
+                .albumType(spec.getAlbumType())
                 .build();
     }
 }
