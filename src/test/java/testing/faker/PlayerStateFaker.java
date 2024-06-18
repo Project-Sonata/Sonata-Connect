@@ -9,7 +9,6 @@ import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
-import org.apache.commons.lang3.RandomStringUtils;
 
 @Setter
 @Accessors(chain = true)
@@ -41,7 +40,7 @@ public class PlayerStateFaker {
         } else {
             builder.devicesEntity(DevicesEntityFaker.create(numberOfDevices).get());
         }
-        builder.currentlyPlayingItem(TrackItemEntity.of(RandomStringUtils.randomAlphanumeric(16)));
+        builder.currentlyPlayingItem(TrackItemEntityFaker.create().get());
     }
 
     public static PlayerStateFaker create() {
@@ -49,8 +48,7 @@ public class PlayerStateFaker {
     }
 
     public static PlayerStateFaker active() {
-        TrackItemEntity item = TrackItemEntity.of(RandomStringUtils.randomAlphanumeric(16));
-
+        TrackItemEntity item = TrackItemEntityFaker.create().get();
         return new PlayerStateFaker()
                 .playing(true)
                 .currentlyPlayingItem(item);

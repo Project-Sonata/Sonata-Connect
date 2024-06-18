@@ -1,16 +1,32 @@
 package com.odeyalo.sonata.connect.dto;
 
 import com.odeyalo.sonata.connect.model.PlayableItemType;
-import com.odeyalo.sonata.connect.model.PlayingType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-@Builder
+@AllArgsConstructor
+@SuperBuilder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TrackItemDto extends PlayableItemDto {
+    @NotNull
+    String name;
+    long durationMs;
+    @NotNull
+    String contextUri;
+    boolean explicit;
+    int discNumber;
+    int index;
+    @NotNull
+    List<ArtistDto> artists;
+    @NotNull
+    AlbumDto album;
 
     public TrackItemDto(String id, String uri) {
         super(id, uri);
