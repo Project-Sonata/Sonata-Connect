@@ -4,6 +4,8 @@ import com.odeyalo.sonata.connect.entity.DeviceEntity;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.NoActiveDeviceException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
+import com.odeyalo.sonata.connect.model.PlayableItem;
+import com.odeyalo.sonata.connect.model.TrackItem;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.sync.DefaultPlayerSynchronizationManager;
 import com.odeyalo.sonata.connect.service.player.sync.InMemoryRoomHolder;
@@ -18,6 +20,7 @@ import reactor.test.StepVerifier;
 import testing.factory.DefaultPlayerOperationsTestableBuilder;
 import testing.faker.CurrentPlayerStateFaker;
 import testing.faker.DeviceEntityFaker;
+import testing.faker.PlayableItemFaker.TrackItemFaker;
 import testing.faker.PlayerStateFaker;
 import testing.stub.NullDeviceOperations;
 
@@ -35,7 +38,10 @@ import static org.mockito.Mockito.*;
 
 class EventPublisherPlayerOperationsDecoratorTest {
     public static final User USER = User.of("odeyalo");
-    public static final PlayCommandContext VALID_PLAY_COMMAND_CONTEXT = PlayCommandContext.of("sonata:track:miku");
+    public static final String EXISTING_TRACK_CONTEXT_URI = "sonata:track:miku";
+    public static final PlayCommandContext VALID_PLAY_COMMAND_CONTEXT = PlayCommandContext.of(EXISTING_TRACK_CONTEXT_URI);
+    public static final TrackItem TRACK_1 = TrackItemFaker.create().withContextUri(EXISTING_TRACK_CONTEXT_URI).get();
+
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -54,6 +60,7 @@ class EventPublisherPlayerOperationsDecoratorTest {
             EventPublisherPlayerOperationsDecorator testable = testableBuilder()
                     .withPlayerState(pausedPlayerState)
                     .withSynchronizationManager(synchronizationManagerMock)
+                    .withPlayableItems(TRACK_1)
                     .build();
             // when
             testable.playOrResume(USER, VALID_PLAY_COMMAND_CONTEXT, CURRENT_DEVICE)
@@ -78,6 +85,7 @@ class EventPublisherPlayerOperationsDecoratorTest {
             EventPublisherPlayerOperationsDecorator testable = testableBuilder()
                     .withPlayerState(pausedPlayerState)
                     .withSynchronizationManager(synchronizationManagerMock)
+                    .withPlayableItems(TRACK_1)
                     .build();
             // when
             testable.playOrResume(USER, VALID_PLAY_COMMAND_CONTEXT, CURRENT_DEVICE)
@@ -101,6 +109,7 @@ class EventPublisherPlayerOperationsDecoratorTest {
             EventPublisherPlayerOperationsDecorator testable = testableBuilder()
                     .withPlayerState(pausedPlayerState)
                     .withSynchronizationManager(synchronizationManagerMock)
+                    .withPlayableItems(TRACK_1)
                     .build();
             // when
             testable.playOrResume(USER, VALID_PLAY_COMMAND_CONTEXT, CURRENT_DEVICE)
@@ -275,6 +284,11 @@ class EventPublisherPlayerOperationsDecoratorTest {
 
         public TestableBuilder withPlayerState(PlayerStateEntity playerState) {
             delegateBuilder.withState(playerState);
+            return this;
+        }
+
+        public TestableBuilder withPlayableItems(final PlayableItem... items) {
+            delegateBuilder.withPlayableItems(items);
             return this;
         }
     }

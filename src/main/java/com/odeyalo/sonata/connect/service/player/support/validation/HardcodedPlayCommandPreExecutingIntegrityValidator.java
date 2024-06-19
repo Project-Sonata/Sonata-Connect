@@ -1,8 +1,11 @@
 package com.odeyalo.sonata.connect.service.player.support.validation;
 
+import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.NoActiveDeviceException;
+import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriException;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -15,15 +18,24 @@ import reactor.core.publisher.Mono;
 public class HardcodedPlayCommandPreExecutingIntegrityValidator implements PlayCommandPreExecutingIntegrityValidator {
 
     @Override
-    public Mono<PlayerCommandIntegrityValidationResult> validate(PlayCommandContext context, PlayerStateEntity currentState) {
+    public Mono<PlayerCommandIntegrityValidationResult> validate(@NotNull PlayCommandContext context, PlayerStateEntity currentState) {
         if ( currentState.getDevicesEntity().size() == 0 ) {
             NoActiveDeviceException ex = new NoActiveDeviceException("There is no active device");
             return Mono.just(PlayerCommandIntegrityValidationResult.invalid(ex));
         }
-        if ( (context == null || context.getContextUri() == null) && currentState.getCurrentlyPlayingItem() == null ) {
+
+        if ( context.getContextUri() == null && currentState.getCurrentlyPlayingItem() == null ) {
             IllegalStateException ex = new IllegalStateException("Nothing is playing now and context is null!");
             return Mono.just(PlayerCommandIntegrityValidationResult.invalid(ex));
         }
+
+
+        if ( context.getContextUri() != null && !ContextUri.isValid(context.getContextUri()) ) {
+            final var exception = new ReasonCodeAwareMalformedContextUriException("Context uri is malformed", context.getContextUri());
+
+            return Mono.just(PlayerCommandIntegrityValidationResult.invalid(exception));
+        }
+
         return Mono.just(PlayerCommandIntegrityValidationResult.valid());
     }
 }

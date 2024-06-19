@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.model;
 
+import com.odeyalo.sonata.common.context.ContextUri;
 import org.jetbrains.annotations.NotNull;
 
 public interface PlayableItem {
@@ -12,4 +13,8 @@ public interface PlayableItem {
 
     @NotNull
     PlayableItemType getItemType();
+
+
+    @NotNull
+    ContextUri getContextUri();
 }

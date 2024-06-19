@@ -1,6 +1,5 @@
 package com.odeyalo.sonata.connect.model;
 
-import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.model.track.AlbumSpec;
 import com.odeyalo.sonata.connect.model.track.ArtistListSpec;
 import com.odeyalo.sonata.connect.model.track.ArtistSpec;
@@ -19,9 +18,6 @@ public interface TrackItemSpec extends PlayableItem {
 
     @NotNull
     PlayableItemDuration getDuration();
-
-    @NotNull
-    ContextUri getContextUri();
 
     boolean isExplicit();
 
