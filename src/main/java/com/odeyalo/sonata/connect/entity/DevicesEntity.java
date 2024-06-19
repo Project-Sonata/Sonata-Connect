@@ -32,6 +32,11 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
         return new DevicesEntityBuilder();
     }
 
+    @NotNull
+    public static DevicesEntity just(@NotNull final DeviceEntity... devices) {
+        return builder().items(List.of(devices)).build();
+    }
+
     public List<DeviceEntity> getDevices() {
         return items;
     }

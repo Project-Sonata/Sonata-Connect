@@ -2,6 +2,7 @@ package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.config.Converters;
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
+import com.odeyalo.sonata.connect.entity.DevicesEntity;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.DeviceNotFoundException;
 import com.odeyalo.sonata.connect.exception.MultipleTargetDevicesNotSupportedException;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import reactor.test.StepVerifier;
 import testing.asserts.DevicesAssert;
+import testing.faker.DeviceEntityFaker;
 import testing.faker.PlayerStateFaker;
 import testing.faker.TargetDeactivationDevicesFaker;
 
@@ -42,16 +44,17 @@ class DefaultStorageDeviceOperationsTest {
             new DevicesEntity2DevicesConverter(new DeviceEntity2DeviceConverterImpl()),
             new Device2DeviceEntityConverterImpl());
 
-    User user;
-    DeviceEntity activeDeviceEntity;
-    DeviceEntity inactiveDeviceEntity;
+    final User USER = User.of("miku");
+    final DeviceEntity ACTIVE_DEVICE = DeviceEntityFaker.createActiveDevice().get();
+    final DeviceEntity INACTIVE_DEVICE = DeviceEntityFaker.createInactiveDevice().get();
 
     @BeforeEach
     void prepare() {
-        PlayerStateEntity playerState = playerStateRepository.save(PlayerStateFaker.createWithCustomNumberOfDevices(3).get()).block();
-        user = User.of(playerState.getUser().getId());
-        activeDeviceEntity = getActiveDevice(playerState);
-        inactiveDeviceEntity = getInactiveDevice(playerState);
+        final PlayerStateEntity entity = PlayerStateFaker.forUser(USER)
+                .devicesEntity(DevicesEntity.just(ACTIVE_DEVICE, INACTIVE_DEVICE))
+                .get();
+
+        playerStateRepository.save(entity).block();
     }
 
     @Nested
@@ -61,34 +64,34 @@ class DefaultStorageDeviceOperationsTest {
         @Test
         void transferAndExpectActiveDeviceToBecomeInactive() {
             SwitchDeviceCommandArgs args = ensurePlaybackStarted();
-            TargetDevices devices = TargetDevices.single(TargetDevice.of(inactiveDeviceEntity.getId()));
+            TargetDevices devices = TargetDevices.single(TargetDevice.of(INACTIVE_DEVICE.getId()));
 
-            CurrentPlayerState updatedPlayerState = operations.transferPlayback(user, args, empty(), devices).block();
+            CurrentPlayerState updatedPlayerState = operations.transferPlayback(USER, args, empty(), devices).block();
 
             Devices actualDevices = updatedPlayerState.getDevices();
 
             DevicesAssert.forDevices(actualDevices)
-                    .peekById(activeDeviceEntity.getId()).inactive();
+                    .peekById(ACTIVE_DEVICE.getId()).inactive();
         }
 
         @Test
         void transferAndExpectTargetDeviceToBecomeActive() {
             SwitchDeviceCommandArgs args = ensurePlaybackStarted();
-            TargetDevices devices = TargetDevices.single(TargetDevice.of(inactiveDeviceEntity.getId()));
+            TargetDevices devices = TargetDevices.single(TargetDevice.of(INACTIVE_DEVICE.getId()));
 
-            CurrentPlayerState updatedPlayerState = operations.transferPlayback(user, args, empty(), devices).block();
+            CurrentPlayerState updatedPlayerState = operations.transferPlayback(USER, args, empty(), devices).block();
 
             Devices actualDevices = updatedPlayerState.getDevices();
 
             DevicesAssert.forDevices(actualDevices)
-                    .peekById(inactiveDeviceEntity.getId()).active();
+                    .peekById(INACTIVE_DEVICE.getId()).active();
         }
 
         @Test
         void shouldRemoveExistingDevice() {
-            String disconnectTargetId = inactiveDeviceEntity.getId();
+            String disconnectTargetId = INACTIVE_DEVICE.getId();
 
-            operations.disconnectDevice(user, DisconnectDeviceArgs.withDeviceId(disconnectTargetId))
+            operations.disconnectDevice(USER, DisconnectDeviceArgs.withDeviceId(disconnectTargetId))
                     .map(CurrentPlayerState::getDevices)
                     .as(StepVerifier::create)
                     .expectNextMatches(devices -> devices.stream().noneMatch(device -> Objects.equals(device.getDeviceId(), disconnectTargetId)))
@@ -98,10 +101,10 @@ class DefaultStorageDeviceOperationsTest {
         @Test
         void shouldNotChangeStateIfDeviceNotExist() {
             String disconnectTargetId = "not_existing";
-            Devices connectedDevices = operations.getConnectedDevices(user).block();
+            Devices connectedDevices = operations.getConnectedDevices(USER).block();
 
             //noinspection DataFlowIssue
-            operations.disconnectDevice(user, DisconnectDeviceArgs.withDeviceId(disconnectTargetId))
+            operations.disconnectDevice(USER, DisconnectDeviceArgs.withDeviceId(disconnectTargetId))
                     .map(CurrentPlayerState::getDevices)
                     .as(StepVerifier::create)
                     .expectNext(connectedDevices)
@@ -112,7 +115,7 @@ class DefaultStorageDeviceOperationsTest {
         void shouldThrowExceptionIfDeviceIdIsInvalid() {
             TargetDevices invalidDevices = TargetDevices.single(TargetDevice.of("not_exist"));
 
-            assertThatThrownBy(() -> operations.transferPlayback(user, SwitchDeviceCommandArgs.noMatter(), empty(), invalidDevices).block())
+            assertThatThrownBy(() -> operations.transferPlayback(USER, SwitchDeviceCommandArgs.noMatter(), empty(), invalidDevices).block())
                     .isInstanceOf(DeviceNotFoundException.class)
                     .hasMessage("Device with provided ID was not found!")
                     .is(reasonCodeEqual("device_not_found"));
@@ -123,7 +126,7 @@ class DefaultStorageDeviceOperationsTest {
             TargetDevices devices = TargetDevices.multiple(TargetDevice.of("something"), TargetDevice.of("something_else"));
             SwitchDeviceCommandArgs args = ensurePlaybackStarted();
 
-            assertThatThrownBy(() -> operations.transferPlayback(user, args, empty(), devices).block())
+            assertThatThrownBy(() -> operations.transferPlayback(USER, args, empty(), devices).block())
                     .isInstanceOf(MultipleTargetDevicesNotSupportedException.class)
                     .hasMessage("One and only one deviceId should be provided. More than one is not supported now")
                     .is(reasonCodeEqual("multiple_devices_not_supported"));
@@ -134,7 +137,7 @@ class DefaultStorageDeviceOperationsTest {
             TargetDevices devices = TargetDevices.empty();
             SwitchDeviceCommandArgs args = ensurePlaybackStarted();
 
-            assertThatThrownBy(() -> operations.transferPlayback(user, args, empty(), devices).block())
+            assertThatThrownBy(() -> operations.transferPlayback(USER, args, empty(), devices).block())
                     .isInstanceOf(TargetDeviceRequiredException.class)
                     .hasMessage("Target device is required!")
                     .is(reasonCodeEqual("target_device_required"));
@@ -143,9 +146,9 @@ class DefaultStorageDeviceOperationsTest {
         @Test
         void shouldThrowExceptionIfTargetDeactivationDevicesSizeIsMoreThan1() {
             TargetDeactivationDevices deactivationDevices = TargetDeactivationDevicesFaker.create(2).get();
-            TargetDevices targetDevices = TargetDevices.single(TargetDevice.of(inactiveDeviceEntity.getId()));
+            TargetDevices targetDevices = TargetDevices.single(TargetDevice.of(INACTIVE_DEVICE.getId()));
 
-            assertThatThrownBy(() -> operations.transferPlayback(user, ensurePlaybackStarted(), deactivationDevices, targetDevices).block())
+            assertThatThrownBy(() -> operations.transferPlayback(USER, ensurePlaybackStarted(), deactivationDevices, targetDevices).block())
                     .isInstanceOf(SingleTargetDeactivationDeviceRequiredException.class)
                     .hasMessage("Single deactivation required but was received more or less!");
         }
