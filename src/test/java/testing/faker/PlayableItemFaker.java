@@ -60,7 +60,9 @@ public class PlayableItemFaker {
 
         @NotNull
         public TrackItemFaker withContextUri(final String contextUri) {
-            builder.contextUri(ContextUri.fromString(contextUri));
+            ContextUri uri = ContextUri.fromString(contextUri);
+            this.id = uri.getEntityId();
+            builder.contextUri(uri);
             return this;
         }
 
