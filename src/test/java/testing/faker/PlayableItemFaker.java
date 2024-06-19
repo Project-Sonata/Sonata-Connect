@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import static com.odeyalo.sonata.connect.model.PlayableItemDuration.ofMilliseconds;
 
@@ -30,7 +31,6 @@ public class PlayableItemFaker {
     public PlayableItem get() {
         return TrackItemFaker.create().get();
     }
-
 
     public static class TrackItemFaker extends PlayableItemFaker {
         private final TrackItem.TrackItemBuilder builder = TrackItem.builder();
@@ -53,8 +53,21 @@ public class PlayableItemFaker {
                     .album(AlbumFaker.create().get());
         }
 
+        @NotNull
         public static TrackItemFaker create() {
             return new TrackItemFaker();
+        }
+
+        @NotNull
+        public TrackItemFaker withContextUri(final String contextUri) {
+            builder.contextUri(ContextUri.fromString(contextUri));
+            return this;
+        }
+
+        public TrackItemFaker withId(final String id) {
+            this.id = id;
+            builder.contextUri(ContextUri.forTrack(id));
+            return this;
         }
 
         @Override
