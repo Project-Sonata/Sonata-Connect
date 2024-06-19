@@ -44,14 +44,14 @@ public class DeviceAssert extends AbstractAssert<DeviceAssert, Device> {
         return this;
     }
 
-    public DeviceAssert active() {
+    public DeviceAssert isActive() {
         if (isFalse(actual.isActive())) {
             failWithMessage("Expected device to be in 'active' state!");
         }
         return this;
     }
 
-    public DeviceAssert inactive() {
+    public DeviceAssert isIdle() {
         if (actual.isActive()) {
             failWithMessage("Expected device to be in 'inactive' state!");
         }

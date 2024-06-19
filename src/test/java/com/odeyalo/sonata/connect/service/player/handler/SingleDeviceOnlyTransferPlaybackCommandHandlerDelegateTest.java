@@ -9,7 +9,6 @@ import com.odeyalo.sonata.connect.exception.MultipleTargetDevicesNotSupportedExc
 import com.odeyalo.sonata.connect.exception.SingleTargetDeactivationDeviceRequiredException;
 import com.odeyalo.sonata.connect.exception.TargetDeviceRequiredException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
@@ -21,12 +20,13 @@ import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlay
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import reactor.test.StepVerifier;
 import testing.asserts.DevicesAssert;
 import testing.faker.DeviceEntityFaker;
 import testing.faker.PlayerStateFaker;
 import testing.faker.TargetDeactivationDevicesFaker;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
 import static testing.condition.Conditions.reasonCodeEqual;
 
 class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegateTest {
@@ -34,7 +34,7 @@ class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegateTest {
 
     PlayerState2CurrentPlayerStateConverter playerStateConverter = new Converters().playerState2CurrentPlayerStateConverter();
 
-    SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate operations = new SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate(playerStateRepository, playerStateConverter);
+    SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate testable = new SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate(playerStateRepository, playerStateConverter);
 
     final User USER = User.of("miku");
     final DeviceEntity ACTIVE_DEVICE = DeviceEntityFaker.createActiveDevice().get();
@@ -56,69 +56,87 @@ class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegateTest {
 
     @Test
     void transferAndExpectActiveDeviceToBecomeInactive() {
-        SwitchDeviceCommandArgs args = SwitchDeviceCommandArgs.ensurePlaybackStarted();
-        TargetDevices devices = TargetDevices.single(TargetDevice.of(INACTIVE_DEVICE.getId()));
+        final SwitchDeviceCommandArgs args = SwitchDeviceCommandArgs.ensurePlaybackStarted();
+        final TargetDevices devices = TargetDevices.single(TargetDevice.of(INACTIVE_DEVICE.getId()));
 
-        CurrentPlayerState updatedPlayerState = operations.transferPlayback(USER, args, TargetDeactivationDevices.empty(), devices).block();
-
-        Devices actualDevices = updatedPlayerState.getDevices();
-
-        DevicesAssert.forDevices(actualDevices)
-                .peekById(ACTIVE_DEVICE.getId()).inactive();
+        testable.transferPlayback(USER, args, TargetDeactivationDevices.empty(), devices)
+                .map(CurrentPlayerState::getDevices)
+                .as(StepVerifier::create)
+                .assertNext(it -> DevicesAssert.forDevices(it).peekById(ACTIVE_DEVICE.getId()).isIdle())
+                .verifyComplete();
     }
 
     @Test
     void transferAndExpectTargetDeviceToBecomeActive() {
-        SwitchDeviceCommandArgs args = SwitchDeviceCommandArgs.ensurePlaybackStarted();
-        TargetDevices devices = TargetDevices.single(TargetDevice.of(INACTIVE_DEVICE.getId()));
+        final SwitchDeviceCommandArgs args = SwitchDeviceCommandArgs.ensurePlaybackStarted();
+        final TargetDevices devices = TargetDevices.single(TargetDevice.of(INACTIVE_DEVICE.getId()));
 
-        CurrentPlayerState updatedPlayerState = operations.transferPlayback(USER, args, TargetDeactivationDevices.empty(), devices).block();
-
-        Devices actualDevices = updatedPlayerState.getDevices();
-
-        DevicesAssert.forDevices(actualDevices)
-                .peekById(INACTIVE_DEVICE.getId()).active();
+        testable.transferPlayback(USER, args, TargetDeactivationDevices.empty(), devices)
+                .map(CurrentPlayerState::getDevices)
+                .as(StepVerifier::create)
+                .assertNext(it -> DevicesAssert.forDevices(it).peekById(INACTIVE_DEVICE.getId()).isActive())
+                .verifyComplete();
     }
 
     @Test
     void shouldThrowExceptionIfDeviceIdIsInvalid() {
-        TargetDevices invalidDevices = TargetDevices.single(TargetDevice.of("not_exist"));
+        final TargetDevices invalidDevices = TargetDevices.single(TargetDevice.of("not_exist"));
 
-        assertThatThrownBy(() -> operations.transferPlayback(USER, SwitchDeviceCommandArgs.noMatter(), TargetDeactivationDevices.empty(), invalidDevices).block())
-                .isInstanceOf(DeviceNotFoundException.class)
-                .hasMessage("Device with provided ID was not found!")
-                .is(reasonCodeEqual("device_not_found"));
+        testable.transferPlayback(USER, SwitchDeviceCommandArgs.noMatter(), TargetDeactivationDevices.empty(), invalidDevices)
+                .as(StepVerifier::create)
+                .expectErrorSatisfies(err -> {
+                    assertThat(err)
+                            .isInstanceOf(DeviceNotFoundException.class)
+                            .hasMessage("Device with provided ID was not found!")
+                            .is(reasonCodeEqual("device_not_found"));
+                })
+                .verify();
     }
 
     @Test
     void shouldThrowExceptionIfDeviceIdIsMoreThanOne() {
-        TargetDevices devices = TargetDevices.multiple(TargetDevice.of("something"), TargetDevice.of("something_else"));
-        SwitchDeviceCommandArgs args = SwitchDeviceCommandArgs.ensurePlaybackStarted();
+        final TargetDevices devices = TargetDevices.multiple(TargetDevice.of("something"), TargetDevice.of("something_else"));
+        final SwitchDeviceCommandArgs args = SwitchDeviceCommandArgs.ensurePlaybackStarted();
 
-        assertThatThrownBy(() -> operations.transferPlayback(USER, args, TargetDeactivationDevices.empty(), devices).block())
-                .isInstanceOf(MultipleTargetDevicesNotSupportedException.class)
-                .hasMessage("One and only one deviceId should be provided. More than one is not supported now")
-                .is(reasonCodeEqual("multiple_devices_not_supported"));
+        testable.transferPlayback(USER, args, TargetDeactivationDevices.empty(), devices)
+                .as(StepVerifier::create)
+                .expectErrorSatisfies(err -> {
+                    assertThat(err)
+                            .isInstanceOf(MultipleTargetDevicesNotSupportedException.class)
+                            .hasMessage("One and only one deviceId should be provided. More than one is not supported now")
+                            .is(reasonCodeEqual("multiple_devices_not_supported"));
+                })
+                .verify();
     }
 
     @Test
     void shouldThrowExceptionIfTargetDevicesSizeIsZero() {
-        TargetDevices devices = TargetDevices.empty();
-        SwitchDeviceCommandArgs args = SwitchDeviceCommandArgs.ensurePlaybackStarted();
+        final TargetDevices devices = TargetDevices.empty();
+        final SwitchDeviceCommandArgs args = SwitchDeviceCommandArgs.ensurePlaybackStarted();
 
-        assertThatThrownBy(() -> operations.transferPlayback(USER, args, TargetDeactivationDevices.empty(), devices).block())
-                .isInstanceOf(TargetDeviceRequiredException.class)
-                .hasMessage("Target device is required!")
-                .is(reasonCodeEqual("target_device_required"));
+        testable.transferPlayback(USER, args, TargetDeactivationDevices.empty(), devices)
+                .as(StepVerifier::create)
+                .expectErrorSatisfies(error -> {
+                    assertThat(error)
+                            .isInstanceOf(TargetDeviceRequiredException.class)
+                            .hasMessage("Target device is required!")
+                            .is(reasonCodeEqual("target_device_required"));
+                })
+                .verify();
     }
 
     @Test
     void shouldThrowExceptionIfTargetDeactivationDevicesSizeIsMoreThan1() {
-        TargetDeactivationDevices deactivationDevices = TargetDeactivationDevicesFaker.create(2).get();
-        TargetDevices targetDevices = TargetDevices.single(TargetDevice.of(INACTIVE_DEVICE.getId()));
+        final TargetDeactivationDevices deactivationDevices = TargetDeactivationDevicesFaker.create(2).get();
+        final TargetDevices targetDevices = TargetDevices.single(TargetDevice.of(INACTIVE_DEVICE.getId()));
 
-        assertThatThrownBy(() -> operations.transferPlayback(USER, SwitchDeviceCommandArgs.ensurePlaybackStarted(), deactivationDevices, targetDevices).block())
-                .isInstanceOf(SingleTargetDeactivationDeviceRequiredException.class)
-                .hasMessage("Single deactivation required but was received more or less!");
+        testable.transferPlayback(USER, SwitchDeviceCommandArgs.ensurePlaybackStarted(), deactivationDevices, targetDevices)
+                .as(StepVerifier::create)
+                .expectErrorSatisfies(error -> {
+                    assertThat(error)
+                            .isInstanceOf(SingleTargetDeactivationDeviceRequiredException.class)
+                            .hasMessage("Single deactivation required but was received more or less!");
+                })
+                .verify();
     }
 }
