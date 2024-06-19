@@ -24,16 +24,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class DefaultPlayerOperationsTestableBuilder {
-    private static final PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
-    private static final DeviceOperations deviceOperations = new NullDeviceOperations();
+    private final PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
+    private final DeviceOperations deviceOperations = new NullDeviceOperations();
 
-    private static final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport = new Converters().playerState2CurrentPlayerStateConverter();
-    private static final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter = new Converters().currentPlayerStateConverter();
+    private final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport = new Converters().playerState2CurrentPlayerStateConverter();
+    private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter = new Converters().currentPlayerStateConverter();
 
     private final PauseCommandHandlerDelegate pauseCommandHandlerDelegate =
             new PlayerStateUpdatePauseCommandHandlerDelegate(playerStateRepository,
                     new HardCodedPauseCommandPreExecutingIntegrityValidator(),
                     playerStateConverterSupport);
+
     public static DefaultPlayerOperationsTestableBuilder testableBuilder() {
         return new DefaultPlayerOperationsTestableBuilder();
     }
@@ -54,16 +55,26 @@ public final class DefaultPlayerOperationsTestableBuilder {
         return new DefaultPlayerOperations(
                 playerStateRepository,
                 deviceOperations, playerStateConverterSupport,
-                PlayCommandHandlerBuilder.builder().withPlayableItems(existingItems).build(),
+                PlayCommandHandlerBuilder.builder()
+                        .withState(playerStateRepository)
+                        .withPlayableItems(existingItems)
+                        .build(),
                 playerStateConverter,
                 pauseCommandHandlerDelegate);
     }
 
     static final class PlayCommandHandlerBuilder {
         private PlayableItemLoader itemLoader = new PredefinedPlayableItemLoader();
+        private PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
 
         public static PlayCommandHandlerBuilder builder() {
             return new PlayCommandHandlerBuilder();
+        }
+
+        @NotNull
+        public PlayCommandHandlerBuilder withState(PlayerStateRepository repository) {
+            this.playerStateRepository = repository;
+            return this;
         }
 
         @NotNull
@@ -75,7 +86,7 @@ public final class DefaultPlayerOperationsTestableBuilder {
         public PlayCommandHandlerDelegate build() {
             return new PlayerStateUpdatePlayCommandHandlerDelegate(
                     playerStateRepository,
-                    playerStateConverterSupport,
+                    testableBuilder().playerStateConverterSupport,
                     itemLoader,
                     new HardcodedPlayCommandPreExecutingIntegrityValidator()
             );
