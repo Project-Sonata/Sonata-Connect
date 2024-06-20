@@ -5,6 +5,7 @@ import com.odeyalo.sonata.connect.entity.DeviceEntity;
 import com.odeyalo.sonata.connect.entity.DevicesEntity;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
+import com.odeyalo.sonata.connect.model.Device;
 import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
@@ -19,7 +20,7 @@ import reactor.test.StepVerifier;
 import testing.faker.DeviceEntityFaker;
 import testing.faker.PlayerStateFaker;
 
-import java.util.Objects;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultStorageDeviceOperationsTest {
 
@@ -48,12 +49,15 @@ class DefaultStorageDeviceOperationsTest {
 
     @Test
     void shouldRemoveExistingDevice() {
-        String disconnectTargetId = INACTIVE_DEVICE.getId();
+        final String disconnectTargetId = INACTIVE_DEVICE.getId();
 
         operations.disconnectDevice(USER, DisconnectDeviceArgs.withDeviceId(disconnectTargetId))
                 .map(CurrentPlayerState::getDevices)
                 .as(StepVerifier::create)
-                .expectNextMatches(devices -> devices.stream().noneMatch(device -> Objects.equals(device.getDeviceId(), disconnectTargetId)))
+                .assertNext(devices -> assertThat(devices)
+                        .extracting(Device::getDeviceId)
+                        .doesNotContain(disconnectTargetId)
+                )
                 .verifyComplete();
     }
 
