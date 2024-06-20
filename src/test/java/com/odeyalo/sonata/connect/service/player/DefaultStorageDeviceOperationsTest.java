@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import reactor.test.StepVerifier;
 import testing.faker.DeviceEntityFaker;
+import testing.faker.DeviceFaker;
 import testing.faker.PlayerStateFaker;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,6 +46,16 @@ class DefaultStorageDeviceOperationsTest {
                 .get();
 
         playerStateRepository.save(entity).block();
+    }
+
+    @Test
+    void shouldConnectDevice() {
+        final Device device = DeviceFaker.create().get();
+
+        operations.addDevice(USER, device)
+                .as(StepVerifier::create)
+                .assertNext(state -> assertThat(state.getDevices()).contains(device))
+                .verifyComplete();
     }
 
     @Test
