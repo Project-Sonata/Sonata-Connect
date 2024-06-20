@@ -2,6 +2,8 @@ package testing.faker;
 
 import com.github.javafaker.Faker;
 import com.odeyalo.sonata.connect.model.*;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 
@@ -23,6 +25,9 @@ public final class CurrentPlayerStateFaker {
                                 , true))
                 ))
                 .progressMs(1000000L)
+                .user(User.of(
+                        RandomStringUtils.randomAlphanumeric(22)
+                ))
                 .shuffleState(faker.random().nextBoolean());
     }
 
@@ -37,6 +42,11 @@ public final class CurrentPlayerStateFaker {
 
     public CurrentPlayerStateFaker progressed() {
         builder.playing(true);
+        return this;
+    }
+
+    public CurrentPlayerStateFaker withUser(@NotNull User user) {
+        builder.user(user);
         return this;
     }
 

@@ -3,6 +3,7 @@ package com.odeyalo.sonata.connect.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
+import lombok.With;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 @Value
 @AllArgsConstructor(staticName = "of")
 @Builder
+@With
 public class CurrentPlayerState {
     long id;
     boolean playing;
@@ -27,6 +29,8 @@ public class CurrentPlayerState {
     Devices devices;
     @Nullable
     PlayableItem playableItem;
+    @NotNull
+    User user;
 
     public boolean getShuffleState() {
         return shuffleState;

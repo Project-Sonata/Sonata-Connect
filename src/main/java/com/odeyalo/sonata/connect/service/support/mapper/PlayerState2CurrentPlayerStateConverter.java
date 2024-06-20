@@ -11,7 +11,8 @@ import org.mapstruct.Mapping;
  */
 @Mapper(componentModel = "spring", uses =  {
         DevicesEntity2DevicesConverter.class,
-        PlayableItemEntity2PlayableItemConverter.class
+        PlayableItemEntity2PlayableItemConverter.class,
+        UserConverter.class
 }, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface PlayerState2CurrentPlayerStateConverter extends Converter<PlayerStateEntity, CurrentPlayerState> {
 
