@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 @Value
 @AllArgsConstructor(staticName = "of")
 @Builder(toBuilder = true)
-public class Device {
+public class Device implements DeviceSpec {
     @NotNull
     String deviceId;
     @NotNull
@@ -21,4 +21,28 @@ public class Device {
     DeviceType deviceType;
     int volume;
     boolean active;
+
+    @Override
+    public String getId() {
+        return deviceId;
+    }
+
+    @Override
+    public String getName() {
+        return deviceName;
+    }
+
+    @Override
+    public DeviceType getType() {
+        return deviceType;
+    }
+
+    @Override
+    public DeviceStatus getStatus() {
+        return DeviceStatus.fromBoolean(active);
+    }
+
+    public Volume getVolume() {
+        return Volume.from(volume);
+    }
 }

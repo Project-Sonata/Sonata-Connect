@@ -38,7 +38,7 @@ public class DeviceAssert extends AbstractAssert<DeviceAssert, Device> {
     }
 
     public DeviceAssert volume(int expectedVolume) {
-        if (expectedVolume != actual.getVolume()) {
+        if (expectedVolume != actual.getVolume().asInt()) {
             failWithActualExpectedAndMessage(actual.getVolume(), expectedVolume, "Expected device volumes to be equal");
         }
         return this;

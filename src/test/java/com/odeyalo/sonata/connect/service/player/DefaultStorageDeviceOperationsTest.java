@@ -10,7 +10,6 @@ import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.handler.TransferPlaybackCommandHandlerDelegate;
-import com.odeyalo.sonata.connect.service.support.mapper.Device2DeviceEntityConverterImpl;
 import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +30,8 @@ class DefaultStorageDeviceOperationsTest {
     DefaultStorageDeviceOperations operations = new DefaultStorageDeviceOperations(playerStateRepository,
             Mockito.mock(TransferPlaybackCommandHandlerDelegate.class), playerStateConverter,
             new Converters().devicesEntity2DevicesConverter(),
-            new Device2DeviceEntityConverterImpl());
+            new DeviceEntity.Factory()
+    );
 
     final User USER = User.of("miku");
     final DeviceEntity ACTIVE_DEVICE = DeviceEntityFaker.createActiveDevice().get();
