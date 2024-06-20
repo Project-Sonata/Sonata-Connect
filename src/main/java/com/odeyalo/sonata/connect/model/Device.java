@@ -19,7 +19,8 @@ public class Device implements DeviceSpec {
     String deviceName;
     @NotNull
     DeviceType deviceType;
-    int volume;
+    @NotNull
+    Volume volume;
     boolean active;
 
     @Override
@@ -40,9 +41,5 @@ public class Device implements DeviceSpec {
     @Override
     public DeviceStatus getStatus() {
         return DeviceStatus.fromBoolean(active);
-    }
-
-    public Volume getVolume() {
-        return Volume.from(volume);
     }
 }

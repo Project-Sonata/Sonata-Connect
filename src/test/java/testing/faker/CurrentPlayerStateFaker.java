@@ -16,7 +16,11 @@ public final class CurrentPlayerStateFaker {
                 .repeatState(faker.options().option(RepeatState.class))
                 .id(faker.random().nextLong())
                 .devices(Devices.of(
-                        Collections.singletonList(Device.of("123", "Odeyalo", DeviceType.COMPUTER, 34, true))
+                        Collections.singletonList(Device.of("123", "Odeyalo", DeviceType.COMPUTER,
+                                DeviceSpec.Volume.from(
+                                        faker.random().nextInt(0, 100)
+                                )
+                                , true))
                 ))
                 .progressMs(1000000L)
                 .shuffleState(faker.random().nextBoolean());
