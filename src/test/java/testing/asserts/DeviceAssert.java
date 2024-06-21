@@ -38,20 +38,20 @@ public class DeviceAssert extends AbstractAssert<DeviceAssert, Device> {
     }
 
     public DeviceAssert volume(int expectedVolume) {
-        if (expectedVolume != actual.getVolume()) {
+        if (expectedVolume != actual.getVolume().asInt()) {
             failWithActualExpectedAndMessage(actual.getVolume(), expectedVolume, "Expected device volumes to be equal");
         }
         return this;
     }
 
-    public DeviceAssert active() {
+    public DeviceAssert isActive() {
         if (isFalse(actual.isActive())) {
             failWithMessage("Expected device to be in 'active' state!");
         }
         return this;
     }
 
-    public DeviceAssert inactive() {
+    public DeviceAssert isIdle() {
         if (actual.isActive()) {
             failWithMessage("Expected device to be in 'inactive' state!");
         }

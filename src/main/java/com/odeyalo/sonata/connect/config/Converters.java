@@ -7,7 +7,8 @@ public class Converters {
     public PlayerState2CurrentPlayerStateConverter playerState2CurrentPlayerStateConverter() {
         return new PlayerState2CurrentPlayerStateConverterImpl(
                 devicesEntity2DevicesConverter(),
-                playableItemEntity2PlayableItemConverter()
+                playableItemEntity2PlayableItemConverter(),
+                new UserConverterImpl()
         );
     }
 

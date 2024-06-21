@@ -14,8 +14,8 @@ class EventPublisherDeviceOperationsDecoratorTest {
 
     @Test
     void shouldSendEventToSynchronizationManagerOnDisconnectDeviceCommand() {
-        CurrentPlayerState playerState = CurrentPlayerStateFaker.create().get();
         User user = User.of("123");
+        CurrentPlayerState playerState = CurrentPlayerStateFaker.create().withUser(user).get();
 
         DeviceOperations delegateMock = mock(DeviceOperations.class);
         PlayerSynchronizationManager synchronizationManagerMock = mock(PlayerSynchronizationManager.class);

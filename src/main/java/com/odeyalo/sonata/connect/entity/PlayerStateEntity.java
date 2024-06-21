@@ -113,4 +113,8 @@ public class PlayerStateEntity {
     public boolean isPaused() {
         return !isPlaying();
     }
+
+    public boolean hasActiveDevice() {
+        return getDevicesEntity().hasActiveDevice();
+    }
 }

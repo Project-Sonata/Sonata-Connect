@@ -1,113 +1,118 @@
 package com.odeyalo.sonata.connect.service.player.handler;
 
-import com.odeyalo.sonata.connect.entity.DeviceEntity;
-import com.odeyalo.sonata.connect.entity.DevicesEntity;
-import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
-import com.odeyalo.sonata.connect.exception.*;
+import com.odeyalo.sonata.connect.exception.DeviceNotFoundException;
+import com.odeyalo.sonata.connect.exception.MultipleTargetDevicesNotSupportedException;
+import com.odeyalo.sonata.connect.exception.SingleTargetDeactivationDeviceRequiredException;
+import com.odeyalo.sonata.connect.exception.TargetDeviceRequiredException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
+import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.User;
-import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
+import com.odeyalo.sonata.connect.service.player.PlayerStateService;
 import com.odeyalo.sonata.connect.service.player.SwitchDeviceCommandArgs;
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevices;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
 import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
-import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 /**
- * TransferPlaybackCommandHandlerDelegate that supports only single active device at once
+ * {@link TransferPlaybackCommandHandlerDelegate} that supports only single active device at once
  */
 @Component
 public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements TransferPlaybackCommandHandlerDelegate {
-    private final PlayerStateRepository playerStateRepository;
-    private final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport;
+    private final PlayerStateService playerStateService;
 
-    public SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate(PlayerStateRepository playerStateRepository,
-                                                                  PlayerState2CurrentPlayerStateConverter playerStateConverterSupport) {
-        this.playerStateRepository = playerStateRepository;
-        this.playerStateConverterSupport = playerStateConverterSupport;
+    public SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate(PlayerStateService playerStateService) {
+        this.playerStateService = playerStateService;
     }
 
     @NotNull
-    @Override
-    public Mono<CurrentPlayerState> transferPlayback(User user, SwitchDeviceCommandArgs args, TargetDeactivationDevices deactivationDevices, TargetDevices targetDevices) {
-        if ( deactivationDevices.size() > 1 ) {
-            return Mono.error(SingleTargetDeactivationDeviceRequiredException.defaultException());
-        }
-        if ( targetDevices.size() < 1 ) {
-            return Mono.error(TargetDeviceRequiredException.defaultException());
-        }
-        if ( targetDevices.size() > 1 ) {
-            return Mono.error(MultipleTargetDevicesNotSupportedException.defaultException());
-        }
-        return playerStateRepository.findByUserId(user.getId())
-                .flatMap(state -> delegateTransferPlayback(targetDevices, state))
-                .map(playerStateConverterSupport::convertTo);
-    }
+    private Mono<CurrentPlayerState> delegateTransferPlayback(@NotNull final TargetDevices targetDevices,
+                                                              @NotNull final CurrentPlayerState state) {
 
-    @NotNull
-    private Mono<PlayerStateEntity> delegateTransferPlayback(TargetDevices targetDevices, PlayerStateEntity state) {
-        DevicesEntity connectedDevicesEntity = state.getDevicesEntity();
-        TargetDevice targetDevice = targetDevices.peekFirst();
+        final Devices connectedDevices = state.getDevices();
+        final TargetDevice targetDevice = targetDevices.peekFirst();
 
-        if ( containsTargetDevice(targetDevice, connectedDevicesEntity) ) {
-            return doTransferPlayback(state, targetDevice, connectedDevicesEntity);
+        if ( connectedDevices.hasDevice(targetDevice) ) {
+            return doTransferPlayback(state, targetDevice, connectedDevices);
         }
 
         return Mono.error(DeviceNotFoundException.defaultException());
     }
 
-    private Mono<PlayerStateEntity> doTransferPlayback(PlayerStateEntity state,
-                                                       TargetDevice deviceToTransferPlayback,
-                                                       DevicesEntity connectedDevicesEntity) {
+    @NotNull
+    @Override
+    public Mono<CurrentPlayerState> transferPlayback(@NotNull final User user,
+                                                     @NotNull final SwitchDeviceCommandArgs args,
+                                                     @NotNull final TargetDeactivationDevices deactivationDevices,
+                                                     @NotNull final TargetDevices targetDevices) {
 
-        DevicesEntity updatedDevicesEntity = updateCurrentlyConnectedDevices(connectedDevicesEntity, deviceToTransferPlayback);
+        final TransferPlaybackPolicy policy = TransferPlaybackPolicy.basedOn(targetDevices, deactivationDevices);
 
-        state.setDevicesEntity(updatedDevicesEntity);
-
-        return playerStateRepository.save(state);
-    }
-
-    private static DevicesEntity updateCurrentlyConnectedDevices(DevicesEntity connectedDevicesContainer,
-                                                                 TargetDevice deviceToTransferPlayback) {
-
-        DeviceEntity currentlyActiveDevice = findCurrentlyActiveDevice(connectedDevicesContainer);
-
-        DeviceEntity deviceToActivate = findDeviceToActivate(deviceToTransferPlayback, connectedDevicesContainer);
-
-        if ( currentlyActiveDevice != null ) {
-            connectedDevicesContainer.deactivateDevice(currentlyActiveDevice);
+        if ( policy.hasViolations() ) {
+            return policy.exceptionAsReactiveStream();
         }
 
-        connectedDevicesContainer.activateDevice(deviceToActivate);
-
-        return connectedDevicesContainer;
+        return playerStateService.loadPlayerState(user)
+                .flatMap(state -> delegateTransferPlayback(targetDevices, state));
     }
 
     @NotNull
-    private static DeviceEntity findDeviceToActivate(TargetDevice searchTarget, DevicesEntity devicesEntity) {
-        return devicesEntity.findById(searchTarget.getId())
-                .orElseThrow(() -> NeverHappeningException.withCustomMessage("Looks like the code does not check the length of the devices before calling this method"));
+    private Mono<CurrentPlayerState> doTransferPlayback(@NotNull final CurrentPlayerState state,
+                                                        @NotNull final TargetDevice deviceToTransferPlayback,
+                                                        @NotNull final Devices connectedDevices) {
+
+        final var updatedDevices = connectedDevices.transferPlayback(deviceToTransferPlayback);
+
+        return playerStateService.save(
+                state.withDevices(updatedDevices)
+        );
     }
 
-    @Nullable
-    private static DeviceEntity findCurrentlyActiveDevice(DevicesEntity devicesEntity) {
-        List<DeviceEntity> activeDeviceEntities = devicesEntity.getActiveDevices();
 
-        if ( activeDeviceEntities.isEmpty() ) {
-            // We do not have the active device, return null and skip it
-            return null;
+    private record TransferPlaybackPolicy(boolean isValid, @Nullable Exception error) {
+
+        public static TransferPlaybackPolicy basedOn(@NotNull final TargetDevices targetDevices,
+                                                     @NotNull final TargetDeactivationDevices deactivationDevices) {
+            final Pair<Boolean, Exception> validationResult = validate(targetDevices, deactivationDevices);
+
+            if ( validationResult.getLeft() ) {
+                return new TransferPlaybackPolicy(true, null);
+            }
+
+            return new TransferPlaybackPolicy(false, validationResult.getRight());
         }
 
-        return activeDeviceEntities.get(0);
-    }
+        private static Pair<Boolean, Exception> validate(final TargetDevices targetDevices,
+                                                         final TargetDeactivationDevices deactivationDevices) {
+            if ( deactivationDevices.size() > 1 ) {
+                return Pair.of(false, SingleTargetDeactivationDeviceRequiredException.defaultException());
+            }
 
-    private static boolean containsTargetDevice(TargetDevice targetDevice, DevicesEntity deviceContainer) {
-        return deviceContainer.containsById(targetDevice.getId());
+            if ( targetDevices.size() < 1 ) {
+                return Pair.of(false, TargetDeviceRequiredException.defaultException());
+            }
+
+            if ( targetDevices.size() > 1 ) {
+                return Pair.of(false, MultipleTargetDevicesNotSupportedException.defaultException());
+            }
+
+            return Pair.of(true, null);
+        }
+
+        public boolean hasViolations() {
+            return !isValid;
+        }
+
+        public <T> Mono<T> exceptionAsReactiveStream() {
+            if ( error == null ) {
+                throw new IllegalStateException("This method should not be called if policy has not violations!");
+            }
+
+            return Mono.error(error);
+        }
     }
 }

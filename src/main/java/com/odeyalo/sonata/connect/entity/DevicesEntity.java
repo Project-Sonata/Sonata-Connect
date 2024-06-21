@@ -1,15 +1,13 @@
 package com.odeyalo.sonata.connect.entity;
 
+import com.odeyalo.sonata.connect.service.player.TargetDevice;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.Assert;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
-
-import static org.apache.commons.lang3.BooleanUtils.negate;
 
 @Data
 @AllArgsConstructor
@@ -32,12 +30,23 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
         return new DevicesEntityBuilder();
     }
 
+    @NotNull
+    public static DevicesEntity just(@NotNull final DeviceEntity... devices) {
+        return builder().items(List.of(devices)).build();
+    }
+
+    @NotNull
+    public static DevicesEntity fromCollection(@NotNull final Collection<DeviceEntity> devices) {
+        Assert.noNullElements(devices, () -> "Null elements are not allowed!");
+        return builder().items(devices).build();
+    }
+
+    @NotNull
     public List<DeviceEntity> getDevices() {
         return items;
     }
 
-    public void addDevice(DeviceEntity device) {
-        Assert.notNull(device, "Device should be not null!");
+    public void addDevice(@NotNull final DeviceEntity device) {
         items.add(device);
     }
 
@@ -57,14 +66,6 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
         return items.contains(o);
     }
 
-    public void removeIf(Predicate<DeviceEntity> predicate) {
-        items.removeIf(predicate);
-    }
-
-    public List<DeviceEntity> getActiveDevices() {
-        return items.stream().filter(DeviceEntity::isActive).toList();
-    }
-
     public DeviceEntity get(int index) {
         return items.get(index);
     }
@@ -73,38 +74,20 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
         return get(index);
     }
 
-    public void removeDevice(String deviceId) {
-        Assert.notNull(deviceId, "Device ID cannot be null!");
-        getDevices().removeIf((device) -> Objects.equals(device.getId(), deviceId));
-    }
-
     public boolean hasActiveDevice() {
         return items.stream().anyMatch(DeviceEntity::isActive);
     }
 
-    public boolean hasNotActiveDevice() {
-        return negate(hasActiveDevice());
-    }
-
-    public void deactivateDevice(DeviceEntity deviceToDeactivate) {
-        removeDevice(deviceToDeactivate.getId());
-        deviceToDeactivate.setActive(false);
-        addDevice(deviceToDeactivate);
-    }
-
-    public void activateDevice(DeviceEntity deviceToActivate) {
-        removeDevice(deviceToActivate.getId());
-        deviceToActivate.setActive(true);
-        addDevice(deviceToActivate);
-    }
-    public boolean containsById(String expectedId) {
-        return getDevices().stream().anyMatch(device -> Objects.equals(device.getId(), expectedId));
-    }
-
-    public Optional<DeviceEntity> findById(String expectedId) {
+    @NotNull
+    public Optional<DeviceEntity> findById(@NotNull final String expectedId) {
         return getDevices().stream()
                 .filter(deviceEntity -> Objects.equals(deviceEntity.getId(), expectedId))
                 .findFirst();
+    }
+
+    @NotNull
+    public Optional<DeviceEntity> findById(@NotNull final TargetDevice searchTarget) {
+        return findById(searchTarget.getId());
     }
 
     @NotNull
