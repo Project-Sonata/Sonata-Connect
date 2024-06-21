@@ -8,13 +8,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", imports = {
-        DeviceSpec.Volume.class
+        DeviceSpec.Volume.class,
+        DeviceSpec.DeviceStatus.class
 })
 public interface ConnectDeviceRequest2DeviceConverter extends Converter<ConnectDeviceRequest, Device> {
 
     @Mapping(target = "deviceId", source = "id")
     @Mapping(target = "deviceName", source = "name")
-    @Mapping(target = "active", expression = "java(true)")
     @Mapping(target = "volume", expression = "java( Volume.from( body.getVolume() ) )")
+    @Mapping(target = "status", expression = "java( DeviceStatus.ACTIVE )")
     Device convertTo(ConnectDeviceRequest body);
 }

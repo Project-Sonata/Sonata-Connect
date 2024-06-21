@@ -22,7 +22,7 @@ public final class CurrentPlayerStateFaker {
                                 DeviceSpec.Volume.from(
                                         faker.random().nextInt(0, 100)
                                 )
-                                , true))
+                                , DeviceSpec.DeviceStatus.ACTIVE))
                 ))
                 .progressMs(1000000L)
                 .user(User.of(

@@ -81,7 +81,7 @@ public class Devices implements Iterable<Device> {
                 DeviceSpec.DeviceStatus.ACTIVE;
 
         return addDevice(
-                device.withActive(status.isActive())
+                device.withStatus(status)
         );
     }
 
@@ -107,7 +107,7 @@ public class Devices implements Iterable<Device> {
 
     @NotNull
     public Devices activateDevice(@NotNull final Device deviceToActivate) {
-        final Device updatedDevice = deviceToActivate.withActive(true);
+        final Device updatedDevice = deviceToActivate.withActiveStatus();
 
         return removeDevice(deviceToActivate.getId())
                 .addDevice(updatedDevice);
@@ -115,7 +115,7 @@ public class Devices implements Iterable<Device> {
 
     @NotNull
     public Devices deactivateDevice(@NotNull final Device deviceToDeactivate) {
-        final Device deactivatedDevice = deviceToDeactivate.withActive(false);
+        final Device deactivatedDevice = deviceToDeactivate.withIdleStatus();
 
         return removeDevice(deviceToDeactivate.getId())
                 .addDevice(deactivatedDevice);

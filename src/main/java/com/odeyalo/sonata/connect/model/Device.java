@@ -23,25 +23,38 @@ public class Device implements DeviceSpec {
     DeviceType deviceType;
     @NotNull
     Volume volume;
-    boolean active;
+    @NotNull
+    DeviceStatus status;
 
     @Override
+    @NotNull
     public String getId() {
         return deviceId;
     }
 
     @Override
+    @NotNull
     public String getName() {
         return deviceName;
     }
 
     @Override
+    @NotNull
     public DeviceType getType() {
         return deviceType;
     }
 
     @Override
+    @NotNull
     public DeviceStatus getStatus() {
-        return DeviceStatus.fromBoolean(active);
+        return status;
+    }
+
+    public Device withActiveStatus() {
+        return withStatus(DeviceStatus.ACTIVE);
+    }
+
+    public Device withIdleStatus() {
+        return withStatus(DeviceStatus.IDLE);
     }
 }

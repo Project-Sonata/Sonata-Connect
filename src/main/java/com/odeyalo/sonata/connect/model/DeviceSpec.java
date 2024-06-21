@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.model;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.util.Assert;
 
 /**
@@ -9,26 +10,31 @@ public interface DeviceSpec {
     /**
      * @return Unique identifier for this device
      */
+    @NotNull
     String getId();
 
     /**
      * @return a name of this device that will be shown for the user
      */
+    @NotNull
     String getName();
 
     /**
      * @return type of the device
      */
+    @NotNull
     DeviceType getType();
 
     /**
      * @return volume that applied for this device
      */
+    @NotNull
     Volume getVolume();
 
     /**
      * @return current status of the device to check if device is active or no
      */
+    @NotNull
     DeviceStatus getStatus();
 
     /**
@@ -48,6 +54,7 @@ public interface DeviceSpec {
     /**
      * Represent a volume for the device
      * Volume MUST BE in range from 0 to 100
+     *
      * @param value - an integer that represent a volume
      */
     record Volume(int value) {
@@ -83,6 +90,7 @@ public interface DeviceSpec {
 
         /**
          * Factory method to create a {@link DeviceStatus} from {@code boolean}
+         *
          * @param status - {@code boolean} representation of status
          * @return -  {@link #ACTIVE} if {@code true} was as input, {@link #IDLE} otherwise
          */

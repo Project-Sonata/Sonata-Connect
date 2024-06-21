@@ -15,7 +15,8 @@ public final class DeviceFaker {
                 .deviceId(RandomStringUtils.randomAlphanumeric(16))
                 .deviceName(faker.funnyName().name())
                 .volume(DeviceSpec.Volume.from(40))
-                .deviceType(faker.options().option(DeviceType.class));
+                .deviceType(faker.options().option(DeviceType.class))
+                .status(DeviceSpec.DeviceStatus.IDLE);
     }
 
     public static DeviceFaker create() {
