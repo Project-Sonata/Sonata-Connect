@@ -4,10 +4,8 @@ import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.Device;
 import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.User;
-import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.handler.TransferPlaybackCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
-import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,26 +13,13 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class DefaultStorageDeviceOperations implements DeviceOperations {
-    private final PlayerStateRepository playerStateRepository;
     private final TransferPlaybackCommandHandlerDelegate transferPlaybackCommandHandlerDelegate;
-    private final PlayerState2CurrentPlayerStateConverter currentPlayerStateConverterSupport;
     private final PlayerStateService playerStateService;
-
-    public DefaultStorageDeviceOperations(PlayerStateRepository playerStateRepository,
-                                          TransferPlaybackCommandHandlerDelegate transferPlaybackCommandHandlerDelegate,
-                                          PlayerState2CurrentPlayerStateConverter currentPlayerStateConverterSupport) {
-        this.playerStateRepository = playerStateRepository;
-        this.transferPlaybackCommandHandlerDelegate = transferPlaybackCommandHandlerDelegate;
-        this.currentPlayerStateConverterSupport = currentPlayerStateConverterSupport;
-        this.playerStateService = null;
-    }
 
     @Autowired
     public DefaultStorageDeviceOperations(PlayerStateService playerStateService,
                                           TransferPlaybackCommandHandlerDelegate transferPlaybackCommandHandlerDelegate) {
         this.playerStateService = playerStateService;
-        this.playerStateRepository = playerStateService.getPlayerStateRepository();
-        this.currentPlayerStateConverterSupport = playerStateService.getPlayerStateConverter();
         this.transferPlaybackCommandHandlerDelegate = transferPlaybackCommandHandlerDelegate;
     }
 
@@ -62,10 +47,11 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
 
     @NotNull
     @Override
-    public Mono<CurrentPlayerState> disconnectDevice(User user, DisconnectDeviceArgs args) {
-        return playerStateRepository.findByUserId(user.getId())
-                .doOnNext(playerState -> playerState.getDevices().removeDevice(args.getDeviceId()))
-                .map(currentPlayerStateConverterSupport::convertTo);
+    public Mono<CurrentPlayerState> disconnectDevice(@NotNull final User user,
+                                                     @NotNull final DisconnectDeviceArgs args) {
+        return playerStateService.loadPlayerState(user)
+                .map(playerState -> playerState.disconnectDevice(args.getDeviceId()))
+                .flatMap(playerStateService::save);
     }
 
     @NotNull

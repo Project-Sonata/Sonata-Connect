@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.model;
 
+import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevice;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
@@ -46,5 +47,18 @@ public class CurrentPlayerState {
     public CurrentPlayerState connectDevice(@NotNull final Device device) {
         final Devices newDevices = getDevices().connectDevice(device);
         return withDevices(newDevices);
+    }
+
+    @NotNull
+    public CurrentPlayerState disconnectDevice(@NotNull final TargetDeactivationDevice deactivationTarget) {
+        final Devices updatedDevices = getDevices().disconnectDevice(deactivationTarget);
+
+        return withDevices(updatedDevices);
+    }
+
+    @NotNull
+    public CurrentPlayerState disconnectDevice(@NotNull final String deviceId) {
+        final TargetDeactivationDevice deactivationTarget = TargetDeactivationDevice.of(deviceId);
+        return disconnectDevice(deactivationTarget);
     }
 }

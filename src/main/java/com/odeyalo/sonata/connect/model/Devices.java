@@ -1,11 +1,13 @@
 package com.odeyalo.sonata.connect.model;
 
 import com.google.common.collect.Lists;
+import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevice;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -59,5 +61,15 @@ public class Devices implements Iterable<Device> {
         );
 
         return Devices.of(devicesCopy);
+    }
+
+    @NotNull
+    public Devices disconnectDevice(@NotNull final TargetDeactivationDevice targetDevice) {
+        final List<Device> newDevices = Lists.newArrayList(devices)
+                .stream()
+                .filter(device -> !Objects.equals(device.getId(), targetDevice.getDeviceId()))
+                .toList();
+
+        return Devices.of(newDevices);
     }
 }
