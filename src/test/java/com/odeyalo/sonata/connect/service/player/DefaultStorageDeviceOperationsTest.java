@@ -4,6 +4,8 @@ import com.odeyalo.sonata.connect.config.Converters;
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
 import com.odeyalo.sonata.connect.entity.DevicesEntity;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
+import com.odeyalo.sonata.connect.entity.TrackItemEntity;
+import com.odeyalo.sonata.connect.entity.factory.DefaultPlayerStateEntityFactory;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.Device;
 import com.odeyalo.sonata.connect.model.Devices;
@@ -29,8 +31,11 @@ class DefaultStorageDeviceOperationsTest {
 
     PlayerState2CurrentPlayerStateConverter playerStateConverter = new Converters().playerState2CurrentPlayerStateConverter();
 
-    DefaultStorageDeviceOperations operations = new DefaultStorageDeviceOperations(playerStateRepository,
-            Mockito.mock(TransferPlaybackCommandHandlerDelegate.class), playerStateConverter,
+    DefaultStorageDeviceOperations operations = new DefaultStorageDeviceOperations(
+            new PlayerStateService(playerStateRepository, playerStateConverter,
+                    new DefaultPlayerStateEntityFactory(new DeviceEntity.Factory(), new TrackItemEntity.Factory())
+            ),
+            Mockito.mock(TransferPlaybackCommandHandlerDelegate.class),
             new Converters().devicesEntity2DevicesConverter(),
             new DeviceEntity.Factory()
     );

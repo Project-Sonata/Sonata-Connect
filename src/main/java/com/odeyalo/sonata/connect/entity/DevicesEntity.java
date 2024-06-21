@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.util.Assert;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -37,6 +38,12 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
     @NotNull
     public static DevicesEntity just(@NotNull final DeviceEntity... devices) {
         return builder().items(List.of(devices)).build();
+    }
+
+    @NotNull
+    public static DevicesEntity fromCollection(@NotNull final Collection<DeviceEntity> devices) {
+        Assert.noNullElements(devices, () -> "Null elements are not allowed!");
+        return builder().items(devices).build();
     }
 
     @NotNull

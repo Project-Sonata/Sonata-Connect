@@ -11,6 +11,7 @@ import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import com.odeyalo.sonata.connect.service.support.mapper.DevicesEntity2DevicesConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -21,6 +22,7 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
     private final PlayerState2CurrentPlayerStateConverter currentPlayerStateConverterSupport;
     private final DevicesEntity2DevicesConverter devicesEntity2DevicesConverter;
     private final DeviceEntityFactory deviceEntityFactory;
+    private final PlayerStateService playerStateService;
 
     public DefaultStorageDeviceOperations(PlayerStateRepository playerStateRepository,
                                           TransferPlaybackCommandHandlerDelegate transferPlaybackCommandHandlerDelegate,
@@ -32,14 +34,33 @@ public class DefaultStorageDeviceOperations implements DeviceOperations {
         this.currentPlayerStateConverterSupport = currentPlayerStateConverterSupport;
         this.devicesEntity2DevicesConverter = devicesEntity2DevicesConverter;
         this.deviceEntityFactory = deviceEntityFactory;
+        this.playerStateService = null;
     }
+
+    @Autowired
+    public DefaultStorageDeviceOperations(PlayerStateService playerStateService,
+                                          TransferPlaybackCommandHandlerDelegate transferPlaybackCommandHandlerDelegate,
+                                          DevicesEntity2DevicesConverter devicesEntity2DevicesConverter,
+                                          DeviceEntityFactory deviceEntityFactory) {
+        this.playerStateService = playerStateService;
+        this.playerStateRepository = playerStateService.getPlayerStateRepository();
+        this.currentPlayerStateConverterSupport = playerStateService.getPlayerStateConverter();
+        this.transferPlaybackCommandHandlerDelegate = transferPlaybackCommandHandlerDelegate;
+        this.devicesEntity2DevicesConverter = devicesEntity2DevicesConverter;
+        this.deviceEntityFactory = deviceEntityFactory;
+    }
+
 
     @NotNull
     @Override
-    public Mono<CurrentPlayerState> addDevice(User user, Device device) {
-        return playerStateRepository.findByUserId(user.getId())
-                .doOnNext(state -> state.getDevicesEntity().addDevice(createDeviceEntity(device, state)))
-                .map(currentPlayerStateConverterSupport::convertTo);
+    public Mono<CurrentPlayerState> addDevice(@NotNull final User user,
+                                              @NotNull final Device device) {
+        return playerStateService.loadPlayerState(user)
+                .map(state -> {
+                    Devices devices = state.getDevices().connectDevice(device);
+                    return state.withDevices(devices);
+                })
+                .flatMap(playerStateService::save);
     }
 
     @NotNull

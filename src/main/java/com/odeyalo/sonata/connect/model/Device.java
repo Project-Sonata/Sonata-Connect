@@ -3,6 +3,7 @@ package com.odeyalo.sonata.connect.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
+import lombok.With;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 @Value
 @AllArgsConstructor(staticName = "of")
 @Builder(toBuilder = true)
+@With
 public class Device implements DeviceSpec {
     @NotNull
     String deviceId;

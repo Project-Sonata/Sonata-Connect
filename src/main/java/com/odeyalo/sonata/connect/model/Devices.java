@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.model;
 
+import com.google.common.collect.Lists;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,6 +32,10 @@ public class Devices implements Iterable<Device> {
         return getDevices().stream().filter(Device::isActive).findFirst();
     }
 
+    public boolean hasActiveDevice() {
+        return getActiveDevice().isPresent();
+    }
+
     public Stream<Device> stream() {
         return devices.stream();
     }
@@ -39,5 +44,20 @@ public class Devices implements Iterable<Device> {
     @Override
     public Iterator<Device> iterator() {
         return devices.iterator();
+    }
+
+    @NotNull
+    public Devices connectDevice(@NotNull final Device device) {
+        final DeviceSpec.DeviceStatus status = hasActiveDevice() ?
+                DeviceSpec.DeviceStatus.IDLE :
+                DeviceSpec.DeviceStatus.ACTIVE;
+
+        final List<Device> devicesCopy = Lists.newArrayList(devices);
+
+        devicesCopy.add(
+                device.withActive(status.isActive())
+        );
+
+        return Devices.of(devicesCopy);
     }
 }

@@ -31,6 +31,8 @@ public class CurrentPlayerState {
     PlayableItem playableItem;
     @NotNull
     User user;
+    long lastPauseTime = 0;
+    long playStartTime = 0;
 
     public boolean getShuffleState() {
         return shuffleState;
