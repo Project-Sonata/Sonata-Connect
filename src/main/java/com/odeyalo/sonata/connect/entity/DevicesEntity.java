@@ -1,18 +1,13 @@
 package com.odeyalo.sonata.connect.entity;
 
-import com.odeyalo.sonata.connect.exception.DeviceNotFoundException;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
-
-import static org.apache.commons.lang3.BooleanUtils.negate;
 
 @Data
 @AllArgsConstructor
@@ -71,10 +66,6 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
         return items.contains(o);
     }
 
-    public List<DeviceEntity> getActiveDevices() {
-        return items.stream().filter(DeviceEntity::isActive).toList();
-    }
-
     public DeviceEntity get(int index) {
         return items.get(index);
     }
@@ -83,56 +74,8 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
         return get(index);
     }
 
-    public void removeDevice(@NotNull final String deviceId) {
-        getDevices().removeIf(device -> Objects.equals(device.getId(), deviceId));
-    }
-
-    public void removeIf(Predicate<DeviceEntity> predicate) {
-        items.removeIf(predicate);
-    }
-
     public boolean hasActiveDevice() {
         return items.stream().anyMatch(DeviceEntity::isActive);
-    }
-
-    public boolean hasNotActiveDevice() {
-        return negate(hasActiveDevice());
-    }
-
-    public void activateDevice(@NotNull final DeviceEntity deviceToActivate) {
-        removeDevice(deviceToActivate.getId());
-        deviceToActivate.setActive(true);
-        addDevice(deviceToActivate);
-    }
-
-    public void deactivateDevice(@NotNull final DeviceEntity deviceToDeactivate) {
-        removeDevice(deviceToDeactivate.getId());
-        deviceToDeactivate.setActive(false);
-        addDevice(deviceToDeactivate);
-    }
-
-    public boolean containsById(String expectedId) {
-        return getDevices().stream().anyMatch(device -> Objects.equals(device.getId(), expectedId));
-    }
-
-    public boolean hasDevice(final TargetDevice targetDevice) {
-        return containsById(targetDevice.getId());
-    }
-
-    @NotNull
-    public DevicesEntity transferPlayback(@NotNull final TargetDevice deviceToTransferPlayback) {
-
-        final DeviceEntity currentlyActiveDevice = findCurrentlyActiveDevice();
-
-        final DeviceEntity deviceToActivate = findDeviceToActivate(deviceToTransferPlayback);
-
-        if ( currentlyActiveDevice != null ) {
-            deactivateDevice(currentlyActiveDevice);
-        }
-
-        activateDevice(deviceToActivate);
-
-        return this;
     }
 
     @NotNull
@@ -155,19 +98,6 @@ public class DevicesEntity implements Iterable<DeviceEntity> {
 
     public DevicesEntityBuilder toBuilder() {
         return new DevicesEntityBuilder().items(items);
-    }
-
-    @NotNull
-    private DeviceEntity findDeviceToActivate(TargetDevice searchTarget) {
-        return findById(searchTarget)
-                .orElseThrow(() -> DeviceNotFoundException.withCustomMessage(String.format("Device with ID: %s not found", searchTarget.getId())));
-    }
-
-    @Nullable
-    private DeviceEntity findCurrentlyActiveDevice() {
-        return getActiveDevices().stream()
-                .findFirst()
-                .orElse(null);
     }
 
     public static class DevicesEntityBuilder {

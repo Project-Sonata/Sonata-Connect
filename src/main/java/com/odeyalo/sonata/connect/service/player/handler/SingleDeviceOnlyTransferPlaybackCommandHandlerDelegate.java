@@ -1,19 +1,17 @@
 package com.odeyalo.sonata.connect.service.player.handler;
 
-import com.odeyalo.sonata.connect.entity.DevicesEntity;
-import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.DeviceNotFoundException;
 import com.odeyalo.sonata.connect.exception.MultipleTargetDevicesNotSupportedException;
 import com.odeyalo.sonata.connect.exception.SingleTargetDeactivationDeviceRequiredException;
 import com.odeyalo.sonata.connect.exception.TargetDeviceRequiredException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
+import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.User;
-import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
+import com.odeyalo.sonata.connect.service.player.PlayerStateService;
 import com.odeyalo.sonata.connect.service.player.SwitchDeviceCommandArgs;
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevices;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
 import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
-import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,13 +23,24 @@ import reactor.core.publisher.Mono;
  */
 @Component
 public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements TransferPlaybackCommandHandlerDelegate {
-    private final PlayerStateRepository playerStateRepository;
-    private final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport;
+    private final PlayerStateService playerStateService;
 
-    public SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate(PlayerStateRepository playerStateRepository,
-                                                                  PlayerState2CurrentPlayerStateConverter playerStateConverterSupport) {
-        this.playerStateRepository = playerStateRepository;
-        this.playerStateConverterSupport = playerStateConverterSupport;
+    public SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate(PlayerStateService playerStateService) {
+        this.playerStateService = playerStateService;
+    }
+
+    @NotNull
+    private Mono<CurrentPlayerState> delegateTransferPlayback(@NotNull final TargetDevices targetDevices,
+                                                              @NotNull final CurrentPlayerState state) {
+
+        final Devices connectedDevices = state.getDevices();
+        final TargetDevice targetDevice = targetDevices.peekFirst();
+
+        if ( connectedDevices.hasDevice(targetDevice) ) {
+            return doTransferPlayback(state, targetDevice, connectedDevices);
+        }
+
+        return Mono.error(DeviceNotFoundException.defaultException());
     }
 
     @NotNull
@@ -47,34 +56,19 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
             return policy.exceptionAsReactiveStream();
         }
 
-        return playerStateRepository.findByUserId(user.getId())
-                .flatMap(state -> delegateTransferPlayback(targetDevices, state))
-                .map(playerStateConverterSupport::convertTo);
+        return playerStateService.loadPlayerState(user)
+                .flatMap(state -> delegateTransferPlayback(targetDevices, state));
     }
 
     @NotNull
-    private Mono<PlayerStateEntity> delegateTransferPlayback(@NotNull final TargetDevices targetDevices,
-                                                             @NotNull final PlayerStateEntity state) {
-
-        final DevicesEntity connectedDevices = state.getDevicesEntity();
-        final TargetDevice targetDevice = targetDevices.peekFirst();
-
-        if ( connectedDevices.hasDevice(targetDevice) ) {
-            return doTransferPlayback(state, targetDevice, connectedDevices);
-        }
-
-        return Mono.error(DeviceNotFoundException.defaultException());
-    }
-
-    @NotNull
-    private Mono<PlayerStateEntity> doTransferPlayback(@NotNull final PlayerStateEntity state,
-                                                       @NotNull final TargetDevice deviceToTransferPlayback,
-                                                       @NotNull final DevicesEntity connectedDevices) {
+    private Mono<CurrentPlayerState> doTransferPlayback(@NotNull final CurrentPlayerState state,
+                                                        @NotNull final TargetDevice deviceToTransferPlayback,
+                                                        @NotNull final Devices connectedDevices) {
 
         final var updatedDevices = connectedDevices.transferPlayback(deviceToTransferPlayback);
 
-        return playerStateRepository.save(
-                state.setDevicesEntity(updatedDevices)
+        return playerStateService.save(
+                state.withDevices(updatedDevices)
         );
     }
 
