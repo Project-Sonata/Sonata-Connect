@@ -16,12 +16,17 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 @Value
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor
 @Builder(toBuilder = true)
 public class Devices implements Iterable<Device> {
     @Getter(value = AccessLevel.PRIVATE)
     @Singular
     List<Device> devices;
+
+    @NotNull
+    public static Devices fromCollection(@NotNull Collection<Device> devices) {
+        return builder().devices(devices).build();
+    }
 
     public boolean isEmpty() {
         return devices.isEmpty();

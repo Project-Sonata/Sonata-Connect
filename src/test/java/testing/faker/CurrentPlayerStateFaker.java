@@ -17,7 +17,7 @@ public final class CurrentPlayerStateFaker {
                 .playingType(PlayingType.TRACK)
                 .repeatState(faker.options().option(RepeatState.class))
                 .id(faker.random().nextLong())
-                .devices(Devices.of(
+                .devices(Devices.fromCollection(
                         Collections.singletonList(Device.of("123", "Odeyalo", DeviceType.COMPUTER,
                                 DeviceSpec.Volume.from(
                                         faker.random().nextInt(0, 100)
