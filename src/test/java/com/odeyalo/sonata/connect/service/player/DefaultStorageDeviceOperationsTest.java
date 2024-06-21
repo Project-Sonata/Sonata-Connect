@@ -35,9 +35,7 @@ class DefaultStorageDeviceOperationsTest {
             new PlayerStateService(playerStateRepository, playerStateConverter,
                     new DefaultPlayerStateEntityFactory(new DeviceEntity.Factory(), new TrackItemEntity.Factory())
             ),
-            Mockito.mock(TransferPlaybackCommandHandlerDelegate.class),
-            new Converters().devicesEntity2DevicesConverter(),
-            new DeviceEntity.Factory()
+            Mockito.mock(TransferPlaybackCommandHandlerDelegate.class)
     );
 
     final User USER = User.of("miku");

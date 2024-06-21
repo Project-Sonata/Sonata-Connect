@@ -41,4 +41,10 @@ public class CurrentPlayerState {
     public PlayableItem getPlayingItem() {
         return playableItem;
     }
+
+    @NotNull
+    public CurrentPlayerState connectDevice(@NotNull final Device device) {
+        final Devices newDevices = getDevices().connectDevice(device);
+        return withDevices(newDevices);
+    }
 }
