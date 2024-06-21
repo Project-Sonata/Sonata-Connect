@@ -1,6 +1,5 @@
 package com.odeyalo.sonata.connect.model;
 
-import com.google.common.collect.Lists;
 import com.odeyalo.sonata.connect.exception.DeviceNotFoundException;
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevice;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
@@ -8,10 +7,12 @@ import lombok.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 @Value
@@ -52,7 +53,6 @@ public class Devices implements Iterable<Device> {
         return devices.iterator();
     }
 
-
     @NotNull
     public Optional<Device> findById(@NotNull final String expectedId) {
         return getDevices().stream()
@@ -75,23 +75,14 @@ public class Devices implements Iterable<Device> {
                 DeviceSpec.DeviceStatus.IDLE :
                 DeviceSpec.DeviceStatus.ACTIVE;
 
-        final List<Device> devicesCopy = Lists.newArrayList(devices);
-
-        devicesCopy.add(
+        return addDevice(
                 device.withActive(status.isActive())
         );
-
-        return Devices.of(devicesCopy);
     }
 
     @NotNull
     public Devices disconnectDevice(@NotNull final TargetDeactivationDevice targetDevice) {
-        final List<Device> newDevices = Lists.newArrayList(devices)
-                .stream()
-                .filter(device -> !Objects.equals(device.getId(), targetDevice.getDeviceId()))
-                .toList();
-
-        return Devices.of(newDevices);
+        return removeDevice(targetDevice.getDeviceId());
     }
 
     @NotNull
@@ -101,43 +92,12 @@ public class Devices implements Iterable<Device> {
 
         final Device deviceToActivate = findDeviceToActivate(deviceToTransferPlayback);
 
-
         if ( currentlyActiveDevice != null ) {
             return deactivateDevice(currentlyActiveDevice)
                     .activateDevice(deviceToActivate);
         }
 
         return activateDevice(deviceToActivate);
-    }
-
-    @NotNull
-    private Device findDeviceToActivate(TargetDevice searchTarget) {
-        return findById(searchTarget)
-                .orElseThrow(() -> DeviceNotFoundException.withCustomMessage(String.format("Device with ID: %s not found", searchTarget.getId())));
-    }
-
-    @Nullable
-    private Device findCurrentlyActiveDevice() {
-        return getActiveDevices().stream()
-                .findFirst()
-                .orElse(null);
-    }
-
-    @NotNull
-    public Devices removeDevice(@NotNull final String deviceId) {
-        final List<Device> updatedDevices = getDevices().stream()
-                .filter(device -> !Objects.equals(device.getId(), deviceId))
-                .toList();
-
-        return Devices.of(updatedDevices);
-    }
-
-    @NotNull
-    public Devices addDevice(@NotNull final Device device) {
-        return Devices.builder()
-                .devices(devices)
-                .device(device)
-                .build();
     }
 
     @NotNull
@@ -156,11 +116,73 @@ public class Devices implements Iterable<Device> {
                 .addDevice(deactivatedDevice);
     }
 
+
+    @NotNull
+    private Device findDeviceToActivate(@NotNull final TargetDevice searchTarget) {
+        return findById(searchTarget)
+                .orElseThrow(() -> DeviceNotFoundException.withCustomMessage(String.format("Device with ID: %s not found", searchTarget.getId())));
+    }
+
+    @Nullable
+    private Device findCurrentlyActiveDevice() {
+        return getActiveDevices().stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    @NotNull
+    private Devices removeDevice(@NotNull final String deviceId) {
+        return getDevices().stream()
+                .filter(device -> !Objects.equals(device.getId(), deviceId))
+                .collect(CollectorImpl.instance());
+    }
+
+    @NotNull
+    private Devices addDevice(@NotNull final Device device) {
+        return Devices.builder()
+                .devices(devices)
+                .device(device)
+                .build();
+    }
+
+    @NotNull
     private Devices getActiveDevices() {
+        return devices.stream()
+                .filter(Device::isActive)
+                .collect(CollectorImpl.instance());
+    }
 
-        final List<Device> activeDevices = devices.stream().filter(Device::isActive)
-                .toList();
+    public static class CollectorImpl implements Collector<Device, DevicesBuilder, Devices> {
 
-        return Devices.of(activeDevices);
+        public static CollectorImpl instance() {
+            return new CollectorImpl();
+        }
+
+        @Override
+        public Supplier<DevicesBuilder> supplier() {
+            return Devices::builder;
+        }
+
+        @Override
+        public BiConsumer<DevicesBuilder, Device> accumulator() {
+            return DevicesBuilder::device;
+        }
+
+        @Override
+        public BinaryOperator<DevicesBuilder> combiner() {
+            return (b1, b2) -> b1.devices(b2.build().getDevices());
+        }
+
+        @Override
+        public Function<DevicesBuilder, Devices> finisher() {
+            return DevicesBuilder::build;
+        }
+
+        @Override
+        public Set<Characteristics> characteristics() {
+            return Set.of(
+                    Characteristics.UNORDERED
+            );
+        }
     }
 }
