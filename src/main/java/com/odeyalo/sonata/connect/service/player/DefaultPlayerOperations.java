@@ -1,7 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
-import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.entity.TrackItemEntity;
 import com.odeyalo.sonata.connect.entity.factory.DefaultPlayerStateEntityFactory;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
@@ -22,9 +21,7 @@ import static reactor.core.publisher.Mono.defer;
 
 @Component
 public class DefaultPlayerOperations implements BasicPlayerOperations {
-    private final PlayerStateRepository playerStateRepository;
     private final DeviceOperations deviceOperations;
-    private final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport;
     private final PlayCommandHandlerDelegate playCommandHandlerDelegate;
     private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter;
     private final PauseCommandHandlerDelegate pauseCommandHandlerDelegate;
@@ -38,10 +35,7 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
                                    final PlayCommandHandlerDelegate playCommandHandlerDelegate,
                                    final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter,
                                    final PauseCommandHandlerDelegate pauseCommandHandlerDelegate) {
-
-        this.playerStateRepository = playerStateRepository;
         this.deviceOperations = deviceOperations;
-        this.playerStateConverterSupport = playerStateConverterSupport;
         this.playCommandHandlerDelegate = playCommandHandlerDelegate;
         this.playerStateConverter = playerStateConverter;
         this.pauseCommandHandlerDelegate = pauseCommandHandlerDelegate;
@@ -66,11 +60,11 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     }
 
     @Override
-    public Mono<CurrentPlayerState> changeShuffle(User user, boolean shuffleMode) {
-        return playerStateRepository.findByUserId(user.getId())
-                .map(state -> doChangeShuffleMode(state, shuffleMode))
-                .flatMap(playerStateRepository::save)
-                .map(playerStateConverterSupport::convertTo);
+    @NotNull
+    public Mono<CurrentPlayerState> changeShuffle(@NotNull final User user, final boolean shuffleMode) {
+        return playerStateService.loadPlayerState(user)
+                .map(state -> state.withShuffleState(shuffleMode))
+                .flatMap(playerStateService::save);
     }
 
     @Override
@@ -94,11 +88,5 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
 
         return playerStateService.save(state)
                 .doOnNext(it -> logger.info("Created new empty player state due to missing for the user: {}", user));
-    }
-
-    @NotNull
-    private static PlayerStateEntity doChangeShuffleMode(PlayerStateEntity state, boolean shuffleMode) {
-        state.setShuffleState(shuffleMode);
-        return state;
     }
 }
