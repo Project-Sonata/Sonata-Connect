@@ -24,8 +24,13 @@ public class Devices implements Iterable<Device> {
     List<Device> devices;
 
     @NotNull
-    public static Devices fromCollection(@NotNull Collection<Device> devices) {
+    public static Devices fromCollection(@NotNull final Collection<Device> devices) {
         return builder().devices(devices).build();
+    }
+
+    @NotNull
+    public static Devices empty() {
+        return builder().build();
     }
 
     public boolean isEmpty() {
