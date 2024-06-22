@@ -76,7 +76,8 @@ public interface BasicPlayerOperations {
      * @param user - owner of the player state
      * @return - {@link Mono} with current state of the player
      */
-    Mono<CurrentPlayerState> pause(User user);
+    @NotNull
+    Mono<CurrentPlayerState> pause(@NotNull User user);
 
     /**
      * Alias for  #changeShuffle(User, true) method call

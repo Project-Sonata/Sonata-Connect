@@ -83,7 +83,8 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     }
 
     @Override
-    public Mono<CurrentPlayerState> pause(User user) {
+    @NotNull
+    public Mono<CurrentPlayerState> pause(@NotNull User user) {
         return pauseCommandHandlerDelegate.pause(user);
     }
 

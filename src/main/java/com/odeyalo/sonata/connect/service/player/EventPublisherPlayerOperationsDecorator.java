@@ -57,7 +57,8 @@ public class EventPublisherPlayerOperationsDecorator implements BasicPlayerOpera
     }
 
     @Override
-    public Mono<CurrentPlayerState> pause(User user) {
+    @NotNull
+    public Mono<CurrentPlayerState> pause(@NotNull User user) {
         return delegate.pause(user)
                 .flatMap(it -> publishEvent(it, PLAYER_STATE_UPDATED, user));
     }
