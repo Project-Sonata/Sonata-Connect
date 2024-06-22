@@ -58,7 +58,8 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     }
 
     @Override
-    public Mono<CurrentlyPlayingPlayerState> currentlyPlayingState(User user) {
+    @NotNull
+    public Mono<CurrentlyPlayingPlayerState> currentlyPlayingState(@NotNull final User user) {
         return currentState(user)
                 .filter(CurrentPlayerState::isPlaying)
                 .map(playerStateConverter::convertTo);
