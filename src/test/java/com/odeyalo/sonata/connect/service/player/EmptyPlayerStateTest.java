@@ -6,6 +6,7 @@ import com.odeyalo.sonata.connect.model.User;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
+import static com.odeyalo.sonata.connect.model.ShuffleMode.OFF;
 import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 
 class EmptyPlayerStateTest extends DefaultPlayerOperationsTest {
@@ -49,7 +50,7 @@ class EmptyPlayerStateTest extends DefaultPlayerOperationsTest {
         testable.currentState(EXISTING_USER)
                 .map(CurrentPlayerState::getShuffleState)
                 .as(StepVerifier::create)
-                .expectNext(false)
+                .expectNext(OFF)
                 .verifyComplete();
     }
 

@@ -27,6 +27,7 @@ import testing.faker.UserEntityFaker;
 import java.net.URI;
 
 import static com.odeyalo.sonata.connect.model.PlayableItemDuration.ofMilliseconds;
+import static com.odeyalo.sonata.connect.model.ShuffleMode.OFF;
 import static com.odeyalo.sonata.connect.model.track.AlbumSpec.AlbumType.SINGLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode.REMOTE;
@@ -79,7 +80,7 @@ class CurrentPlayerStateEndpointTest {
             );
             PlayerStateEntity playerState = PlayerStateFaker.createWithCustomNumberOfDevices(1)
                     .id(1L)
-                    .shuffleState(PlayerStateEntity.SHUFFLE_DISABLED)
+                    .shuffleState(OFF)
                     .progressMs(0L)
                     .playing(true)
                     .playingType(PlayingType.TRACK)

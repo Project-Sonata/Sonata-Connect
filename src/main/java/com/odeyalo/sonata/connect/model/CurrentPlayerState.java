@@ -8,6 +8,8 @@ import lombok.With;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Random;
+
 /**
  * Represent a current state pf the player despite the fact is playing something or not
  */
@@ -21,13 +23,16 @@ public class CurrentPlayerState {
     @NotNull
     @Builder.Default
     RepeatState repeatState = RepeatState.OFF;
-    boolean shuffleState;
+    @NotNull
+    @Builder.Default
+    ShuffleMode shuffleState = ShuffleMode.OFF;
     @Nullable
     Long progressMs;
     @Nullable
     PlayingType playingType;
     @NotNull
-    Devices devices;
+    @Builder.Default
+    Devices devices = Devices.empty();
     @Nullable
     PlayableItem playableItem;
     @NotNull
@@ -35,7 +40,15 @@ public class CurrentPlayerState {
     long lastPauseTime = 0;
     long playStartTime = 0;
 
-    public boolean getShuffleState() {
+    @NotNull
+    public static CurrentPlayerState emptyFor(@NotNull final User user) {
+        return builder()
+                .id(new Random().nextLong(0, Long.MAX_VALUE))
+                .user(user)
+                .build();
+    }
+
+    public ShuffleMode getShuffleState() {
         return shuffleState;
     }
 

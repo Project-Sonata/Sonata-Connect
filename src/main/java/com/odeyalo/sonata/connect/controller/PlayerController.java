@@ -1,10 +1,7 @@
 package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.connect.dto.*;
-import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
-import com.odeyalo.sonata.connect.model.Device;
-import com.odeyalo.sonata.connect.model.Devices;
-import com.odeyalo.sonata.connect.model.User;
+import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.service.player.*;
 import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import com.odeyalo.sonata.connect.service.support.mapper.Converter;
@@ -67,10 +64,10 @@ public class PlayerController {
     }
 
     @PutMapping("/shuffle")
-    public Mono<ResponseEntity<?>> changeShuffleState(User user,
-                                                      @RequestParam("state") boolean state) {
+    public Mono<ResponseEntity<?>> changeShuffleMode(@NotNull final User user,
+                                                     @NotNull final ShuffleMode shuffleMode) {
 
-        return playerOperations.changeShuffle(user, state)
+        return playerOperations.changeShuffle(user, shuffleMode)
                 .subscribeOn(Schedulers.boundedElastic())
                 .map(playerState -> default204Response());
     }

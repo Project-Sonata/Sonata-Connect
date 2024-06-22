@@ -1,9 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
-import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
-import com.odeyalo.sonata.connect.model.Device;
-import com.odeyalo.sonata.connect.model.User;
+import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.service.player.sync.PlayerSynchronizationManager;
 import com.odeyalo.sonata.connect.service.player.sync.event.PlayerEvent;
 import com.odeyalo.sonata.connect.service.player.sync.event.PlayerStateUpdatedPlayerEvent;
@@ -38,7 +35,7 @@ public class EventPublisherPlayerOperationsDecorator implements BasicPlayerOpera
     }
 
     @Override
-    public Mono<CurrentPlayerState> changeShuffle(User user, boolean shuffleMode) {
+    public Mono<CurrentPlayerState> changeShuffle(User user, ShuffleMode shuffleMode) {
         return delegate.changeShuffle(user, shuffleMode);
     }
 
@@ -48,13 +45,17 @@ public class EventPublisherPlayerOperationsDecorator implements BasicPlayerOpera
     }
 
     @Override
-    public Mono<CurrentPlayerState> playOrResume(User user, PlayCommandContext context, TargetDevice targetDevice) {
+    @NotNull
+    public Mono<CurrentPlayerState> playOrResume(@NotNull final User user,
+                                                          @Nullable final PlayCommandContext context,
+                                                          @Nullable final TargetDevice targetDevice) {
         return delegate.playOrResume(user, context, targetDevice)
                 .flatMap(it -> publishEvent(it, PLAYER_STATE_UPDATED, user));
     }
 
     @Override
-    public Mono<CurrentPlayerState> pause(User user) {
+    @NotNull
+    public Mono<CurrentPlayerState> pause(@NotNull User user) {
         return delegate.pause(user)
                 .flatMap(it -> publishEvent(it, PLAYER_STATE_UPDATED, user));
     }

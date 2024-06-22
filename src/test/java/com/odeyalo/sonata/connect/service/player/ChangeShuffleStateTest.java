@@ -3,13 +3,15 @@ package com.odeyalo.sonata.connect.service.player;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.entity.UserEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
+import com.odeyalo.sonata.connect.model.ShuffleMode;
 import com.odeyalo.sonata.connect.model.User;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 import testing.faker.PlayerStateFaker;
 
-import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.SHUFFLE_DISABLED;
-import static com.odeyalo.sonata.connect.service.player.BasicPlayerOperations.SHUFFLE_ENABLED;
+import static com.odeyalo.sonata.connect.entity.PlayerStateEntity.SHUFFLE_ENABLED;
+import static com.odeyalo.sonata.connect.model.ShuffleMode.ENABLED;
+import static com.odeyalo.sonata.connect.model.ShuffleMode.OFF;
 import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;
 
 class ChangeShuffleStateTest extends DefaultPlayerOperationsTest {
@@ -23,10 +25,10 @@ class ChangeShuffleStateTest extends DefaultPlayerOperationsTest {
                 .withState(withShuffleDisabled)
                 .build();
 
-        testable.changeShuffle(EXISTING_USER, SHUFFLE_ENABLED)
+        testable.changeShuffle(EXISTING_USER, ENABLED)
                 .map(CurrentPlayerState::getShuffleState)
                 .as(StepVerifier::create)
-                .expectNext(SHUFFLE_ENABLED)
+                .expectNext(ENABLED)
                 .verifyComplete();
     }
 
@@ -38,17 +40,17 @@ class ChangeShuffleStateTest extends DefaultPlayerOperationsTest {
                 .withState(withShuffleDisabled)
                 .build();
 
-        testable.changeShuffle(EXISTING_USER, SHUFFLE_DISABLED)
+        testable.changeShuffle(EXISTING_USER, OFF)
                 .map(CurrentPlayerState::getShuffleState)
                 .as(StepVerifier::create)
-                .expectNext(SHUFFLE_DISABLED)
+                .expectNext(OFF)
                 .verifyComplete();
     }
 
     @Test
     void shouldChangeNothingIfShuffleStateIsEqual() {
         PlayerStateEntity state = existingPlayerState();
-        boolean expectedShuffleState = state.getShuffleState();
+        ShuffleMode expectedShuffleState = state.getShuffleState();
 
         DefaultPlayerOperations testable = testableBuilder()
                 .withState(state)
@@ -69,7 +71,7 @@ class ChangeShuffleStateTest extends DefaultPlayerOperationsTest {
         return PlayerStateFaker
                 .create()
                 .user(user)
-                .shuffleState(SHUFFLE_ENABLED)
+                .shuffleState(ENABLED)
                 .get();
     }
 
@@ -78,7 +80,7 @@ class ChangeShuffleStateTest extends DefaultPlayerOperationsTest {
 
         return PlayerStateFaker
                 .create()
-                .shuffleState(SHUFFLE_DISABLED)
+                .shuffleState(OFF)
                 .user(user)
                 .get();
     }

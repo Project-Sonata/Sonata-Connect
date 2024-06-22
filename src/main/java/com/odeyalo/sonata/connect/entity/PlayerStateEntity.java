@@ -2,6 +2,7 @@ package com.odeyalo.sonata.connect.entity;
 
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
+import com.odeyalo.sonata.connect.model.ShuffleMode;
 import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
@@ -21,7 +22,8 @@ public class PlayerStateEntity {
     boolean playing;
     @Nullable
     RepeatState repeatState;
-    boolean shuffleState;
+    @NotNull
+    ShuffleMode shuffleState;
     @Builder.Default
     Long progressMs = 0L;
     @Nullable
@@ -42,7 +44,7 @@ public class PlayerStateEntity {
     public static final boolean SHUFFLE_ENABLED = true;
     public static final boolean SHUFFLE_DISABLED = false;
 
-    public boolean getShuffleState() {
+    public ShuffleMode getShuffleState() {
         return shuffleState;
     }
 
