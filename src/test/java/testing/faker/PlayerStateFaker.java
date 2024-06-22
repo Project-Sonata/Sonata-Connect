@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import com.odeyalo.sonata.connect.entity.*;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
+import com.odeyalo.sonata.connect.model.ShuffleMode;
 import com.odeyalo.sonata.connect.model.User;
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -30,7 +31,7 @@ public class PlayerStateFaker {
         builder.id(faker.random().nextLong(100000))
                 .playing(faker.random().nextBoolean())
                 .repeatState(faker.options().option(RepeatState.class))
-                .shuffleState(faker.random().nextBoolean())
+                .shuffleState(faker.options().option(ShuffleMode.class))
                 .progressMs(faker.random().nextLong(1000000))
                 .playingType(faker.options().option(PlayingType.class))
                 .user(UserEntityFaker.create().get());
@@ -80,7 +81,7 @@ public class PlayerStateFaker {
         return this;
     }
 
-    public PlayerStateFaker shuffleState(boolean shuffleState) {
+    public PlayerStateFaker shuffleState(ShuffleMode shuffleState) {
         builder.shuffleState(shuffleState);
         return this;
     }

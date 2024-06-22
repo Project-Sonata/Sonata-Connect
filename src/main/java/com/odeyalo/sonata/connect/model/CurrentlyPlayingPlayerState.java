@@ -21,6 +21,6 @@ public class CurrentlyPlayingPlayerState {
     @NotNull
     Devices devices;
     long progressMs;
-    Boolean shuffleState;
+    ShuffleMode shuffleState;
     boolean playing;
 }

@@ -4,6 +4,7 @@ import com.odeyalo.sonata.connect.dto.DevicesDto;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.dto.TrackItemDto;
 import com.odeyalo.sonata.connect.model.RepeatState;
+import com.odeyalo.sonata.connect.model.ShuffleMode;
 import org.assertj.core.api.AbstractAssert;
 import org.springframework.util.Assert;
 
@@ -39,7 +40,7 @@ public class PlayerStateDtoAssert extends AbstractAssert<PlayerStateDtoAssert, P
     }
 
     public ShuffleStateAssertsWrapper shuffleState() {
-        return new ShuffleStateAssertsWrapper(actual.getShuffleState(), this);
+        return new ShuffleStateAssertsWrapper(actual.getShuffleState() ? ShuffleMode.ENABLED : ShuffleMode.OFF, this);
     }
 
     public CurrentlyPlayingTypeAssertsWrapper currentlyPlayingType() {
@@ -105,7 +106,7 @@ public class PlayerStateDtoAssert extends AbstractAssert<PlayerStateDtoAssert, P
     public static class ShuffleStateAssertsWrapper extends ShuffleStateAsserts implements ParentAssertAware {
         private final PlayerStateDtoAssert parent;
 
-        public ShuffleStateAssertsWrapper(Boolean actual, PlayerStateDtoAssert parent) {
+        public ShuffleStateAssertsWrapper(ShuffleMode actual, PlayerStateDtoAssert parent) {
             super(actual);
             this.parent = parent;
         }

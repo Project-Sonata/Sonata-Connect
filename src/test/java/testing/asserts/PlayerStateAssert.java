@@ -3,6 +3,7 @@ package testing.asserts;
 import com.odeyalo.sonata.connect.entity.DevicesEntity;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.model.RepeatState;
+import com.odeyalo.sonata.connect.model.ShuffleMode;
 import org.assertj.core.api.AbstractAssert;
 import org.springframework.util.Assert;
 
@@ -96,7 +97,7 @@ public class PlayerStateAssert extends AbstractAssert<PlayerStateAssert, PlayerS
     public static class ShuffleStateAssertsWrapper extends ShuffleStateAsserts implements ParentAssertAware {
         private final PlayerStateAssert parent;
 
-        public ShuffleStateAssertsWrapper(Boolean actual, PlayerStateAssert parent) {
+        public ShuffleStateAssertsWrapper(ShuffleMode actual, PlayerStateAssert parent) {
             super(actual);
             this.parent = parent;
         }

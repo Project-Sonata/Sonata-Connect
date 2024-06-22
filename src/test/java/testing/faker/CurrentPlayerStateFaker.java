@@ -28,7 +28,7 @@ public final class CurrentPlayerStateFaker {
                 .user(User.of(
                         RandomStringUtils.randomAlphanumeric(22)
                 ))
-                .shuffleState(faker.random().nextBoolean());
+                .shuffleState(faker.options().option(ShuffleMode.class));
     }
 
     public static CurrentPlayerStateFaker create() {

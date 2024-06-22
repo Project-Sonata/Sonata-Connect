@@ -2,6 +2,7 @@ package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
+import com.odeyalo.sonata.connect.model.ShuffleMode;
 import com.odeyalo.sonata.connect.model.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,8 +12,6 @@ import reactor.core.publisher.Mono;
  * Base interface that provide basic methods for player, such current player state, state updating, etc.
  */
 public interface BasicPlayerOperations {
-    boolean SHUFFLE_ENABLED = true;
-    boolean SHUFFLE_DISABLED = false;
     TargetDevice CURRENT_DEVICE = null;
 
     /**
@@ -51,7 +50,7 @@ public interface BasicPlayerOperations {
      * @param shuffleMode - mode to update shuffle state
      * @return mono with updated player state
      */
-    Mono<CurrentPlayerState> changeShuffle(User user, boolean shuffleMode);
+    Mono<CurrentPlayerState> changeShuffle(User user, ShuffleMode shuffleMode);
 
     DeviceOperations getDeviceOperations();
 
@@ -83,13 +82,13 @@ public interface BasicPlayerOperations {
      * Alias for  #changeShuffle(User, true) method call
      */
     default Mono<CurrentPlayerState> enableShuffle(User user) {
-        return changeShuffle(user, SHUFFLE_ENABLED);
+        return changeShuffle(user, ShuffleMode.ENABLED);
     }
 
     /**
      * Alias for  #changeShuffle(User, false) method call
      */
     default Mono<CurrentPlayerState> disableShuffle(User user) {
-        return changeShuffle(user, SHUFFLE_DISABLED);
+        return changeShuffle(user, ShuffleMode.OFF);
     }
 }

@@ -13,5 +13,5 @@ public interface CurrentPlayerState2CurrentlyPlayingPlayerStateConverter extends
 
 
     @Mapping(source = "playingType", target = "currentlyPlayingType")
-    CurrentlyPlayingPlayerState convertTo(CurrentPlayerState state);
+    CurrentlyPlayingPlayerState convertTo(CurrentPlayerState source);
 }

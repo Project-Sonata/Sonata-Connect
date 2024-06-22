@@ -23,7 +23,9 @@ public class CurrentPlayerState {
     @NotNull
     @Builder.Default
     RepeatState repeatState = RepeatState.OFF;
-    boolean shuffleState;
+    @NotNull
+    @Builder.Default
+    ShuffleMode shuffleState = ShuffleMode.OFF;
     @Nullable
     Long progressMs;
     @Nullable
@@ -46,7 +48,7 @@ public class CurrentPlayerState {
                 .build();
     }
 
-    public boolean getShuffleState() {
+    public ShuffleMode getShuffleState() {
         return shuffleState;
     }
 

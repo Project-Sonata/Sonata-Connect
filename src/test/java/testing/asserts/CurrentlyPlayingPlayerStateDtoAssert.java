@@ -1,6 +1,7 @@
 package testing.asserts;
 
 import com.odeyalo.sonata.connect.dto.CurrentlyPlayingPlayerStateDto;
+import com.odeyalo.sonata.connect.model.ShuffleMode;
 import org.assertj.core.api.AbstractAssert;
 
 public class CurrentlyPlayingPlayerStateDtoAssert extends AbstractAssert<CurrentlyPlayingPlayerStateDtoAssert, CurrentlyPlayingPlayerStateDto> {
@@ -15,7 +16,7 @@ public class CurrentlyPlayingPlayerStateDtoAssert extends AbstractAssert<Current
 
 
     public ShuffleStateAsserts shuffleState() {
-        return new ShuffleStateAsserts(actual.getShuffleState());
+        return new ShuffleStateAsserts(actual.getShuffleState() ? ShuffleMode.ENABLED : ShuffleMode.OFF );
     }
 
     public CurrentlyPlayingPlayerStateDtoAssert shouldPlay() {

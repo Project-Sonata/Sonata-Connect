@@ -5,6 +5,7 @@ import com.odeyalo.sonata.connect.entity.TrackItemEntity;
 import com.odeyalo.sonata.connect.entity.factory.DefaultPlayerStateEntityFactory;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
+import com.odeyalo.sonata.connect.model.ShuffleMode;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.handler.PauseCommandHandlerDelegate;
@@ -62,7 +63,8 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
 
     @Override
     @NotNull
-    public Mono<CurrentPlayerState> changeShuffle(@NotNull final User user, final boolean shuffleMode) {
+    public Mono<CurrentPlayerState> changeShuffle(@NotNull final User user,
+                                                  @NotNull final ShuffleMode shuffleMode) {
         return playerStateService.loadPlayerState(user)
                 .map(state -> state.withShuffleState(shuffleMode))
                 .flatMap(playerStateService::save);
