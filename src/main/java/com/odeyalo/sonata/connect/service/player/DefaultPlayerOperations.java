@@ -7,6 +7,7 @@ import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.handler.PauseCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.support.mapper.CurrentPlayerState2CurrentlyPlayingPlayerStateConverter;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -17,28 +18,15 @@ import reactor.core.publisher.Mono;
 import static reactor.core.publisher.Mono.defer;
 
 @Component
+@RequiredArgsConstructor
 public class DefaultPlayerOperations implements BasicPlayerOperations {
     private final DeviceOperations deviceOperations;
     private final PlayCommandHandlerDelegate playCommandHandlerDelegate;
-    private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter;
     private final PauseCommandHandlerDelegate pauseCommandHandlerDelegate;
-
+    private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter;
     private final PlayerStateService playerStateService;
 
     private final Logger logger = LoggerFactory.getLogger(DefaultPlayerOperations.class);
-
-    public DefaultPlayerOperations(final DeviceOperations deviceOperations,
-                                   final PlayCommandHandlerDelegate playCommandHandlerDelegate,
-                                   final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter,
-                                   final PauseCommandHandlerDelegate pauseCommandHandlerDelegate,
-                                   final PlayerStateService playerStateService) {
-        this.deviceOperations = deviceOperations;
-        this.playCommandHandlerDelegate = playCommandHandlerDelegate;
-        this.playerStateConverter = playerStateConverter;
-        this.pauseCommandHandlerDelegate = pauseCommandHandlerDelegate;
-        this.playerStateService = playerStateService;
-    }
-
 
     @Override
     @NotNull

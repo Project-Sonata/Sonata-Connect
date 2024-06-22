@@ -62,8 +62,8 @@ public final class DefaultPlayerOperationsTestableBuilder {
                         .withState(playerStateRepository)
                         .withPlayableItems(existingItems)
                         .build(),
-                playerStateConverter,
                 pauseCommandHandlerDelegate,
+                playerStateConverter,
                 new PlayerStateService(playerStateRepository, playerStateConverterSupport,
                 new DefaultPlayerStateEntityFactory(new DeviceEntity.Factory(), new TrackItemEntity.Factory())));
     }
