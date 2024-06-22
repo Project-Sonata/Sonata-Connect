@@ -64,10 +64,10 @@ public class PlayerController {
     }
 
     @PutMapping("/shuffle")
-    public Mono<ResponseEntity<?>> changeShuffleState(User user,
-                                                      @RequestParam("state") boolean state) {
-        // TODO: there is a good candidate for refactoring
-        return playerOperations.changeShuffle(user, state ? ShuffleMode.ENABLED : ShuffleMode.OFF)
+    public Mono<ResponseEntity<?>> changeShuffleMode(@NotNull final User user,
+                                                     @NotNull final ShuffleMode shuffleMode) {
+
+        return playerOperations.changeShuffle(user, shuffleMode)
                 .subscribeOn(Schedulers.boundedElastic())
                 .map(playerState -> default204Response());
     }
