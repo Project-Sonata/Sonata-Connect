@@ -3,6 +3,8 @@ package com.odeyalo.sonata.connect.service.player;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
 import com.odeyalo.sonata.connect.model.User;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 /**
@@ -24,6 +26,7 @@ public interface BasicPlayerOperations {
 
     /**
      * Return the currently playing state, if nothing is playing right now empty mono should be returned.
+     *
      * @param user - user to get the current player state
      * @return - currently playing state or  empty mono
      */
@@ -32,6 +35,7 @@ public interface BasicPlayerOperations {
     /**
      * Create or return the player state for the user.
      * Associate it with user and add ability to access it in the future
+     *
      * @param user - user to create state to
      * @return - mono with created player state or state that already present
      */
@@ -52,17 +56,23 @@ public interface BasicPlayerOperations {
     DeviceOperations getDeviceOperations();
 
     /**
-     * Start or resume the track. If track not specified then currently playing track start to play
-     * @param user - owner of the player state
-     * @param context - context to start playing, if null then current context should be used
+     * Start or resume the track.
+     * If track not specified then currently playing track starts to play
+     *
+     * @param user         - owner of the player state
+     * @param context      - context to start playing, if null then current context should be used
      * @param targetDevice - device to start playing to, if null then current active device will be targeted
+     * @return - {@link Mono} with {@link CurrentPlayerState}
      * @throws IllegalStateException - if the state is empty and PlayableItem is null and nothing was specified in PlayContext
-     * @return - mono with CurrentPlayerState
      */
-    Mono<CurrentPlayerState> playOrResume(User user, PlayCommandContext context, TargetDevice targetDevice);
+    @NotNull
+    Mono<CurrentPlayerState> playOrResume(@NotNull User user,
+                                          @Nullable PlayCommandContext context,
+                                          @Nullable TargetDevice targetDevice);
 
     /**
      * Pause the player playback, if playback is already paused, then do nothing
+     *
      * @param user - owner of the player state
      * @return - {@link Mono} with current state of the player
      */

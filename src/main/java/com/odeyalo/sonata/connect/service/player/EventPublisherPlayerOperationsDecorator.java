@@ -48,7 +48,10 @@ public class EventPublisherPlayerOperationsDecorator implements BasicPlayerOpera
     }
 
     @Override
-    public Mono<CurrentPlayerState> playOrResume(User user, PlayCommandContext context, TargetDevice targetDevice) {
+    @NotNull
+    public Mono<CurrentPlayerState> playOrResume(@NotNull final User user,
+                                                          @Nullable final PlayCommandContext context,
+                                                          @Nullable final TargetDevice targetDevice) {
         return delegate.playOrResume(user, context, targetDevice)
                 .flatMap(it -> publishEvent(it, PLAYER_STATE_UPDATED, user));
     }

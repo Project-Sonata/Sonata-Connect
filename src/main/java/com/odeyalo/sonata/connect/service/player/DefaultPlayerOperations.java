@@ -12,6 +12,7 @@ import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDeleg
 import com.odeyalo.sonata.connect.service.support.mapper.CurrentPlayerState2CurrentlyPlayingPlayerStateConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -74,7 +75,10 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     }
 
     @Override
-    public Mono<CurrentPlayerState> playOrResume(User user, PlayCommandContext context, TargetDevice targetDevice) {
+    @NotNull
+    public Mono<CurrentPlayerState> playOrResume(@NotNull final User user,
+                                                 @Nullable final PlayCommandContext context,
+                                                 @Nullable final TargetDevice targetDevice) {
         return playCommandHandlerDelegate.playOrResume(user, context, targetDevice);
     }
 
