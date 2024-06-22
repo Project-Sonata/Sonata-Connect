@@ -68,6 +68,7 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     }
 
     @Override
+    @NotNull
     public DeviceOperations getDeviceOperations() {
         return deviceOperations;
     }
