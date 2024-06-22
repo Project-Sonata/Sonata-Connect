@@ -1,17 +1,12 @@
 package com.odeyalo.sonata.connect.service.player;
 
-import com.odeyalo.sonata.connect.entity.DeviceEntity;
-import com.odeyalo.sonata.connect.entity.TrackItemEntity;
-import com.odeyalo.sonata.connect.entity.factory.DefaultPlayerStateEntityFactory;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
 import com.odeyalo.sonata.connect.model.ShuffleMode;
 import com.odeyalo.sonata.connect.model.User;
-import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.handler.PauseCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.support.mapper.CurrentPlayerState2CurrentlyPlayingPlayerStateConverter;
-import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -32,17 +27,16 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
 
     private final Logger logger = LoggerFactory.getLogger(DefaultPlayerOperations.class);
 
-    public DefaultPlayerOperations(final PlayerStateRepository playerStateRepository, final DeviceOperations deviceOperations,
-                                   final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport,
+    public DefaultPlayerOperations(final DeviceOperations deviceOperations,
                                    final PlayCommandHandlerDelegate playCommandHandlerDelegate,
                                    final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter,
-                                   final PauseCommandHandlerDelegate pauseCommandHandlerDelegate) {
+                                   final PauseCommandHandlerDelegate pauseCommandHandlerDelegate,
+                                   final PlayerStateService playerStateService) {
         this.deviceOperations = deviceOperations;
         this.playCommandHandlerDelegate = playCommandHandlerDelegate;
         this.playerStateConverter = playerStateConverter;
         this.pauseCommandHandlerDelegate = pauseCommandHandlerDelegate;
-        this.playerStateService = new PlayerStateService(playerStateRepository, playerStateConverterSupport,
-                new DefaultPlayerStateEntityFactory(new DeviceEntity.Factory(), new TrackItemEntity.Factory()));
+        this.playerStateService = playerStateService;
     }
 
 

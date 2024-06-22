@@ -1,12 +1,16 @@
 package testing.factory;
 
 import com.odeyalo.sonata.connect.config.Converters;
+import com.odeyalo.sonata.connect.entity.DeviceEntity;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
+import com.odeyalo.sonata.connect.entity.TrackItemEntity;
+import com.odeyalo.sonata.connect.entity.factory.DefaultPlayerStateEntityFactory;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.DefaultPlayerOperations;
 import com.odeyalo.sonata.connect.service.player.DeviceOperations;
+import com.odeyalo.sonata.connect.service.player.PlayerStateService;
 import com.odeyalo.sonata.connect.service.player.handler.PauseCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePauseCommandHandlerDelegate;
@@ -53,14 +57,15 @@ public final class DefaultPlayerOperationsTestableBuilder {
 
     public DefaultPlayerOperations build() {
         return new DefaultPlayerOperations(
-                playerStateRepository,
-                deviceOperations, playerStateConverterSupport,
+                deviceOperations,
                 PlayCommandHandlerBuilder.builder()
                         .withState(playerStateRepository)
                         .withPlayableItems(existingItems)
                         .build(),
                 playerStateConverter,
-                pauseCommandHandlerDelegate);
+                pauseCommandHandlerDelegate,
+                new PlayerStateService(playerStateRepository, playerStateConverterSupport,
+                new DefaultPlayerStateEntityFactory(new DeviceEntity.Factory(), new TrackItemEntity.Factory())));
     }
 
     static final class PlayCommandHandlerBuilder {
