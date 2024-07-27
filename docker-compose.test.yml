@@ -1,0 +1,10 @@
+version: '2.9'
+services:
+  sonata-connect:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: sonata-connect-tests-container
+    environment:
+      GITHUB_USERNAME: ${GH_USERNAME}
+      ACCESS_TOKEN: ${ACCESS_TOKEN}
