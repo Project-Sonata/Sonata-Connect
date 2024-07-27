@@ -1,0 +1,12 @@
+version: '2.9'
+services:
+  sonata-connect:
+    ports:
+      - "9000:8080"
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    container_name: sonata-connect-container
+    environment:
+      GITHUB_USERNAME: ${GH_USERNAME}
+      ACCESS_TOKEN: ${ACCESS_TOKEN}

@@ -1,0 +1,7 @@
+FROM maven:3.9.2-amazoncorretto-20
+
+WORKDIR sonata-connect
+
+COPY . .
+
+ENTRYPOINT mvn -s settings.xml spring-boot:run
