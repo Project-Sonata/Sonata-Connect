@@ -91,6 +91,13 @@ public class PlayerController {
                 .thenReturn(default204Response());
     }
 
+    @PutMapping(value = "/volume", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<ResponseEntity<?>> changePlayerVolume(@NotNull final Volume volume,
+                                                      @NotNull final User user) {
+        return playerOperations.changeVolume(user, volume)
+                .map(it -> default204Response());
+    }
+
     @DeleteMapping(value = "/device")
     public Mono<ResponseEntity<?>> disconnectDevice(@RequestParam("device_id") String deviceId, User user) {
         return playerOperations.getDeviceOperations()
@@ -98,23 +105,7 @@ public class PlayerController {
                 .thenReturn(default204Response());
     }
 
-    @PutMapping(value = "/volume", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<?>> changePlayerVolume(@RequestParam(name = "volume_percent") final int volume,
-                                                      @NotNull final User user) {
-        final Mono<ResponseEntity<?>> invalidVolume = Mono.just(
-                ResponseEntity.badRequest().body(
-                        ReasonCodeAwareExceptionMessage.of("invalid_volume")
-                )
-        );
-
-        if (volume < 0 || volume > 100) {
-            return invalidVolume;
-        }
-
-        return playerOperations.changeVolume(user, Volume.from(volume))
-                .map(it -> default204Response());
-    }
-
+    @NotNull
     private CurrentlyPlayingPlayerStateDto convertToCurrentlyPlayingStateDto(CurrentlyPlayingPlayerState state) {
         return currentlyPlayingPlayerStateDtoConverter.convertTo(state);
     }

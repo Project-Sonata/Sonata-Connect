@@ -24,6 +24,11 @@ public record Volume(int value) {
     }
 
     @NotNull
+    public static Volume fromInt(final int value) {
+        return from(value);
+    }
+
+    @NotNull
     public static Volume muted() {
         return new Volume(0);
     }

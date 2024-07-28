@@ -64,4 +64,10 @@ public class GlobalExceptionHandlerController {
         ExceptionMessage message = ExceptionMessage.of(ex.getMessage());
         return badRequest().body(message);
     }
+
+    @ExceptionHandler(InvalidVolumeException.class)
+    public ResponseEntity<?> handleInvalidVolumeException(final InvalidVolumeException ex) {
+        return ResponseEntity.badRequest()
+                .body(ReasonCodeAwareExceptionMessage.of("invalid_volume", ex.getMessage()));
+    }
 }
