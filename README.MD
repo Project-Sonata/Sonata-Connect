@@ -42,6 +42,8 @@ Requirements:
 When device X is launched, then it registers itself in MDNS network.
 Device A listens to event when a Device X has been registered and then sends an HTTP request to connect device X
 
+<img src="images/on-new-device.png" alt="image not found">
+
 Types of devices that can be registered with Sonata-Connect flow:
 
 - TV
@@ -70,3 +72,5 @@ All operations with playback is performed using HTTP endpoints, any write operat
 Each operation that changes a player state sends a real-time update to WebSocket connection that every device can update its own state.
 
 Messaging format is JSON.
+
+<img src="images/real-time-updates.png" alt="no image">
