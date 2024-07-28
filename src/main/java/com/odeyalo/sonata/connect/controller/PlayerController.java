@@ -23,6 +23,7 @@ import reactor.core.scheduler.Schedulers;
 @RequiredArgsConstructor
 public class PlayerController {
     private final BasicPlayerOperations playerOperations;
+    private final PlayerStateService playerStateService;
     private final CurrentPlayerState2PlayerStateDtoConverter playerState2PlayerStateDtoConverter;
     private final Devices2DevicesDtoConverter devicesDtoConverter;
     private final ConnectDeviceRequest2DeviceConverter deviceModelConverter;
@@ -96,6 +97,25 @@ public class PlayerController {
         return playerOperations.getDeviceOperations()
                 .disconnectDevice(user, DisconnectDeviceArgs.withDeviceId(deviceId))
                 .thenReturn(default204Response());
+    }
+
+    @PutMapping(value = "/volume", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<ResponseEntity<?>> changePlayerVolume(@RequestParam(name = "volume_percent") final int volume,
+                                                      @NotNull final User user) {
+        final Mono<ResponseEntity<?>> invalidVolume = Mono.just(
+                ResponseEntity.badRequest().body(
+                        ReasonCodeAwareExceptionMessage.of("invalid_volume")
+                )
+        );
+
+        if (volume < 0 || volume > 100) {
+            return invalidVolume;
+        }
+
+        return playerStateService.loadPlayerState(user)
+                .map(state -> state.changeVolume(volume))
+                .flatMap(playerStateService::save)
+                .map(it -> default204Response());
     }
 
     private CurrentlyPlayingPlayerStateDto convertToCurrentlyPlayingStateDto(CurrentlyPlayingPlayerState state) {

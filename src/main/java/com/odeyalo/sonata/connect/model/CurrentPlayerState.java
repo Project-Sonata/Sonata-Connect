@@ -37,6 +37,7 @@ public class CurrentPlayerState {
     PlayableItem playableItem;
     @NotNull
     User user;
+    int volume;
     long lastPauseTime = 0;
     long playStartTime = 0;
 
@@ -48,10 +49,12 @@ public class CurrentPlayerState {
                 .build();
     }
 
+    @NotNull
     public ShuffleMode getShuffleState() {
         return shuffleState;
     }
 
+    @Nullable
     public PlayableItem getPlayingItem() {
         return playableItem;
     }
@@ -73,5 +76,10 @@ public class CurrentPlayerState {
     public CurrentPlayerState disconnectDevice(@NotNull final String deviceId) {
         final TargetDeactivationDevice deactivationTarget = TargetDeactivationDevice.of(deviceId);
         return disconnectDevice(deactivationTarget);
+    }
+
+    @NotNull
+    public CurrentPlayerState changeVolume(final int volume) {
+        return withVolume(volume);
     }
 }
