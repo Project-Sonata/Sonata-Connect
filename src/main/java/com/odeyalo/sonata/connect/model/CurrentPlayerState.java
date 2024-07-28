@@ -37,7 +37,9 @@ public class CurrentPlayerState {
     PlayableItem playableItem;
     @NotNull
     User user;
-    int volume;
+    @NotNull
+    @Builder.Default
+    Volume volume = Volume.muted();
     long lastPauseTime = 0;
     long playStartTime = 0;
 
@@ -79,7 +81,7 @@ public class CurrentPlayerState {
     }
 
     @NotNull
-    public CurrentPlayerState changeVolume(final int volume) {
+    public CurrentPlayerState changeVolume(final Volume volume) {
         return withVolume(volume);
     }
 }

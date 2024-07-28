@@ -13,7 +13,7 @@ import static com.odeyalo.sonata.connect.service.player.sync.event.PlayerEvent.E
 /**
  * Decorator that can publish event to PlayerSynchronizationManager
  */
-public class EventPublisherPlayerOperationsDecorator implements BasicPlayerOperations {
+public final class EventPublisherPlayerOperationsDecorator implements BasicPlayerOperations {
     private final BasicPlayerOperations delegate;
     private final PlayerSynchronizationManager synchronizationManager;
     private final DeviceOperations deviceOperations;
@@ -25,22 +25,22 @@ public class EventPublisherPlayerOperationsDecorator implements BasicPlayerOpera
     }
 
     @Override
-    public Mono<CurrentPlayerState> currentState(User user) {
+    public @NotNull Mono<CurrentPlayerState> currentState(@NotNull User user) {
         return delegate.currentState(user);
     }
 
     @Override
-    public Mono<CurrentlyPlayingPlayerState> currentlyPlayingState(User user) {
+    public @NotNull Mono<CurrentlyPlayingPlayerState> currentlyPlayingState(@NotNull User user) {
         return delegate.currentlyPlayingState(user);
     }
 
     @Override
-    public Mono<CurrentPlayerState> changeShuffle(User user, ShuffleMode shuffleMode) {
+    public @NotNull Mono<CurrentPlayerState> changeShuffle(@NotNull User user, @NotNull ShuffleMode shuffleMode) {
         return delegate.changeShuffle(user, shuffleMode);
     }
 
     @Override
-    public DeviceOperations getDeviceOperations() {
+    public @NotNull DeviceOperations getDeviceOperations() {
         return deviceOperations;
     }
 
@@ -58,6 +58,13 @@ public class EventPublisherPlayerOperationsDecorator implements BasicPlayerOpera
     public Mono<CurrentPlayerState> pause(@NotNull User user) {
         return delegate.pause(user)
                 .flatMap(it -> publishEvent(it, PLAYER_STATE_UPDATED, user));
+    }
+
+    @Override
+    @NotNull
+    public Mono<CurrentPlayerState> changeVolume(@NotNull final User user,
+                                                 @NotNull final Volume volume) {
+        return delegate.changeVolume(user, volume);
     }
 
     @NotNull

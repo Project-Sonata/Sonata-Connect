@@ -19,7 +19,7 @@ public final class CurrentPlayerStateFaker {
                 .id(faker.random().nextLong())
                 .devices(Devices.fromCollection(
                         Collections.singletonList(Device.of("123", "Odeyalo", DeviceType.COMPUTER,
-                                DeviceSpec.Volume.from(
+                                Volume.from(
                                         faker.random().nextInt(0, 100)
                                 )
                                 , DeviceSpec.DeviceStatus.ACTIVE))

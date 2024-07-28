@@ -1,9 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
-import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
-import com.odeyalo.sonata.connect.model.ShuffleMode;
-import com.odeyalo.sonata.connect.model.User;
+import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.service.player.handler.PauseCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.support.mapper.CurrentPlayerState2CurrentlyPlayingPlayerStateConverter;
@@ -19,7 +16,7 @@ import static reactor.core.publisher.Mono.defer;
 
 @Component
 @RequiredArgsConstructor
-public class DefaultPlayerOperations implements BasicPlayerOperations {
+public final class DefaultPlayerOperations implements BasicPlayerOperations {
     private final DeviceOperations deviceOperations;
     private final PlayCommandHandlerDelegate playCommandHandlerDelegate;
     private final PauseCommandHandlerDelegate pauseCommandHandlerDelegate;
@@ -70,6 +67,16 @@ public class DefaultPlayerOperations implements BasicPlayerOperations {
     @NotNull
     public Mono<CurrentPlayerState> pause(@NotNull User user) {
         return pauseCommandHandlerDelegate.pause(user);
+    }
+
+    @Override
+    @NotNull
+    public Mono<CurrentPlayerState> changeVolume(@NotNull final User user,
+                                                 @NotNull final Volume volume) {
+
+        return playerStateService.loadPlayerState(user)
+                .map(state -> state.changeVolume(volume))
+                .flatMap(playerStateService::save);
     }
 
     @NotNull

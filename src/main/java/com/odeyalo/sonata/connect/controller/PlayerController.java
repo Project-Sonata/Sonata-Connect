@@ -23,7 +23,6 @@ import reactor.core.scheduler.Schedulers;
 @RequiredArgsConstructor
 public class PlayerController {
     private final BasicPlayerOperations playerOperations;
-    private final PlayerStateService playerStateService;
     private final CurrentPlayerState2PlayerStateDtoConverter playerState2PlayerStateDtoConverter;
     private final Devices2DevicesDtoConverter devicesDtoConverter;
     private final ConnectDeviceRequest2DeviceConverter deviceModelConverter;
@@ -112,9 +111,7 @@ public class PlayerController {
             return invalidVolume;
         }
 
-        return playerStateService.loadPlayerState(user)
-                .map(state -> state.changeVolume(volume))
-                .flatMap(playerStateService::save)
+        return playerOperations.changeVolume(user, Volume.from(volume))
                 .map(it -> default204Response());
     }
 

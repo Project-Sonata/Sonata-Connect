@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import com.odeyalo.sonata.connect.model.Device;
 import com.odeyalo.sonata.connect.model.DeviceSpec;
 import com.odeyalo.sonata.connect.model.DeviceType;
+import com.odeyalo.sonata.connect.model.Volume;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public final class DeviceFaker {
@@ -14,7 +15,7 @@ public final class DeviceFaker {
         builder
                 .deviceId(RandomStringUtils.randomAlphanumeric(16))
                 .deviceName(faker.funnyName().name())
-                .volume(DeviceSpec.Volume.from(40))
+                .volume(Volume.from(40))
                 .deviceType(faker.options().option(DeviceType.class))
                 .status(DeviceSpec.DeviceStatus.IDLE);
     }
