@@ -49,11 +49,6 @@ class ChangePlayerVolumeTest extends DefaultPlayerOperationsTest {
                 .verifyComplete();
     }
 
-    // For single device - change volume
-    // if multiple devices - change for active
-    // if multiple devices and NO active device then error
-
-
     @Test
     void shouldReturnErrorIfThereIsNoDevices() {
         final PlayerStateEntity playingPlayerState = PlayerStateFaker.create()
