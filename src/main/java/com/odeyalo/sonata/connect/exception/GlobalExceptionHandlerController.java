@@ -4,6 +4,7 @@ import com.odeyalo.sonata.common.context.MalformedContextUriException;
 import com.odeyalo.sonata.connect.dto.ExceptionMessage;
 import com.odeyalo.sonata.connect.dto.ExceptionMessages;
 import com.odeyalo.sonata.connect.dto.ReasonCodeAwareExceptionMessage;
+import com.odeyalo.sonata.connect.exception.web.MissingRequestParameterException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -69,5 +70,11 @@ public class GlobalExceptionHandlerController {
     public ResponseEntity<?> handleInvalidVolumeException(final InvalidVolumeException ex) {
         return ResponseEntity.badRequest()
                 .body(ReasonCodeAwareExceptionMessage.of("invalid_volume", ex.getMessage()));
+    }
+
+    @ExceptionHandler(MissingRequestParameterException.class)
+    public ResponseEntity<?> handleMissingRequestParameterException(final MissingRequestParameterException ex) {
+        return ResponseEntity.badRequest()
+                .body(ExceptionMessage.of(ex.getMessage()));
     }
 }
