@@ -54,7 +54,7 @@ public class DevicesController {
                 .thenReturn(HttpStatus.default204Response());
     }
 
-    @DeleteMapping(value = "/device", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/devices", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<?>> disconnectDevice(@NotNull final DisconnectDeviceArgs disconnectDeviceArgs,
                                                     @NotNull final User user) {
         return deviceOperations.disconnectDevice(user, disconnectDeviceArgs)
