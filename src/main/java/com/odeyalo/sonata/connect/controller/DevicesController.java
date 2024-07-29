@@ -33,7 +33,7 @@ public class DevicesController {
                 .map(HttpStatus::ok);
     }
 
-    @PutMapping(value = "/device/connect", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/devices", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<?>> addDevice(@NotNull final User user,
                                              @NotNull @ConnectionTarget final Device device) {
 

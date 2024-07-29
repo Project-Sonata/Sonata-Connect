@@ -17,6 +17,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
 import testing.asserts.AvailableDevicesResponseDtoAssert;
 import testing.faker.ConnectDeviceRequestFaker;
+import testing.shared.SonataTestHttpOperations;
+import testing.spring.autoconfigure.AutoConfigureSonataHttpClient;
 
 import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode.REMOTE;
 
@@ -27,10 +29,14 @@ import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerPro
         repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
         ids = "com.odeyalo.sonata:authorization:+")
 @TestPropertySource(locations = "classpath:application-test.properties")
+@AutoConfigureSonataHttpClient
 public class FetchAvailableDevicesEndpointTest {
 
     @Autowired
     WebTestClient webTestClient;
+
+    @Autowired
+    SonataTestHttpOperations sonataTestHttpOperations;
 
     @Autowired
     PlayerStateRepository playerStateRepository;
@@ -56,16 +62,6 @@ public class FetchAvailableDevicesEndpointTest {
         @AfterAll
         void afterAll() {
             playerStateRepository.clear().block();
-        }
-
-        @NotNull
-        private WebTestClient.ResponseSpec sendConnectDeviceRequest(ConnectDeviceRequest connectDeviceRequest) {
-            return webTestClient.put()
-                    .uri("/player/device/connect")
-                    .header(HttpHeaders.AUTHORIZATION, VALID_ACCESS_TOKEN)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(connectDeviceRequest)
-                    .exchange();
         }
 
         @Test
@@ -101,7 +97,8 @@ public class FetchAvailableDevicesEndpointTest {
 
         private DeviceEntity connectSingleDevice() {
             ConnectDeviceRequest request = ConnectDeviceRequestFaker.create().get();
-            sendConnectDeviceRequest(request);
+            sonataTestHttpOperations.connectDevice(VALID_ACCESS_TOKEN, request);
+
             return DeviceEntity.builder()
                     .id(request.getId())
                     .name(request.getName())
