@@ -67,7 +67,7 @@ public class WebTestClientSonataTestHttpOperations implements SonataTestHttpOper
     @Override
     public void switchDevices(String authorizationHeaderValue, DeviceSwitchRequest body) {
         webTestClient.put()
-                .uri("/player/device/switch")
+                .uri("/player/devices")
                 .header(HttpHeaders.AUTHORIZATION, authorizationHeaderValue)
                 .bodyValue(body);
     }

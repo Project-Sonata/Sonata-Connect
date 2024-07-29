@@ -33,7 +33,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
         ids = "com.odeyalo.sonata:authorization:+")
 @ActiveProfiles("test")
 public class SwitchDevicesEndpointTest {
-    public static final String DEVICE_SWITCH_ENDPOINT = "/player/device/switch";
+    public static final String DEVICE_SWITCH_ENDPOINT = "/player/devices";
 
     @Autowired
     WebTestClient webTestClient;

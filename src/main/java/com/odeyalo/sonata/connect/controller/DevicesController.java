@@ -41,7 +41,7 @@ public class DevicesController {
                 .thenReturn(HttpStatus.default204Response());
     }
 
-    @PutMapping(value = "/device/switch", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/devices", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<?>> switchDevices(@NotNull final User user,
                                                  @NotNull final SwitchDeviceCommandArgs switchDeviceCommandArgs,
                                                  @NotNull final TargetDeactivationDevices targetDeactivationDevices,
