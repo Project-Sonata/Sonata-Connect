@@ -1,6 +1,7 @@
 package com.odeyalo.sonata.connect.model;
 
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevice;
+import com.odeyalo.sonata.connect.service.player.TargetDevice;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -75,6 +76,10 @@ public class CurrentPlayerState {
         return getDevices().hasActiveDevice();
     }
 
+    public boolean hasDevice(@NotNull final TargetDevice searchTarget) {
+        return devices.hasDevice(searchTarget);
+    }
+
     @NotNull
     public CurrentPlayerState disconnectDevice(@NotNull final String deviceId) {
         final TargetDeactivationDevice deactivationTarget = TargetDeactivationDevice.of(deviceId);
@@ -82,7 +87,7 @@ public class CurrentPlayerState {
     }
 
     @NotNull
-    public CurrentPlayerState changeVolume(final Volume volume) {
+    public CurrentPlayerState changeVolume(@NotNull final Volume volume) {
 
         final Devices devices = this.devices.changeVolume(volume);
 
@@ -91,5 +96,12 @@ public class CurrentPlayerState {
                 .volume(volume)
                 .devices(devices)
                 .build();
+    }
+
+    @NotNull
+    public CurrentPlayerState transferPlayback(@NotNull final TargetDevice deviceToTransferPlayback) {
+        final var updatedDevices = devices.transferPlayback(deviceToTransferPlayback);
+
+        return withDevices(updatedDevices);
     }
 }
