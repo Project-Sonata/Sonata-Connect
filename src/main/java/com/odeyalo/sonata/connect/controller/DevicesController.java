@@ -46,11 +46,12 @@ public class DevicesController {
     @PutMapping(value = "/device/switch", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<?>> switchDevices(@NotNull final User user,
                                                  @NotNull final SwitchDeviceCommandArgs switchDeviceCommandArgs,
+                                                 @NotNull final TargetDeactivationDevices targetDeactivationDevices,
                                                  @NotNull @TransferPlaybackTargets final TargetDevices transferPlaybackTargets) {
         return deviceOperations.transferPlayback(
                         user,
                         switchDeviceCommandArgs,
-                        TargetDeactivationDevices.empty(),
+                        targetDeactivationDevices,
                         transferPlaybackTargets)
                 .thenReturn(HttpStatus.default204Response());
     }

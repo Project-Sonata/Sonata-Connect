@@ -32,7 +32,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
         repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
         ids = "com.odeyalo.sonata:authorization:+")
 @ActiveProfiles("test")
-public class DeviceEntitySwitchPlayerControllerTests {
+public class SwitchDevicesEndpointTest {
     public static final String DEVICE_SWITCH_ENDPOINT = "/player/device/switch";
 
     @Autowired
