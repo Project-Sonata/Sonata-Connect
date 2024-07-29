@@ -23,6 +23,7 @@ problem!
 - [Get the current player state](docs/How-To-Fetch-Player-State.MD)
 - [Start or resume playback](docs/How-To-Start-Playback.MD)
 - [Pause playback](docs/How-To-Pause-Playback.MD)
+- [Change playback volume](docs/How-To-Change-Volume.MD)
 
 # Device authentication
 
