@@ -6,7 +6,7 @@ Transfer playback to a new device.
 #### Request 
 
 ```http request
-PUT /player/device/switch
+PUT /player/devices
 Authorization: Bearer user_access_token
 ```
 

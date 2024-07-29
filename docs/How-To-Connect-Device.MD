@@ -5,7 +5,7 @@ Connect device to the player. User can then switch playback to this device.
 #### Request
 
 ```http request
-PUT /player/device/connect
+POST /player/devices
 Authorization: Bearer user_access_token
 ```
 
@@ -38,5 +38,5 @@ Status:
   reason_code' in body, that can be used to determine type of the error
 - 500 Server Error - should never happen, but if so - please, create a new issue that can be used to reproduce the issue
 
-See the [tests](../src/test/java/com/odeyalo/sonata/connect/controller/ConnectDevicePlayerStateControllerTest.java)
+See the [tests](../src/test/java/com/odeyalo/sonata/connect/controller/ConnectDeviceEndpointTest.java)
 for further info

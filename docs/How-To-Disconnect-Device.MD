@@ -7,7 +7,7 @@ Note: Do nothing if device by provided ID does not exist.
 #### Request
 
 ```http request
-DELETE /player/device
+DELETE /player/devices
 Authorization: Bearer user_access_token
 ```
 
