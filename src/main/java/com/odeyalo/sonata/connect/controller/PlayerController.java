@@ -91,6 +91,13 @@ public class PlayerController {
                 .thenReturn(default204Response());
     }
 
+    @PutMapping(value = "/volume", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<ResponseEntity<?>> changePlayerVolume(@NotNull final Volume volume,
+                                                      @NotNull final User user) {
+        return playerOperations.changeVolume(user, volume)
+                .map(it -> default204Response());
+    }
+
     @DeleteMapping(value = "/device")
     public Mono<ResponseEntity<?>> disconnectDevice(@RequestParam("device_id") String deviceId, User user) {
         return playerOperations.getDeviceOperations()
@@ -98,6 +105,7 @@ public class PlayerController {
                 .thenReturn(default204Response());
     }
 
+    @NotNull
     private CurrentlyPlayingPlayerStateDto convertToCurrentlyPlayingStateDto(CurrentlyPlayingPlayerState state) {
         return currentlyPlayingPlayerStateDtoConverter.convertTo(state);
     }

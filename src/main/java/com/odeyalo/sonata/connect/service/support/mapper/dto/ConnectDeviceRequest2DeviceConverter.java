@@ -3,12 +3,13 @@ package com.odeyalo.sonata.connect.service.support.mapper.dto;
 import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
 import com.odeyalo.sonata.connect.model.Device;
 import com.odeyalo.sonata.connect.model.DeviceSpec;
+import com.odeyalo.sonata.connect.model.Volume;
 import com.odeyalo.sonata.connect.service.support.mapper.Converter;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", imports = {
-        DeviceSpec.Volume.class,
+        Volume.class,
         DeviceSpec.DeviceStatus.class
 })
 public interface ConnectDeviceRequest2DeviceConverter extends Converter<ConnectDeviceRequest, Device> {

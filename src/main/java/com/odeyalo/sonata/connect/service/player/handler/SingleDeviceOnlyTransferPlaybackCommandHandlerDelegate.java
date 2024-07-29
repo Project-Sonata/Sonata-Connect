@@ -5,7 +5,6 @@ import com.odeyalo.sonata.connect.exception.MultipleTargetDevicesNotSupportedExc
 import com.odeyalo.sonata.connect.exception.SingleTargetDeactivationDeviceRequiredException;
 import com.odeyalo.sonata.connect.exception.TargetDeviceRequiredException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.player.PlayerStateService;
 import com.odeyalo.sonata.connect.service.player.SwitchDeviceCommandArgs;
@@ -30,20 +29,6 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
     }
 
     @NotNull
-    private Mono<CurrentPlayerState> delegateTransferPlayback(@NotNull final TargetDevices targetDevices,
-                                                              @NotNull final CurrentPlayerState state) {
-
-        final Devices connectedDevices = state.getDevices();
-        final TargetDevice targetDevice = targetDevices.peekFirst();
-
-        if ( connectedDevices.hasDevice(targetDevice) ) {
-            return doTransferPlayback(state, targetDevice, connectedDevices);
-        }
-
-        return Mono.error(DeviceNotFoundException.defaultException());
-    }
-
-    @NotNull
     @Override
     public Mono<CurrentPlayerState> transferPlayback(@NotNull final User user,
                                                      @NotNull final SwitchDeviceCommandArgs args,
@@ -61,14 +46,24 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
     }
 
     @NotNull
-    private Mono<CurrentPlayerState> doTransferPlayback(@NotNull final CurrentPlayerState state,
-                                                        @NotNull final TargetDevice deviceToTransferPlayback,
-                                                        @NotNull final Devices connectedDevices) {
+    private Mono<CurrentPlayerState> delegateTransferPlayback(@NotNull final TargetDevices targetDevices,
+                                                              @NotNull final CurrentPlayerState playerState) {
 
-        final var updatedDevices = connectedDevices.transferPlayback(deviceToTransferPlayback);
+        final TargetDevice transferPlaybackTarget = targetDevices.peekFirst();
+
+        if ( playerState.hasDevice(transferPlaybackTarget) ) {
+            return doTransferPlayback(playerState, transferPlaybackTarget);
+        }
+
+        return Mono.error(DeviceNotFoundException.defaultException());
+    }
+
+    @NotNull
+    private Mono<CurrentPlayerState> doTransferPlayback(@NotNull final CurrentPlayerState state,
+                                                        @NotNull final TargetDevice deviceToTransferPlayback) {
 
         return playerStateService.save(
-                state.withDevices(updatedDevices)
+                state.transferPlayback(deviceToTransferPlayback)
         );
     }
 

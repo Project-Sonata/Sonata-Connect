@@ -25,5 +25,6 @@ public interface CurrentPlayerState2PlayerStateDtoConverter extends Converter<Cu
                     " currentPlayerState.getPlayingType().toString().toLowerCase() " +
                     ": null)")
     @Mapping(target = "shuffleState", expression = "java( currentPlayerState.getShuffleState() == ShuffleMode.ENABLED )")
+    @Mapping(target = "volume", expression = "java( currentPlayerState.getVolume().asInt() )")
     PlayerStateDto convertTo(CurrentPlayerState currentPlayerState);
 }

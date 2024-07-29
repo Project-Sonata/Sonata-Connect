@@ -1,7 +1,6 @@
 package com.odeyalo.sonata.connect.model;
 
 import org.jetbrains.annotations.NotNull;
-import org.springframework.util.Assert;
 
 /**
  * Specification that describes a device that connected to Sonata-Connect
@@ -49,30 +48,6 @@ public interface DeviceSpec {
      */
     default boolean isIdle() {
         return getStatus().isIdle();
-    }
-
-    /**
-     * Represent a volume for the device
-     * Volume MUST BE in range from 0 to 100
-     *
-     * @param value - an integer that represent a volume
-     */
-    record Volume(int value) {
-        /**
-         * @throws IllegalStateException if a volume is in invalid range
-         */
-        public Volume {
-            Assert.state(value >= 0, "Volume cannot be negative!");
-            Assert.state(value <= 100, "Volume must be in range 0 - 100!");
-        }
-
-        public static Volume from(int value) {
-            return new Volume(value);
-        }
-
-        public int asInt() {
-            return value;
-        }
     }
 
     /**

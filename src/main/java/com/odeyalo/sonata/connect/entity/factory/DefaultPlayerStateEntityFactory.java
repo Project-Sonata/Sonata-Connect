@@ -26,6 +26,7 @@ public final class DefaultPlayerStateEntityFactory implements PlayerStateEntityF
         final PlayerStateEntity.PlayerStateEntityBuilder builder = PlayerStateEntity.builder()
                 .id(state.getId())
                 .playing(state.isPlaying())
+                .volume(state.getVolume().asInt())
                 .repeatState(state.getRepeatState())
                 .shuffleState(state.getShuffleState())
                 .user(UserEntity.builder().id(state.getUser().getId()).build())

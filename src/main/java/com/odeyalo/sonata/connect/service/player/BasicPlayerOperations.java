@@ -1,9 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
-import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
-import com.odeyalo.sonata.connect.model.ShuffleMode;
-import com.odeyalo.sonata.connect.model.User;
+import com.odeyalo.sonata.connect.model.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
@@ -21,7 +18,8 @@ public interface BasicPlayerOperations {
      * @param user - user that owns the player state
      * @return - mono wrapped with player state, never returns empty mono.
      */
-    Mono<CurrentPlayerState> currentState(User user);
+    @NotNull
+    Mono<CurrentPlayerState> currentState(@NotNull User user);
 
     /**
      * Return the currently playing state, if nothing is playing right now empty mono should be returned.
@@ -29,7 +27,8 @@ public interface BasicPlayerOperations {
      * @param user - user to get the current player state
      * @return - currently playing state or  empty mono
      */
-    Mono<CurrentlyPlayingPlayerState> currentlyPlayingState(User user);
+    @NotNull
+    Mono<CurrentlyPlayingPlayerState> currentlyPlayingState(@NotNull User user);
 
     /**
      * Create or return the player state for the user.
@@ -38,7 +37,8 @@ public interface BasicPlayerOperations {
      * @param user - user to create state to
      * @return - mono with created player state or state that already present
      */
-    default Mono<CurrentPlayerState> createState(User user) {
+    @NotNull
+    default Mono<CurrentPlayerState> createState(@NotNull User user) {
         return currentState(user);
     }
 
@@ -50,8 +50,10 @@ public interface BasicPlayerOperations {
      * @param shuffleMode - mode to update shuffle state
      * @return mono with updated player state
      */
-    Mono<CurrentPlayerState> changeShuffle(User user, ShuffleMode shuffleMode);
+    @NotNull
+    Mono<CurrentPlayerState> changeShuffle(@NotNull User user, @NotNull ShuffleMode shuffleMode);
 
+    @NotNull
     DeviceOperations getDeviceOperations();
 
     /**
@@ -78,9 +80,13 @@ public interface BasicPlayerOperations {
     @NotNull
     Mono<CurrentPlayerState> pause(@NotNull User user);
 
+    @NotNull
+    Mono<CurrentPlayerState> changeVolume(@NotNull User user, @NotNull Volume volume);
+
     /**
      * Alias for  #changeShuffle(User, true) method call
      */
+    @NotNull
     default Mono<CurrentPlayerState> enableShuffle(User user) {
         return changeShuffle(user, ShuffleMode.ENABLED);
     }
@@ -88,6 +94,7 @@ public interface BasicPlayerOperations {
     /**
      * Alias for  #changeShuffle(User, false) method call
      */
+    @NotNull
     default Mono<CurrentPlayerState> disableShuffle(User user) {
         return changeShuffle(user, ShuffleMode.OFF);
     }

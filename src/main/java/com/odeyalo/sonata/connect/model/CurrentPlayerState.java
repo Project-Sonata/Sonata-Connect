@@ -1,10 +1,8 @@
 package com.odeyalo.sonata.connect.model;
 
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevice;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Value;
-import lombok.With;
+import com.odeyalo.sonata.connect.service.player.TargetDevice;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +13,7 @@ import java.util.Random;
  */
 @Value
 @AllArgsConstructor(staticName = "of")
-@Builder
+@Builder(toBuilder = true)
 @With
 public class CurrentPlayerState {
     long id;
@@ -37,6 +35,9 @@ public class CurrentPlayerState {
     PlayableItem playableItem;
     @NotNull
     User user;
+    @NotNull
+    @Builder.Default
+    Volume volume = Volume.muted();
     long lastPauseTime = 0;
     long playStartTime = 0;
 
@@ -48,10 +49,12 @@ public class CurrentPlayerState {
                 .build();
     }
 
+    @NotNull
     public ShuffleMode getShuffleState() {
         return shuffleState;
     }
 
+    @Nullable
     public PlayableItem getPlayingItem() {
         return playableItem;
     }
@@ -69,9 +72,36 @@ public class CurrentPlayerState {
         return withDevices(updatedDevices);
     }
 
+    public boolean hasActiveDevice() {
+        return getDevices().hasActiveDevice();
+    }
+
+    public boolean hasDevice(@NotNull final TargetDevice searchTarget) {
+        return devices.hasDevice(searchTarget);
+    }
+
     @NotNull
     public CurrentPlayerState disconnectDevice(@NotNull final String deviceId) {
         final TargetDeactivationDevice deactivationTarget = TargetDeactivationDevice.of(deviceId);
         return disconnectDevice(deactivationTarget);
+    }
+
+    @NotNull
+    public CurrentPlayerState changeVolume(@NotNull final Volume volume) {
+
+        final Devices devices = this.devices.changeVolume(volume);
+
+        // For performance
+        return toBuilder()
+                .volume(volume)
+                .devices(devices)
+                .build();
+    }
+
+    @NotNull
+    public CurrentPlayerState transferPlayback(@NotNull final TargetDevice deviceToTransferPlayback) {
+        final var updatedDevices = devices.transferPlayback(deviceToTransferPlayback);
+
+        return withDevices(updatedDevices);
     }
 }

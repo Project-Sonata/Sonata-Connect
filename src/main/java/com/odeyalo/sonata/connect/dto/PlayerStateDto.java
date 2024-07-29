@@ -19,6 +19,7 @@ public class PlayerStateDto {
     RepeatState repeatState = RepeatState.OFF;
     @JsonProperty("shuffle_state")
     boolean shuffleState;
+    int volume;
     @JsonProperty("currently_playing_type")
     String currentlyPlayingType;
     @JsonProperty("progress_ms")
