@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.controller;
 
+import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.dto.ReasonCodeAwareExceptionMessage;
 import org.jetbrains.annotations.NotNull;
@@ -14,8 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
+import testing.faker.ConnectDeviceRequestFaker;
 import testing.shared.SonataTestHttpOperations;
 import testing.spring.autoconfigure.AutoConfigureSonataHttpClient;
+import testing.spring.callback.ClearPlayerState;
 import testing.spring.stubs.AutoConfigureSonataStubs;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +30,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @AutoConfigureSonataStubs
 @AutoConfigureSonataHttpClient
 @ActiveProfiles("test")
+@ClearPlayerState
 class ChangePlayerVolumeEndpointTest {
 
     @Autowired
@@ -45,6 +49,8 @@ class ChangePlayerVolumeEndpointTest {
     @ParameterizedTest
     @ValueSource(ints = {0, 20, 40, 50, 60, 100})
     void shouldReturn204NoContentStatusAsResponseForValidVolume(final int volume) {
+        connectDevice();
+
         final WebTestClient.ResponseSpec responseSpec = sendChangeVolumeRequest(volume);
 
         responseSpec.expectStatus().isNoContent();
@@ -53,6 +59,8 @@ class ChangePlayerVolumeEndpointTest {
     @ParameterizedTest
     @ValueSource(ints = {-1, -10, -20, -100, -1000})
     void shouldReturn404BadRequestStatusCodeIfVolumeIsNegative(final int volume) {
+        connectDevice();
+
         final WebTestClient.ResponseSpec responseSpec = sendChangeVolumeRequest(volume);
 
         responseSpec.expectStatus().isBadRequest();
@@ -64,6 +72,8 @@ class ChangePlayerVolumeEndpointTest {
     @ParameterizedTest
     @ValueSource(ints = {101, 200, 300, 500})
     void shouldReturn404BadRequestStatusCodeIfVolumeIsGreaterThan100(final int volume) {
+        connectDevice();
+
         final WebTestClient.ResponseSpec responseSpec = sendChangeVolumeRequest(volume);
 
         responseSpec.expectStatus().isBadRequest();
@@ -74,11 +84,24 @@ class ChangePlayerVolumeEndpointTest {
 
     @Test
     void shouldUpdatePlayerStateAfterCommand() {
+        connectDevice();
+
         sendChangeVolumeRequest(30);
 
         final PlayerStateDto currentState = sonataTestHttpOperations.getCurrentState(VALID_ACCESS_TOKEN);
 
         assertThat(currentState.getVolume()).isEqualTo(30);
+    }
+
+    @Test
+    void shouldReturn400BadRequestIfNoDeviceIsConnected() {
+
+        final WebTestClient.ResponseSpec responseSpec = sendChangeVolumeRequest(30);
+
+        responseSpec
+                .expectStatus().isBadRequest()
+                .expectBody(ReasonCodeAwareExceptionMessage.class)
+                .value(message -> assertThat(message.getReasonCode()).isEqualTo("no_active_device"));
     }
 
     @NotNull
@@ -89,5 +112,11 @@ class ChangePlayerVolumeEndpointTest {
                         .build())
                 .header(AUTHORIZATION, VALID_ACCESS_TOKEN)
                 .exchange();
+    }
+
+    private void connectDevice() {
+        final ConnectDeviceRequest connectDeviceRequest = ConnectDeviceRequestFaker.create().get();
+
+        sonataTestHttpOperations.connectDevice(VALID_ACCESS_TOKEN, connectDeviceRequest);
     }
 }

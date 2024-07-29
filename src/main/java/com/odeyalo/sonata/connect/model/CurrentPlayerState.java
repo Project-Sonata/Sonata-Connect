@@ -1,10 +1,7 @@
 package com.odeyalo.sonata.connect.model;
 
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevice;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Value;
-import lombok.With;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +12,7 @@ import java.util.Random;
  */
 @Value
 @AllArgsConstructor(staticName = "of")
-@Builder
+@Builder(toBuilder = true)
 @With
 public class CurrentPlayerState {
     long id;
@@ -74,6 +71,10 @@ public class CurrentPlayerState {
         return withDevices(updatedDevices);
     }
 
+    public boolean hasActiveDevice() {
+        return getDevices().hasActiveDevice();
+    }
+
     @NotNull
     public CurrentPlayerState disconnectDevice(@NotNull final String deviceId) {
         final TargetDeactivationDevice deactivationTarget = TargetDeactivationDevice.of(deviceId);
@@ -82,6 +83,13 @@ public class CurrentPlayerState {
 
     @NotNull
     public CurrentPlayerState changeVolume(final Volume volume) {
-        return withVolume(volume);
+
+        final Devices devices = this.devices.changeVolume(volume);
+
+        // For performance
+        return toBuilder()
+                .volume(volume)
+                .devices(devices)
+                .build();
     }
 }

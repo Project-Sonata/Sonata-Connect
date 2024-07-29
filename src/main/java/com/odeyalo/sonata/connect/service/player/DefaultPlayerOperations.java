@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
+import com.odeyalo.sonata.connect.exception.NoActiveDeviceException;
 import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.service.player.handler.PauseCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
@@ -24,6 +25,7 @@ public final class DefaultPlayerOperations implements BasicPlayerOperations {
     private final PlayerStateService playerStateService;
 
     private final Logger logger = LoggerFactory.getLogger(DefaultPlayerOperations.class);
+
 
     @Override
     @NotNull
@@ -75,8 +77,24 @@ public final class DefaultPlayerOperations implements BasicPlayerOperations {
                                                  @NotNull final Volume volume) {
 
         return playerStateService.loadPlayerState(user)
-                .map(state -> state.changeVolume(volume))
+                .flatMap(playerState -> executeChangeVolumeCommand(playerState, volume))
                 .flatMap(playerStateService::save);
+    }
+
+    @NotNull
+    private static Mono<CurrentPlayerState> executeChangeVolumeCommand(@NotNull final CurrentPlayerState playerState,
+                                                                       @NotNull final Volume volume) {
+
+        // If we don't have active device, then we don't have connected devices at all
+        if ( playerState.hasActiveDevice() ) {
+            return Mono.just(
+                    playerState.changeVolume(volume)
+            );
+        }
+
+        return Mono.defer(
+                () -> Mono.error(NoActiveDeviceException.defaultException())
+        );
     }
 
     @NotNull

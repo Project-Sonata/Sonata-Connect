@@ -1,6 +1,7 @@
 package com.odeyalo.sonata.connect.model;
 
 import com.odeyalo.sonata.connect.exception.DeviceNotFoundException;
+import com.odeyalo.sonata.connect.exception.NoActiveDeviceException;
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevice;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
 import lombok.*;
@@ -126,6 +127,22 @@ public class Devices implements Iterable<Device> {
                 .addDevice(deactivatedDevice);
     }
 
+    /**
+     * Change the volume for ACTIVE device
+     * @param volume - volume to set for active deivce
+     * @return - updated {@link Devices}
+     * @throws NoActiveDeviceException - if there is no active device present
+     */
+    @NotNull
+    public Devices changeVolume(@NotNull final Volume volume) {
+        final Device device = getActiveDevice()
+                .orElseThrow(NoActiveDeviceException::defaultException);
+
+        return removeDevice(device.getId())
+                .addDevice(
+                        device.withVolume(volume)
+                );
+    }
 
     @NotNull
     private Device findDeviceToActivate(@NotNull final TargetDevice searchTarget) {
