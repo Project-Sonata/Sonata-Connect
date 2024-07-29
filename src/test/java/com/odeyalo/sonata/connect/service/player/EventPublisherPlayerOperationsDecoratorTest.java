@@ -1,12 +1,10 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
+import com.odeyalo.sonata.connect.entity.DevicesEntity;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.NoActiveDeviceException;
-import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.PlayableItem;
-import com.odeyalo.sonata.connect.model.TrackItem;
-import com.odeyalo.sonata.connect.model.User;
+import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.service.player.sync.DefaultPlayerSynchronizationManager;
 import com.odeyalo.sonata.connect.service.player.sync.InMemoryRoomHolder;
 import com.odeyalo.sonata.connect.service.player.sync.PlayerSynchronizationManager;
@@ -254,6 +252,93 @@ class EventPublisherPlayerOperationsDecoratorTest {
                     .as(StepVerifier::create)
                     .assertNext(it -> verify(delegateMock, times(1)).pause(eq(USER)))
                     .verifyComplete();
+        }
+    }
+
+    @Nested
+    class ChangeVolumeCommandTest  {
+
+        @Test
+        void shouldSendEventOnVolumeChange() {
+            PlayerStateEntity playerState = PlayerStateFaker
+                    .forUser(USER)
+                    .get();
+
+            EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+
+            EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                    .withPlayerState(playerState)
+                    .withSynchronizationManager(synchronizationManagerMock)
+                    .build();
+
+            testable.changeVolume(USER, Volume.fromInt(20)).block();
+
+            assertThat(synchronizationManagerMock.getOccurredEvents())
+                    .hasSize(1)
+                    .first().matches(it -> it.getCurrentPlayerState().getVolume().asInt() == 20);
+        }
+
+        @Test
+        void shouldUseActiveDeviceId() {
+            DeviceEntity activeDevice = DeviceEntityFaker.createActiveDevice()
+                    .setDeviceId("miku")
+                    .get();
+            // given
+            PlayerStateEntity playerState = PlayerStateFaker
+                    .forUser(USER)
+                    .device(activeDevice)
+                    .get();
+
+            EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+
+            EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                    .withPlayerState(playerState)
+                    .withSynchronizationManager(synchronizationManagerMock)
+                    .build();
+            // when
+            testable.pause(USER)
+                    .map(it -> synchronizationManagerMock.getOccurredEvents().get(0))
+                    .as(StepVerifier::create)
+                    // then
+                    .assertNext(it -> assertThat(it.getDeviceThatChanged()).isEqualTo("miku"))
+                    .verifyComplete();
+        }
+
+        @Test
+        void shouldNotSendEventIfErrorOccurred() {
+            // given
+            PlayerStateEntity playerState = PlayerStateFaker
+                    .forUser(USER)
+                    .devicesEntity(DevicesEntity.empty())
+                    .get();
+
+            EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+
+            EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                    .withPlayerState(playerState)
+                    .withSynchronizationManager(synchronizationManagerMock)
+                    .build();
+
+            // when, then
+            assertThatThrownBy(() -> testable.changeVolume(USER, Volume.fromInt(10)).block()).isInstanceOf(NoActiveDeviceException.class);
+            assertThat(synchronizationManagerMock.getOccurredEvents()).isEmpty();
+        }
+
+        @Test
+        void shouldInvokeDelegateChangeVolumeMethod() {
+            CurrentPlayerState playerState = CurrentPlayerStateFaker.create().withUser(USER).get();
+
+            BasicPlayerOperations delegateMock = mock(BasicPlayerOperations.class);
+
+            when(delegateMock.changeVolume(USER, Volume.fromInt(10))).thenReturn(Mono.just(playerState));
+
+            EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                    .withDelegate(delegateMock)
+                    .build();
+
+            testable.changeVolume(USER, Volume.fromInt(10)).block();
+
+            verify(delegateMock, times(1)).changeVolume(eq(USER), eq(Volume.fromInt(10)));
         }
     }
 
