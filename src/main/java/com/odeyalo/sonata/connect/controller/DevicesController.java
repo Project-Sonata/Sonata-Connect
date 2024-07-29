@@ -1,7 +1,6 @@
 package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.connect.dto.AvailableDevicesResponseDto;
-import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
 import com.odeyalo.sonata.connect.dto.DeviceSwitchRequest;
 import com.odeyalo.sonata.connect.dto.DevicesDto;
 import com.odeyalo.sonata.connect.model.Device;
@@ -12,10 +11,9 @@ import com.odeyalo.sonata.connect.service.player.DisconnectDeviceArgs;
 import com.odeyalo.sonata.connect.service.player.SwitchDeviceCommandArgs;
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevices;
 import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
-import com.odeyalo.sonata.connect.service.support.mapper.dto.ConnectDeviceRequest2DeviceConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.Devices2DevicesDtoConverter;
 import com.odeyalo.sonata.connect.support.web.HttpStatus;
-import jakarta.validation.Valid;
+import com.odeyalo.sonata.connect.support.web.annotation.ConnectionTarget;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
@@ -29,7 +27,6 @@ import reactor.core.publisher.Mono;
 public class DevicesController {
     private final DeviceOperations deviceOperations;
     private final Devices2DevicesDtoConverter devicesDtoConverter;
-    private final ConnectDeviceRequest2DeviceConverter deviceModelConverter;
 
     @GetMapping(value = "/devices", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<?>> getAvailableDevices(@NotNull final User user) {
@@ -39,9 +36,8 @@ public class DevicesController {
     }
 
     @PutMapping(value = "/device/connect", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<?>> addDevice(User user,
-                                             @Valid @RequestBody ConnectDeviceRequest body) {
-        Device device = deviceModelConverter.convertTo(body);
+    public Mono<ResponseEntity<?>> addDevice(@NotNull final User user,
+                                             @NotNull @ConnectionTarget final Device device) {
 
         return deviceOperations.addDevice(user, device)
                 .thenReturn(HttpStatus.default204Response());
