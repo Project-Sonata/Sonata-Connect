@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
+import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.entity.DeviceEntity;
 import com.odeyalo.sonata.connect.entity.DevicesEntity;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
@@ -37,7 +38,9 @@ import static org.mockito.Mockito.*;
 class EventPublisherPlayerOperationsDecoratorTest {
     public static final User USER = User.of("odeyalo");
     public static final String EXISTING_TRACK_CONTEXT_URI = "sonata:track:miku";
-    public static final PlayCommandContext VALID_PLAY_COMMAND_CONTEXT = PlayCommandContext.of(EXISTING_TRACK_CONTEXT_URI);
+    public static final PlayCommandContext VALID_PLAY_COMMAND_CONTEXT = PlayCommandContext.of(
+            ContextUri.fromString(EXISTING_TRACK_CONTEXT_URI)
+    );
     public static final TrackItem TRACK_1 = TrackItemFaker.create().withContextUri(EXISTING_TRACK_CONTEXT_URI).get();
 
 

@@ -1,6 +1,8 @@
 package com.odeyalo.sonata.connect.support.web.resolver;
 
+import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.dto.PlayResumePlaybackRequest;
+import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriException;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
 import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +44,22 @@ public final class PlayCommandContextResolver extends AbstractMessageReaderArgum
         return readBody(MethodParameter.forParameter(bodyTypeParameter), parameter, true, bindingContext, exchange)
                 .cast(PlayResumePlaybackRequest.class)
                 .map(PlayResumePlaybackRequest::getContextUri)
-                .map(PlayCommandContext::from);
+                .flatMap(PlayCommandContextResolver::tryParseContextUri);
+    }
+
+    @NotNull
+    private static Mono<PlayCommandContext> tryParseContextUri(final String contextUriStr) {
+        if ( ContextUri.isValid(contextUriStr) ) {
+            return Mono.just(
+                    PlayCommandContext.from(
+                            ContextUri.fromString(contextUriStr)
+                    ));
+        }
+
+        return Mono.defer(
+                () -> Mono.error(
+                        new ReasonCodeAwareMalformedContextUriException("Context uri is malformed", contextUriStr)
+                ));
     }
 
     @NotNull
@@ -52,6 +69,7 @@ public final class PlayCommandContextResolver extends AbstractMessageReaderArgum
                 .findMethod(this.getClass(), "methodParameterDescriptorSupport", PlayResumePlaybackRequest.class)
                 .getParameters()[0];
     }
+
     /**
      * Support method to resolve {@link Parameter} to set in {@link MethodParameter}
      * DO NOT DELETE IT IN ANY CASE, ONLY IF YOU FOUND A BETTER SOLUTION

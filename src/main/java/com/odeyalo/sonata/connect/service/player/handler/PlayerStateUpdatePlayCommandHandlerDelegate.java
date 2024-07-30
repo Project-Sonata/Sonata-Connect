@@ -1,7 +1,5 @@
 package com.odeyalo.sonata.connect.service.player.handler;
 
-import com.odeyalo.sonata.common.context.ContextUri;
-import com.odeyalo.sonata.common.context.MalformedContextUriException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.User;
@@ -42,10 +40,10 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
     }
 
     @NotNull
-    private Mono<CurrentPlayerState> save(PlayCommandContext context, CurrentPlayerState state) throws MalformedContextUriException {
-        ContextUri contextUri = ContextUri.fromString(context.getContextUri());
+    private Mono<CurrentPlayerState> save(@NotNull final PlayCommandContext context,
+                                          @NotNull final CurrentPlayerState state) {
 
-        return playableItemLoader.loadPlayableItem(contextUri)
+        return playableItemLoader.loadPlayableItem(context.getContextUri())
                 .flatMap(item -> updateAndSavePlayerState(state, item));
     }
 
@@ -58,7 +56,7 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
     }
 
     @NotNull
-    private Mono<CurrentPlayerState> validateCommand(@NotNull final PlayCommandContext context,
+    private Mono<CurrentPlayerState> validateCommand(@Nullable final PlayCommandContext context,
                                                      @NotNull final CurrentPlayerState state) {
         return integrityValidator.validate(context, state)
                 .flatMap(result -> result.isValid() ? Mono.just(state) : Mono.error(result.getOccurredException()));
