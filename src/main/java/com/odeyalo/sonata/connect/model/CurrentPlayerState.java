@@ -27,8 +27,8 @@ public class CurrentPlayerState {
     @NotNull
     @Builder.Default
     ShuffleMode shuffleState = ShuffleMode.OFF;
-    @Nullable
-    Long progressMs;
+    @Builder.Default
+    long progressMs = -1L;
     @Nullable
     PlayingType playingType;
     @NotNull
@@ -97,6 +97,17 @@ public class CurrentPlayerState {
         return playableItem != null;
     }
 
+    public long getProgressMs() {
+        if ( playableItem == null ) {
+            return -1L;
+        }
+
+        if ( isPlaying() ) {
+            return progressMs + calculateProgress();
+        }
+        return progressMs;
+    }
+
     @NotNull
     public CurrentPlayerState disconnectDevice(@NotNull final String deviceId) {
         final TargetDeactivationDevice deactivationTarget = TargetDeactivationDevice.of(deviceId);
@@ -139,5 +150,26 @@ public class CurrentPlayerState {
                 .playing(true)
                 .playStartTime(System.currentTimeMillis())
                 .build();
+    }
+
+    @NotNull
+    public CurrentPlayerState pause() {
+        if ( isPlaying() ) {
+            return this.toBuilder()
+                    .playing(false)
+                    .lastPauseTime(System.currentTimeMillis())
+                    .progressMs(progressMs + calculateProgress())
+                    .build();
+        }
+
+        return this;
+    }
+
+    private long calculateProgress() {
+        if ( isPlaying() ) {
+            return System.currentTimeMillis() - playStartTime;
+        } else {
+            return lastPauseTime - playStartTime;
+        }
     }
 }

@@ -3,13 +3,12 @@ package com.odeyalo.sonata.connect.entity;
 import com.odeyalo.sonata.connect.model.PlayingType;
 import com.odeyalo.sonata.connect.model.RepeatState;
 import com.odeyalo.sonata.connect.model.ShuffleMode;
+import com.odeyalo.sonata.connect.model.Volume;
 import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 
 @Builder
 @Data
@@ -28,12 +27,15 @@ public class PlayerStateEntity {
     Long progressMs = 0L;
     @Nullable
     PlayingType playingType;
-    DevicesEntity devicesEntity;
+    @NotNull
+    @Builder.Default
+    DevicesEntity devicesEntity = DevicesEntity.empty();
     @NotNull
     UserEntity user;
     @Nullable
     PlayableItemEntity currentlyPlayingItem;
-    int volume;
+    @NotNull
+    Volume volume;
     @Getter(value = AccessLevel.PRIVATE)
     @Setter(value = AccessLevel.PRIVATE)
     long playStartTime = 0;
@@ -44,16 +46,13 @@ public class PlayerStateEntity {
     public static final boolean SHUFFLE_ENABLED = true;
     public static final boolean SHUFFLE_DISABLED = false;
 
+    @NotNull
     public ShuffleMode getShuffleState() {
         return shuffleState;
     }
 
     public PlayingType getCurrentlyPlayingType() {
         return playingType;
-    }
-
-    public DevicesEntity getDevicesEntity() {
-        return devicesEntity;
     }
 
     @Nullable
@@ -63,60 +62,5 @@ public class PlayerStateEntity {
 
     public DevicesEntity getDevices() {
         return devicesEntity;
-    }
-
-    public Long getProgressMs() {
-        if (currentlyPlayingItem == null) {
-            return -1L;
-        }
-
-        if ( isPlaying() ) {
-            return progressMs + calculateProgress();
-        }
-        return progressMs;
-
-    }
-
-    private Long calculateProgress() {
-        if ( isPlaying() ) {
-            return System.currentTimeMillis() - playStartTime;
-        } else {
-            return lastPauseTime - playStartTime;
-        }
-    }
-
-    public void playOrResume(PlayableItemEntity item) {
-        if ( currentlyPlayingItem == null || isPaused() ) {
-            setCurrentlyPlayingItem(item);
-            setPlayingType(PlayingType.valueOf(item.getType().name()));
-            setPlaying(true);
-            playStartTime = System.currentTimeMillis();
-            return;
-        }
-
-        if ( !Objects.equals(item.getId(), currentlyPlayingItem.getId()) ) {
-            setCurrentlyPlayingItem(item);
-            setPlayingType(PlayingType.valueOf(item.getType().name()));
-            setPlaying(true);
-            playStartTime = System.currentTimeMillis();
-            progressMs = 0L;
-        }
-    }
-
-    public PlayerStateEntity pause() {
-        if ( isPlaying() ) {
-            setPlaying(false);
-            lastPauseTime = System.currentTimeMillis();
-            progressMs += calculateProgress();
-        }
-        return this;
-    }
-
-    public boolean isPaused() {
-        return !isPlaying();
-    }
-
-    public boolean hasActiveDevice() {
-        return getDevicesEntity().hasActiveDevice();
     }
 }
