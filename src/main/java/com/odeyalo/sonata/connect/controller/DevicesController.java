@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @RestController
 @RequestMapping("/player")
@@ -30,6 +31,7 @@ public class DevicesController {
 
         return deviceOperations.getConnectedDevices(user)
                 .map(availableDevicesConverter::convertTo)
+                .subscribeOn(Schedulers.boundedElastic())
                 .map(HttpStatus::ok);
     }
 
@@ -38,6 +40,7 @@ public class DevicesController {
                                              @NotNull @ConnectionTarget final Device device) {
 
         return deviceOperations.addDevice(user, device)
+                .subscribeOn(Schedulers.boundedElastic())
                 .thenReturn(HttpStatus.default204Response());
     }
 
@@ -51,6 +54,7 @@ public class DevicesController {
                         switchDeviceCommandArgs,
                         targetDeactivationDevices,
                         transferPlaybackTargets)
+                .subscribeOn(Schedulers.boundedElastic())
                 .thenReturn(HttpStatus.default204Response());
     }
 
@@ -58,6 +62,7 @@ public class DevicesController {
     public Mono<ResponseEntity<?>> disconnectDevice(@NotNull final DisconnectDeviceArgs disconnectDeviceArgs,
                                                     @NotNull final User user) {
         return deviceOperations.disconnectDevice(user, disconnectDeviceArgs)
+                .subscribeOn(Schedulers.boundedElastic())
                 .thenReturn(HttpStatus.default204Response());
     }
 }

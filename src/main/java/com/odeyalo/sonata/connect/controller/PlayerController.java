@@ -40,6 +40,7 @@ public final class PlayerController {
     @GetMapping(value = "/currently-playing", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<CurrentlyPlayingPlayerStateDto>> currentlyPlaying(@NotNull final User user) {
         return playerOperations.currentlyPlayingState(user)
+                .subscribeOn(Schedulers.boundedElastic())
                 .map(currentlyPlayingPlayerStateDtoConverter::convertTo)
                 .map(HttpStatus::ok)
                 .defaultIfEmpty(HttpStatus.default204Response());
@@ -49,12 +50,14 @@ public final class PlayerController {
     public Mono<ResponseEntity<?>> playOrResume(@NotNull final User user,
                                                 @NotNull final PlayCommandContext commandContext) {
         return playerOperations.playOrResume(user, commandContext, null)
+                .subscribeOn(Schedulers.boundedElastic())
                 .thenReturn(HttpStatus.default204Response());
     }
 
     @PutMapping(value = "/pause", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<?>> pause(@NotNull final User user) {
         return playerOperations.pause(user)
+                .subscribeOn(Schedulers.boundedElastic())
                 .thenReturn(HttpStatus.default204Response());
     }
 
@@ -71,6 +74,7 @@ public final class PlayerController {
     public Mono<ResponseEntity<?>> changePlayerVolume(@NotNull final Volume volume,
                                                       @NotNull final User user) {
         return playerOperations.changeVolume(user, volume)
+                .subscribeOn(Schedulers.boundedElastic())
                 .map(it -> HttpStatus.default204Response());
     }
 }
