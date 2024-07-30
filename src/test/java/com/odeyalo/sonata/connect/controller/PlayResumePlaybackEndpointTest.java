@@ -123,6 +123,7 @@ public class PlayResumePlaybackEndpointTest {
 
     @Test
     void shouldUpdateCurrentlyPlayingType() {
+        Hooks.onOperatorDebug();
         connectDevice();
 
         final WebTestClient.ResponseSpec ignored = sendResumeEndpointRequest(
@@ -196,7 +197,7 @@ public class PlayResumePlaybackEndpointTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class EmptyDeviceListTestsEntity {
+    class EmptyDeviceListTest {
 
         @Test
         void shouldReturnBadRequest() {

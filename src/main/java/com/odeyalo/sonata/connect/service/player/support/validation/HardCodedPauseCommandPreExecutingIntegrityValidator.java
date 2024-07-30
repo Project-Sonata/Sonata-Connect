@@ -1,7 +1,7 @@
 package com.odeyalo.sonata.connect.service.player.support.validation;
 
-import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.NoActiveDeviceException;
+import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -11,15 +11,12 @@ public final class HardCodedPauseCommandPreExecutingIntegrityValidator implement
 
     @Override
     @NotNull
-    public Mono<PlayerCommandIntegrityValidationResult> validate(@NotNull PlayerStateEntity currentState) {
-        boolean hasActiveDevice = currentState.getDevicesEntity().hasActiveDevice();
+    public Mono<Void> validate(@NotNull final CurrentPlayerState currentState) {
 
-        if ( !hasActiveDevice ) {
-            return Mono.just(
-                    PlayerCommandIntegrityValidationResult.invalid(new NoActiveDeviceException())
-            );
+        if ( currentState.missingActiveDevice() ) {
+            return Mono.error(NoActiveDeviceException::defaultException);
         }
 
-        return Mono.just(PlayerCommandIntegrityValidationResult.valid());
+        return Mono.empty();
     }
 }

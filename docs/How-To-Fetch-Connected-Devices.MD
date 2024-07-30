@@ -65,4 +65,4 @@ Array of the DeviceObject.
 ```
 </details>
 
-See the [tests](../src/test/java/com/odeyalo/sonata/connect/controller/AvailableDevicesPlayerStateControllerTest.java) for further info.
+See the [tests](../src/test/java/com/odeyalo/sonata/connect/controller/FetchAvailableDevicesEndpointTest.java) for further info.

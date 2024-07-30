@@ -68,7 +68,7 @@ public interface BasicPlayerOperations {
      */
     @NotNull
     Mono<CurrentPlayerState> playOrResume(@NotNull User user,
-                                          @Nullable PlayCommandContext context,
+                                          @NotNull PlayCommandContext context,
                                           @Nullable TargetDevice targetDevice);
 
     /**

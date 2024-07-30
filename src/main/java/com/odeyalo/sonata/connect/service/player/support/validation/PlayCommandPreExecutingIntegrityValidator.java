@@ -1,19 +1,22 @@
 package com.odeyalo.sonata.connect.service.player.support.validation;
 
-import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
+import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
+import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 /**
- * Interface to validate the Play command data before its executes
+ * Contract to validate play or resume command before it is being executed
  */
 public interface PlayCommandPreExecutingIntegrityValidator {
     /**
-     * Validate the given parameters, returns result based on this
-     * @param context - context to validate
-     * @param currentState - current state associated with user
-     * @return - PlayCommandIntegrityValidationResult#valid if context is valid, otherwise PlayCommandIntegrityValidationResult#invalid 
+     * Validate the given arguments before executing play or resume playback command
+     *
+     * @param context      - a play command context that contains info about command
+     * @param currentState - current state associated with user, before executing this command
+     * @return - {@link Mono} with the {@link Void} on success or {@link  Mono#error(Throwable) } with an error that occurred
      */
-    Mono<PlayerCommandIntegrityValidationResult> validate(PlayCommandContext context, PlayerStateEntity currentState);
-
+    @NotNull
+    Mono<Void> validate(@NotNull PlayCommandContext context,
+                        @NotNull CurrentPlayerState currentState);
 }

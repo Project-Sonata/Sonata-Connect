@@ -35,8 +35,8 @@ public class WebTestClientSonataTestHttpOperations implements SonataTestHttpOper
 
     @Override
     public void connectDevice(String authorizationHeaderValue, ConnectDeviceRequest body) {
-        webTestClient.put()
-                .uri("/player/device/connect")
+        webTestClient.post()
+                .uri("/player/devices")
                 .header(HttpHeaders.AUTHORIZATION, authorizationHeaderValue)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(body)
@@ -67,7 +67,7 @@ public class WebTestClientSonataTestHttpOperations implements SonataTestHttpOper
     @Override
     public void switchDevices(String authorizationHeaderValue, DeviceSwitchRequest body) {
         webTestClient.put()
-                .uri("/player/device/switch")
+                .uri("/player/devices")
                 .header(HttpHeaders.AUTHORIZATION, authorizationHeaderValue)
                 .bodyValue(body);
     }

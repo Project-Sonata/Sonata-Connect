@@ -2,7 +2,10 @@ package com.odeyalo.sonata.connect.model;
 
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevice;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Value;
+import lombok.With;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,8 +27,8 @@ public class CurrentPlayerState {
     @NotNull
     @Builder.Default
     ShuffleMode shuffleState = ShuffleMode.OFF;
-    @Nullable
-    Long progressMs;
+    @Builder.Default
+    long progressMs = -1L;
     @Nullable
     PlayingType playingType;
     @NotNull
@@ -38,7 +41,9 @@ public class CurrentPlayerState {
     @NotNull
     @Builder.Default
     Volume volume = Volume.muted();
+    @Builder.Default
     long lastPauseTime = 0;
+    @Builder.Default
     long playStartTime = 0;
 
     @NotNull
@@ -80,6 +85,29 @@ public class CurrentPlayerState {
         return devices.hasDevice(searchTarget);
     }
 
+    public boolean missingPlayingItem() {
+        return playableItem == null;
+    }
+
+    public boolean missingActiveDevice() {
+        return !hasActiveDevice();
+    }
+
+    public boolean hasPlayingItem() {
+        return playableItem != null;
+    }
+
+    public long getProgressMs() {
+        if ( playableItem == null ) {
+            return -1L;
+        }
+
+        if ( isPlaying() ) {
+            return progressMs + calculateProgress();
+        }
+        return progressMs;
+    }
+
     @NotNull
     public CurrentPlayerState disconnectDevice(@NotNull final String deviceId) {
         final TargetDeactivationDevice deactivationTarget = TargetDeactivationDevice.of(deviceId);
@@ -103,5 +131,45 @@ public class CurrentPlayerState {
         final var updatedDevices = devices.transferPlayback(deviceToTransferPlayback);
 
         return withDevices(updatedDevices);
+    }
+
+    @NotNull
+    public CurrentPlayerState play(@NotNull final PlayableItem item) {
+        return this.toBuilder()
+                .playing(true)
+                .playableItem(item)
+                .playingType(PlayingType.valueOf(item.getItemType().name()))
+                .playStartTime(System.currentTimeMillis())
+                .progressMs(0L)
+                .build();
+    }
+
+    @NotNull
+    public CurrentPlayerState resumePlayback() {
+        return this.toBuilder()
+                .playing(true)
+                .playStartTime(System.currentTimeMillis())
+                .build();
+    }
+
+    @NotNull
+    public CurrentPlayerState pause() {
+        if ( isPlaying() ) {
+            return this.toBuilder()
+                    .playing(false)
+                    .lastPauseTime(System.currentTimeMillis())
+                    .progressMs(progressMs + calculateProgress())
+                    .build();
+        }
+
+        return this;
+    }
+
+    private long calculateProgress() {
+        if ( isPlaying() ) {
+            return System.currentTimeMillis() - playStartTime;
+        } else {
+            return lastPauseTime - playStartTime;
+        }
     }
 }

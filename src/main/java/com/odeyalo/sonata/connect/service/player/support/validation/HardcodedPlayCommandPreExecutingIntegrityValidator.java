@@ -1,9 +1,8 @@
 package com.odeyalo.sonata.connect.service.player.support.validation;
 
-import com.odeyalo.sonata.common.context.ContextUri;
-import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
+import com.odeyalo.sonata.connect.exception.IllegalCommandStateException;
 import com.odeyalo.sonata.connect.exception.NoActiveDeviceException;
-import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriException;
+import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -12,30 +11,29 @@ import reactor.core.publisher.Mono;
 /**
  * PlayCommandPreExecutingIntegrityValidator implementation that hardcoded to written conditions in class.
  * <p>
+ *
+ * Rules applied:
+ * - at least one connected device should present
+ * - if {@link PlayCommandContext} missing a {@link com.odeyalo.sonata.common.context.ContextUri} then a {@link CurrentPlayerState} should contain playable item
+ * <p>
  * It can be used in tests
  */
 @Component
-public class HardcodedPlayCommandPreExecutingIntegrityValidator implements PlayCommandPreExecutingIntegrityValidator {
+public final class HardcodedPlayCommandPreExecutingIntegrityValidator implements PlayCommandPreExecutingIntegrityValidator {
 
     @Override
-    public Mono<PlayerCommandIntegrityValidationResult> validate(@NotNull PlayCommandContext context, PlayerStateEntity currentState) {
-        if ( currentState.getDevicesEntity().size() == 0 ) {
-            NoActiveDeviceException ex = new NoActiveDeviceException("There is no active device");
-            return Mono.just(PlayerCommandIntegrityValidationResult.invalid(ex));
+    @NotNull
+    public Mono<Void> validate(@NotNull final PlayCommandContext playback,
+                               @NotNull final CurrentPlayerState playerState) {
+
+        if ( playerState.missingActiveDevice() ) {
+            return Mono.error(NoActiveDeviceException::defaultException);
         }
 
-        if ( context.getContextUri() == null && currentState.getCurrentlyPlayingItem() == null ) {
-            IllegalStateException ex = new IllegalStateException("Nothing is playing now and context is null!");
-            return Mono.just(PlayerCommandIntegrityValidationResult.invalid(ex));
+        if ( playback.shouldBeResumed() && playerState.missingPlayingItem() ) {
+            return Mono.error(() -> IllegalCommandStateException.withCustomMessage("Player command failed: Nothing is playing now and context is null!"));
         }
 
-
-        if ( context.getContextUri() != null && !ContextUri.isValid(context.getContextUri()) ) {
-            final var exception = new ReasonCodeAwareMalformedContextUriException("Context uri is malformed", context.getContextUri());
-
-            return Mono.just(PlayerCommandIntegrityValidationResult.invalid(exception));
-        }
-
-        return Mono.just(PlayerCommandIntegrityValidationResult.valid());
+        return Mono.empty();
     }
 }

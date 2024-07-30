@@ -34,7 +34,15 @@ public final class TrackItemEntityFaker {
         return new TrackItemEntityFaker();
     }
 
+
+
     public TrackItemEntity get() {
         return builder.build();
+    }
+
+    public TrackItemEntityFaker withId(final String id) {
+        builder.id(id)
+                .contextUri(ContextUri.forTrack(id));
+        return this;
     }
 }

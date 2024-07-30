@@ -11,7 +11,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -20,19 +19,16 @@ import testing.asserts.AvailableDevicesResponseDtoAssert;
 import testing.faker.ConnectDeviceRequestFaker;
 import testing.shared.SonataTestHttpOperations;
 import testing.spring.autoconfigure.AutoConfigureSonataHttpClient;
-
-import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode.REMOTE;
+import testing.spring.stubs.AutoConfigureSonataStubs;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureWebTestClient
 @AutoConfigureSonataHttpClient
-@AutoConfigureStubRunner(stubsMode = REMOTE,
-        repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
-        ids = "com.odeyalo.sonata:authorization:+")
+@AutoConfigureSonataStubs
 @ActiveProfiles("test")
 public final class DisconnectDeviceEndpointTest {
-    public static final String DISCONNECT_DEVICE_ENDPOINT = "/player/device";
+    public static final String DISCONNECT_DEVICE_ENDPOINT = "/player/devices";
 
     @Autowired
     WebTestClient webTestClient;

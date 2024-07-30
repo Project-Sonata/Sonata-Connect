@@ -33,7 +33,7 @@ import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerPro
         repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
         ids = "com.odeyalo.sonata:authorization:+")
 @ActiveProfiles("test")
-public class CurrentlyPlayingPlayerStateControllerTest {
+public class CurrentlyPlayingEndpointTest {
 
     @Autowired
     WebTestClient webTestClient;

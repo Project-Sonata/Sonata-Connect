@@ -28,7 +28,7 @@ import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerPro
         repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
         ids = "com.odeyalo.sonata:authorization:+")
 @TestPropertySource(locations = "classpath:application-test.properties")
-public class ConnectDevicePlayerStateControllerTest {
+public class ConnectDeviceEndpointTest {
 
     @Autowired
     WebTestClient webTestClient;
@@ -38,6 +38,7 @@ public class ConnectDevicePlayerStateControllerTest {
 
     final String VALID_ACCESS_TOKEN = "Bearer mikunakanoisthebestgirl";
     final String VALID_USER_ID = "1";
+    static final String TESTABLE_ENDPOINT_URI = "/player/devices";
 
     @BeforeAll
     void setup() {
@@ -355,8 +356,8 @@ public class ConnectDevicePlayerStateControllerTest {
 
     @NotNull
     private WebTestClient.ResponseSpec sendRequestWithPlainJson(String json) {
-        return webTestClient.put()
-                .uri("/player/device/connect")
+        return webTestClient.post()
+                .uri(TESTABLE_ENDPOINT_URI)
                 .header(HttpHeaders.AUTHORIZATION, VALID_ACCESS_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(json)
@@ -374,8 +375,8 @@ public class ConnectDevicePlayerStateControllerTest {
 
     @NotNull
     private WebTestClient.ResponseSpec sendRequest(ConnectDeviceRequest connectDeviceRequest) {
-        return webTestClient.put()
-                .uri("/player/device/connect")
+        return webTestClient.post()
+                .uri(TESTABLE_ENDPOINT_URI)
                 .header(HttpHeaders.AUTHORIZATION, VALID_ACCESS_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(connectDeviceRequest)

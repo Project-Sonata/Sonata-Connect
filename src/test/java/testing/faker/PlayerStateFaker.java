@@ -2,10 +2,7 @@ package testing.faker;
 
 import com.github.javafaker.Faker;
 import com.odeyalo.sonata.connect.entity.*;
-import com.odeyalo.sonata.connect.model.PlayingType;
-import com.odeyalo.sonata.connect.model.RepeatState;
-import com.odeyalo.sonata.connect.model.ShuffleMode;
-import com.odeyalo.sonata.connect.model.User;
+import com.odeyalo.sonata.connect.model.*;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -34,6 +31,7 @@ public class PlayerStateFaker {
                 .shuffleState(faker.options().option(ShuffleMode.class))
                 .progressMs(faker.random().nextLong(1000000))
                 .playingType(faker.options().option(PlayingType.class))
+                .volume(Volume.fromInt(faker.random().nextInt(0, 100)))
                 .user(UserEntityFaker.create().get());
 
         if ( numberOfDevices <= 0 ) {

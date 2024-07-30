@@ -20,7 +20,7 @@ import org.mapstruct.Mapping;
 public interface PlayerState2CurrentPlayerStateConverter extends Converter<PlayerStateEntity, CurrentPlayerState> {
 
     @Mapping(target = "playableItem", source = "currentlyPlayingItem")
-    @Mapping(target = "volume", expression = "java( Volume.from(state.getVolume()) )")
+    @Mapping(target = "volume", expression = "java( state.getVolume() )")
     CurrentPlayerState convertTo(PlayerStateEntity state);
 
 }

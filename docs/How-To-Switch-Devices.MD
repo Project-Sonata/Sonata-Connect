@@ -6,7 +6,7 @@ Transfer playback to a new device.
 #### Request 
 
 ```http request
-PUT /player/device/switch
+PUT /player/devices
 Authorization: Bearer user_access_token
 ```
 
@@ -32,4 +32,4 @@ Status:
 - 400 Bad Request - there is a problem in request or request body. All responses with this status code have 'reason_code' and small description about the error.
 - 500 Server Error - should never happen, but if so - please, create a new GitHub issue that can be used to reproduce the issue 
 
-See the [tests](../src/test/java/com/odeyalo/sonata/connect/controller/DeviceEntitySwitchPlayerControllerTests.java) for further info
+See the [tests](../src/test/java/com/odeyalo/sonata/connect/controller/SwitchDevicesEndpointTest.java) for further info

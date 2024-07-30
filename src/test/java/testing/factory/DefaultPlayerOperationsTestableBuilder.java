@@ -35,9 +35,11 @@ public final class DefaultPlayerOperationsTestableBuilder {
     private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter = new Converters().currentPlayerStateConverter();
 
     private final PauseCommandHandlerDelegate pauseCommandHandlerDelegate =
-            new PlayerStateUpdatePauseCommandHandlerDelegate(playerStateRepository,
+            new PlayerStateUpdatePauseCommandHandlerDelegate(
                     new HardCodedPauseCommandPreExecutingIntegrityValidator(),
-                    playerStateConverterSupport);
+                    new PlayerStateService(playerStateRepository, playerStateConverterSupport, new DefaultPlayerStateEntityFactory(
+                            new DeviceEntity.Factory(), new TrackItemEntity.Factory()
+                    )));
 
     public static DefaultPlayerOperationsTestableBuilder testableBuilder() {
         return new DefaultPlayerOperationsTestableBuilder();
@@ -90,11 +92,11 @@ public final class DefaultPlayerOperationsTestableBuilder {
 
         public PlayCommandHandlerDelegate build() {
             return new PlayerStateUpdatePlayCommandHandlerDelegate(
-                    playerStateRepository,
-                    testableBuilder().playerStateConverterSupport,
                     itemLoader,
-                    new HardcodedPlayCommandPreExecutingIntegrityValidator()
-            );
+                    new HardcodedPlayCommandPreExecutingIntegrityValidator(),
+                    new PlayerStateService(playerStateRepository, testableBuilder().playerStateConverterSupport, new DefaultPlayerStateEntityFactory(
+                            new DeviceEntity.Factory(), new TrackItemEntity.Factory()
+                    )));
         }
     }
 }
