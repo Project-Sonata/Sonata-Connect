@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.service.player.handler;
 
+import com.odeyalo.sonata.connect.exception.PlayableItemNotFoundException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.User;
@@ -31,27 +32,42 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
     }
 
     @Override
+    @NotNull
     public Mono<CurrentPlayerState> playOrResume(@NotNull final User user,
-                                                 @Nullable final PlayCommandContext context,
+                                                 @NotNull final PlayCommandContext context,
                                                  @Nullable final TargetDevice targetDevice) {
         return playerStateService.loadPlayerState(user)
                 .flatMap(state -> validateCommand(context, state))
-                .flatMap(state -> save(context, state));
+                .flatMap(state -> executeCommand(context, state));
     }
 
     @NotNull
-    private Mono<CurrentPlayerState> save(@NotNull final PlayCommandContext context,
-                                          @NotNull final CurrentPlayerState state) {
+    private Mono<CurrentPlayerState> executeCommand(@NotNull final PlayCommandContext context,
+                                                    @NotNull final CurrentPlayerState state) {
+
+        if ( context.getContextUri() == null ) {
+            return resumePlayback(state);
+        }
 
         return playableItemLoader.loadPlayableItem(context.getContextUri())
-                .flatMap(item -> updateAndSavePlayerState(state, item));
+                .switchIfEmpty(Mono.defer(() -> Mono.error(PlayableItemNotFoundException.defaultException())))
+                .flatMap(item -> play(state, item));
     }
 
     @NotNull
-    private Mono<CurrentPlayerState> updateAndSavePlayerState(CurrentPlayerState state, PlayableItem item) {
+    private Mono<CurrentPlayerState> play(@NotNull final CurrentPlayerState player,
+                                          @NotNull final PlayableItem item) {
 
         return playerStateService.save(
-                state.playOrResume(item)
+                player.play(item)
+        );
+    }
+
+    @NotNull
+    private Mono<CurrentPlayerState> resumePlayback(@NotNull final CurrentPlayerState player) {
+
+        return playerStateService.save(
+                player.resumePlayback()
         );
     }
 

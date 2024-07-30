@@ -60,7 +60,7 @@ public final class DefaultPlayerOperations implements BasicPlayerOperations {
     @Override
     @NotNull
     public Mono<CurrentPlayerState> playOrResume(@NotNull final User user,
-                                                 @Nullable final PlayCommandContext context,
+                                                 @NotNull final PlayCommandContext context,
                                                  @Nullable final TargetDevice targetDevice) {
         return playCommandHandlerDelegate.playOrResume(user, context, targetDevice);
     }

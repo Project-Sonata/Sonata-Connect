@@ -9,7 +9,6 @@ import lombok.With;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -111,28 +110,22 @@ public class CurrentPlayerState {
         return withDevices(updatedDevices);
     }
 
-    public CurrentPlayerState playOrResume(@Nullable final PlayableItem item) {
-        CurrentPlayerStateBuilder builder = this.toBuilder();
+    @NotNull
+    public CurrentPlayerState play(@NotNull final PlayableItem item) {
+        return this.toBuilder()
+                .playing(true)
+                .playableItem(item)
+                .playingType(PlayingType.valueOf(item.getItemType().name()))
+                .playStartTime(System.currentTimeMillis())
+                .progressMs(0L)
+                .build();
+    }
 
-        if ( item == null || !isPlaying() ) {
-            return builder
-                    .playableItem(item)
-                    .playingType(PlayingType.valueOf(item.getItemType().name()))
-                    .playing(true)
-                    .playStartTime(System.currentTimeMillis())
-                    .build();
-        }
-
-        if ( !Objects.equals(item.getId(), playableItem.getId()) ) {
-            return builder
-                    .playableItem(item)
-                    .playingType(PlayingType.valueOf(item.getItemType().name()))
-                    .playing(true)
-                    .playStartTime(System.currentTimeMillis())
-                    .progressMs(0L)
-                    .build();
-        }
-
-        return this;
+    @NotNull
+    public CurrentPlayerState resumePlayback() {
+        return this.toBuilder()
+                .playing(true)
+                .playStartTime(System.currentTimeMillis())
+                .build();
     }
 }
