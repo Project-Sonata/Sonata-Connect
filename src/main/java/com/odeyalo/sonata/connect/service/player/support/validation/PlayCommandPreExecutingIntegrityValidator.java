@@ -1,6 +1,6 @@
 package com.odeyalo.sonata.connect.service.player.support.validation;
 
-import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
+import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
 import reactor.core.publisher.Mono;
 
@@ -14,6 +14,6 @@ public interface PlayCommandPreExecutingIntegrityValidator {
      * @param currentState - current state associated with user
      * @return - PlayCommandIntegrityValidationResult#valid if context is valid, otherwise PlayCommandIntegrityValidationResult#invalid 
      */
-    Mono<PlayerCommandIntegrityValidationResult> validate(PlayCommandContext context, PlayerStateEntity currentState);
+    Mono<PlayerCommandIntegrityValidationResult> validate(PlayCommandContext context, CurrentPlayerState currentState);
 
 }

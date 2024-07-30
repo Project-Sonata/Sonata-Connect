@@ -1,9 +1,9 @@
 package com.odeyalo.sonata.connect.service.player.support.validation;
 
 import com.odeyalo.sonata.common.context.ContextUri;
-import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.NoActiveDeviceException;
 import com.odeyalo.sonata.connect.exception.ReasonCodeAwareMalformedContextUriException;
+import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -18,13 +18,13 @@ import reactor.core.publisher.Mono;
 public class HardcodedPlayCommandPreExecutingIntegrityValidator implements PlayCommandPreExecutingIntegrityValidator {
 
     @Override
-    public Mono<PlayerCommandIntegrityValidationResult> validate(@NotNull PlayCommandContext context, PlayerStateEntity currentState) {
-        if ( currentState.getDevicesEntity().size() == 0 ) {
+    public Mono<PlayerCommandIntegrityValidationResult> validate(@NotNull PlayCommandContext context, CurrentPlayerState currentState) {
+        if ( currentState.getDevices().size() == 0 ) {
             NoActiveDeviceException ex = new NoActiveDeviceException("There is no active device");
             return Mono.just(PlayerCommandIntegrityValidationResult.invalid(ex));
         }
 
-        if ( context.getContextUri() == null && currentState.getCurrentlyPlayingItem() == null ) {
+        if ( context.getContextUri() == null && currentState.getPlayingItem() == null ) {
             IllegalStateException ex = new IllegalStateException("Nothing is playing now and context is null!");
             return Mono.just(PlayerCommandIntegrityValidationResult.invalid(ex));
         }

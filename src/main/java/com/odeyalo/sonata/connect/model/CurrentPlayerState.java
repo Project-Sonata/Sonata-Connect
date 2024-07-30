@@ -2,10 +2,14 @@ package com.odeyalo.sonata.connect.model;
 
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevice;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Value;
+import lombok.With;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -38,7 +42,9 @@ public class CurrentPlayerState {
     @NotNull
     @Builder.Default
     Volume volume = Volume.muted();
+    @Builder.Default
     long lastPauseTime = 0;
+    @Builder.Default
     long playStartTime = 0;
 
     @NotNull
@@ -103,5 +109,30 @@ public class CurrentPlayerState {
         final var updatedDevices = devices.transferPlayback(deviceToTransferPlayback);
 
         return withDevices(updatedDevices);
+    }
+
+    public CurrentPlayerState playOrResume(@Nullable final PlayableItem item) {
+        CurrentPlayerStateBuilder builder = this.toBuilder();
+
+        if ( item == null || !isPlaying() ) {
+            return builder
+                    .playableItem(item)
+                    .playingType(PlayingType.valueOf(item.getItemType().name()))
+                    .playing(true)
+                    .playStartTime(System.currentTimeMillis())
+                    .build();
+        }
+
+        if ( !Objects.equals(item.getId(), playableItem.getId()) ) {
+            return builder
+                    .playableItem(item)
+                    .playingType(PlayingType.valueOf(item.getItemType().name()))
+                    .playing(true)
+                    .playStartTime(System.currentTimeMillis())
+                    .progressMs(0L)
+                    .build();
+        }
+
+        return this;
     }
 }

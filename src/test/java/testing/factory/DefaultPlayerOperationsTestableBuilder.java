@@ -90,11 +90,11 @@ public final class DefaultPlayerOperationsTestableBuilder {
 
         public PlayCommandHandlerDelegate build() {
             return new PlayerStateUpdatePlayCommandHandlerDelegate(
-                    playerStateRepository,
-                    testableBuilder().playerStateConverterSupport,
                     itemLoader,
-                    new HardcodedPlayCommandPreExecutingIntegrityValidator()
-            );
+                    new HardcodedPlayCommandPreExecutingIntegrityValidator(),
+                    new PlayerStateService(playerStateRepository, testableBuilder().playerStateConverterSupport, new DefaultPlayerStateEntityFactory(
+                            new DeviceEntity.Factory(), new TrackItemEntity.Factory()
+                    )));
         }
     }
 }

@@ -38,6 +38,7 @@ public final class DefaultPlayerStateEntityFactory implements PlayerStateEntityF
         if (state.getPlayableItem() != null) {
             final PlayableItemEntity playableItem = playableItemFactory.create(state.getPlayableItem());
             builder.currentlyPlayingItem(playableItem);
+            builder.playingType(state.getPlayingType());
         }
 
         return builder.build();

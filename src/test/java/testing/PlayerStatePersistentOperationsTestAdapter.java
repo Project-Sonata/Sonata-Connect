@@ -3,6 +3,7 @@ package testing;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.repository.PlayerStatePersistentOperations;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
@@ -10,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Disabled // Ignore the tests from the base class, tests will execute for child classes
 public class PlayerStatePersistentOperationsTestAdapter {
 
     final PlayerStatePersistentOperations testTarget;

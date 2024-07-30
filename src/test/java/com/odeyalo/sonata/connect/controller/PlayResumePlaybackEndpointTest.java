@@ -123,6 +123,7 @@ public class PlayResumePlaybackEndpointTest {
 
     @Test
     void shouldUpdateCurrentlyPlayingType() {
+        Hooks.onOperatorDebug();
         connectDevice();
 
         final WebTestClient.ResponseSpec ignored = sendResumeEndpointRequest(
