@@ -72,9 +72,9 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
     }
 
     @NotNull
-    private Mono<CurrentPlayerState> validateCommand(@Nullable final PlayCommandContext context,
+    private Mono<CurrentPlayerState> validateCommand(@NotNull final PlayCommandContext context,
                                                      @NotNull final CurrentPlayerState state) {
         return integrityValidator.validate(context, state)
-                .flatMap(result -> result.isValid() ? Mono.just(state) : Mono.error(result.getOccurredException()));
+                .thenReturn(state);
     }
 }

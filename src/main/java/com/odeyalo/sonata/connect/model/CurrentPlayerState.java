@@ -85,6 +85,18 @@ public class CurrentPlayerState {
         return devices.hasDevice(searchTarget);
     }
 
+    public boolean missingPlayingItem() {
+        return playableItem == null;
+    }
+
+    public boolean missingActiveDevice() {
+        return !hasActiveDevice();
+    }
+
+    public boolean hasPlayingItem() {
+        return playableItem != null;
+    }
+
     @NotNull
     public CurrentPlayerState disconnectDevice(@NotNull final String deviceId) {
         final TargetDeactivationDevice deactivationTarget = TargetDeactivationDevice.of(deviceId);

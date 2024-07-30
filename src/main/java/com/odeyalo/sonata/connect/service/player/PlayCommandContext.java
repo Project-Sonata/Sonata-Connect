@@ -25,4 +25,8 @@ public class PlayCommandContext {
     public static PlayCommandContext from(@NotNull ContextUri contextUri) {
         return of(contextUri);
     }
+
+    public boolean shouldBeResumed() {
+        return contextUri == null;
+    }
 }
