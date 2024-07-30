@@ -196,7 +196,7 @@ public class PlayResumePlaybackEndpointTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class EmptyDeviceListTestsEntity {
+    class EmptyDeviceListTest {
 
         @Test
         void shouldReturnBadRequest() {

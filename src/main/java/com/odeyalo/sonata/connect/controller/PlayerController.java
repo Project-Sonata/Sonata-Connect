@@ -1,7 +1,6 @@
 package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.connect.dto.CurrentlyPlayingPlayerStateDto;
-import com.odeyalo.sonata.connect.dto.PlayResumePlaybackRequest;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
 import com.odeyalo.sonata.connect.model.ShuffleMode;
@@ -16,7 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -29,7 +31,7 @@ public class PlayerController {
     private final Converter<CurrentlyPlayingPlayerState, CurrentlyPlayingPlayerStateDto> currentlyPlayingPlayerStateDtoConverter;
 
     @GetMapping(value = "/state", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<PlayerStateDto> currentPlayerState(User user) {
+    public Mono<PlayerStateDto> currentPlayerState(@NotNull final User user) {
 
         return playerOperations.currentState(user)
                 .subscribeOn(Schedulers.boundedElastic())
@@ -37,20 +39,21 @@ public class PlayerController {
     }
 
     @GetMapping(value = "/currently-playing", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<CurrentlyPlayingPlayerStateDto>> currentlyPlaying(User user) {
+    public Mono<ResponseEntity<CurrentlyPlayingPlayerStateDto>> currentlyPlaying(@NotNull final User user) {
         return playerOperations.currentlyPlayingState(user)
                 .map(state -> ResponseEntity.ok(convertToCurrentlyPlayingStateDto(state)))
                 .defaultIfEmpty(HttpStatus.default204Response());
     }
 
     @PutMapping(value = "/play", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<?>> playOrResume(User user, @RequestBody PlayResumePlaybackRequest body) {
-        return playerOperations.playOrResume(user, PlayCommandContext.of(body.getContextUri()), null)
+    public Mono<ResponseEntity<?>> playOrResume(@NotNull final User user,
+                                                @NotNull final PlayCommandContext commandContext) {
+        return playerOperations.playOrResume(user, commandContext, null)
                 .thenReturn(HttpStatus.default204Response());
     }
 
     @PutMapping(value = "/pause", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<?>> pause(User user) {
+    public Mono<ResponseEntity<?>> pause(@NotNull final User user) {
         return playerOperations.pause(user)
                 .thenReturn(HttpStatus.default204Response());
     }
