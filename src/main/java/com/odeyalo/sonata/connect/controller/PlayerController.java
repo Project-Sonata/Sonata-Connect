@@ -25,14 +25,13 @@ import reactor.core.scheduler.Schedulers;
 @RestController
 @RequestMapping("/player")
 @RequiredArgsConstructor
-public class PlayerController {
+public final class PlayerController {
     private final BasicPlayerOperations playerOperations;
     private final CurrentPlayerState2PlayerStateDtoConverter playerState2PlayerStateDtoConverter;
     private final Converter<CurrentlyPlayingPlayerState, CurrentlyPlayingPlayerStateDto> currentlyPlayingPlayerStateDtoConverter;
 
     @GetMapping(value = "/state", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<PlayerStateDto> currentPlayerState(@NotNull final User user) {
-
         return playerOperations.currentState(user)
                 .subscribeOn(Schedulers.boundedElastic())
                 .map(playerState2PlayerStateDtoConverter::convertTo);
@@ -41,7 +40,8 @@ public class PlayerController {
     @GetMapping(value = "/currently-playing", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<CurrentlyPlayingPlayerStateDto>> currentlyPlaying(@NotNull final User user) {
         return playerOperations.currentlyPlayingState(user)
-                .map(state -> ResponseEntity.ok(convertToCurrentlyPlayingStateDto(state)))
+                .map(currentlyPlayingPlayerStateDtoConverter::convertTo)
+                .map(HttpStatus::ok)
                 .defaultIfEmpty(HttpStatus.default204Response());
     }
 
@@ -72,10 +72,5 @@ public class PlayerController {
                                                       @NotNull final User user) {
         return playerOperations.changeVolume(user, volume)
                 .map(it -> HttpStatus.default204Response());
-    }
-
-    @NotNull
-    private CurrentlyPlayingPlayerStateDto convertToCurrentlyPlayingStateDto(CurrentlyPlayingPlayerState state) {
-        return currentlyPlayingPlayerStateDtoConverter.convertTo(state);
     }
 }
