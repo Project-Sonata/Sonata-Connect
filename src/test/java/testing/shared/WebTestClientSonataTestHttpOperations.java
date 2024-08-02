@@ -54,6 +54,15 @@ public class WebTestClientSonataTestHttpOperations implements SonataTestHttpOper
     }
 
     @Override
+    public void pause(String authorizationHeaderValue) {
+        webTestClient.put()
+                .uri("/player/pause")
+                .header(HttpHeaders.AUTHORIZATION, authorizationHeaderValue)
+                .exchange()
+                .expectStatus().isNoContent();
+    }
+
+    @Override
     public void changeShuffle(String authorizationHeaderValue, boolean shuffleMode) {
         webTestClient.put()
                 .uri(builder -> {

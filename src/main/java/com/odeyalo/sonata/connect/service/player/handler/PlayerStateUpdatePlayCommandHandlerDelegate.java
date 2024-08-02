@@ -42,14 +42,14 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
     }
 
     @NotNull
-    private Mono<CurrentPlayerState> executeCommand(@NotNull final PlayCommandContext context,
+    private Mono<CurrentPlayerState> executeCommand(@NotNull final PlayCommandContext playback,
                                                     @NotNull final CurrentPlayerState state) {
 
-        if ( context.getContextUri() == null ) {
+        if ( playback.shouldBeResumed() ) {
             return resumePlayback(state);
         }
 
-        return playableItemLoader.loadPlayableItem(context.getContextUri())
+        return playableItemLoader.loadPlayableItem(playback.getContextUri())
                 .switchIfEmpty(Mono.defer(() -> Mono.error(PlayableItemNotFoundException.defaultException())))
                 .flatMap(item -> play(state, item));
     }

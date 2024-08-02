@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Parameter;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Resolves a {@link PlayCommandContext} from the given {@link ServerWebExchange}
@@ -41,25 +42,27 @@ public final class PlayCommandContextResolver extends AbstractMessageReaderArgum
 
         final Parameter bodyTypeParameter = resolveBodyTypeParameter();
 
-        return readBody(MethodParameter.forParameter(bodyTypeParameter), parameter, true, bindingContext, exchange)
+        return readBody(MethodParameter.forParameter(bodyTypeParameter), parameter, false, bindingContext, exchange)
                 .cast(PlayResumePlaybackRequest.class)
-                .map(PlayResumePlaybackRequest::getContextUri)
-                .flatMap(PlayCommandContextResolver::tryParseContextUri);
+                .flatMap(PlayCommandContextResolver::tryParseCommandRequest)
+                .defaultIfEmpty(PlayCommandContext.resumePlayback())
+                // we need this because java can't recognize type correctly :(
+                .map(Function.identity());
     }
 
     @NotNull
-    private static Mono<PlayCommandContext> tryParseContextUri(final String contextUriStr) {
+    private static Mono<PlayCommandContext> tryParseCommandRequest(final PlayResumePlaybackRequest playResumePlaybackRequest) {
+        final String contextUriStr = playResumePlaybackRequest.getContextUri();
+
         if ( ContextUri.isValid(contextUriStr) ) {
-            return Mono.just(
-                    PlayCommandContext.from(
-                            ContextUri.fromString(contextUriStr)
-                    ));
+            return Mono.just(PlayCommandContext.from(
+                    ContextUri.fromString(contextUriStr)
+            ));
         }
 
-        return Mono.defer(
-                () -> Mono.error(
-                        new ReasonCodeAwareMalformedContextUriException("Context uri is malformed", contextUriStr)
-                ));
+        return Mono.defer(() -> Mono.error(
+                new ReasonCodeAwareMalformedContextUriException("Context uri is malformed", contextUriStr)
+        ));
     }
 
     @NotNull
