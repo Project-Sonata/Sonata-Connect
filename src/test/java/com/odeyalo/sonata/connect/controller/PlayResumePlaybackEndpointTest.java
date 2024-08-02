@@ -86,7 +86,7 @@ public class PlayResumePlaybackEndpointTest {
     void shouldReturn204Status() {
         connectDevice();
 
-        WebTestClient.ResponseSpec responseSpec = sendResumeEndpointRequest(
+        WebTestClient.ResponseSpec responseSpec = sendPlayOrResumeCommandRequest(
                 PlayResumePlaybackRequest.of(EXISTING_TRACK_CONTEXT_URI)
         );
 
@@ -97,7 +97,7 @@ public class PlayResumePlaybackEndpointTest {
     void shouldChangePlayerCurrentPlayableItemToProvided() {
         connectDevice();
 
-        final WebTestClient.ResponseSpec ignored = sendResumeEndpointRequest(
+        final WebTestClient.ResponseSpec ignored = sendPlayOrResumeCommandRequest(
                 PlayResumePlaybackRequest.of(EXISTING_TRACK_CONTEXT_URI)
         );
 
@@ -111,7 +111,7 @@ public class PlayResumePlaybackEndpointTest {
     void shouldSetTrueToPlayingField() {
         connectDevice();
 
-        final WebTestClient.ResponseSpec ignored = sendResumeEndpointRequest(
+        final WebTestClient.ResponseSpec ignored = sendPlayOrResumeCommandRequest(
                 PlayResumePlaybackRequest.of(EXISTING_TRACK_CONTEXT_URI)
         );
 
@@ -123,10 +123,9 @@ public class PlayResumePlaybackEndpointTest {
 
     @Test
     void shouldUpdateCurrentlyPlayingType() {
-        Hooks.onOperatorDebug();
         connectDevice();
 
-        final WebTestClient.ResponseSpec ignored = sendResumeEndpointRequest(
+        final WebTestClient.ResponseSpec ignored = sendPlayOrResumeCommandRequest(
                 PlayResumePlaybackRequest.of(EXISTING_TRACK_CONTEXT_URI)
         );
 
@@ -137,12 +136,30 @@ public class PlayResumePlaybackEndpointTest {
     }
 
     @Test
+    void shouldResumePlaybackIfBodyWasNotSetAndPlayerHasPlayableItem() {
+        connectDevice();
+
+        final WebTestClient.ResponseSpec ignored = sendPlayOrResumeCommandRequest(
+                PlayResumePlaybackRequest.of(EXISTING_TRACK_CONTEXT_URI)
+        );
+
+        pausePlayback();
+
+
+        sendResumeCurrentPlaybackRequest();
+
+        final PlayerStateDto updatedState = getCurrentState();
+
+        PlayerStateDtoAssert.forState(updatedState).shouldPlay();
+    }
+
+    @Test
     void shouldReturn400BadRequestIfContextUriMalformed() {
         connectDevice();
 
         final String invalidContextUri = "sonata:somethinginvalid:mikuuuu";
 
-        final WebTestClient.ResponseSpec responseSpec = sendResumeEndpointRequest(PlayResumePlaybackRequest.of(invalidContextUri));
+        final WebTestClient.ResponseSpec responseSpec = sendPlayOrResumeCommandRequest(PlayResumePlaybackRequest.of(invalidContextUri));
 
         responseSpec.expectStatus().isBadRequest();
     }
@@ -153,7 +170,7 @@ public class PlayResumePlaybackEndpointTest {
 
         final String invalidContextUri = "sonata:somethinginvalid:mikuuuu";
 
-        final WebTestClient.ResponseSpec responseSpec = sendResumeEndpointRequest(PlayResumePlaybackRequest.of(invalidContextUri));
+        final WebTestClient.ResponseSpec responseSpec = sendPlayOrResumeCommandRequest(PlayResumePlaybackRequest.of(invalidContextUri));
 
         final ReasonCodeAwareExceptionMessage body = responseSpec.expectBody(ReasonCodeAwareExceptionMessage.class)
                 .returnResult().getResponseBody();
@@ -168,7 +185,7 @@ public class PlayResumePlaybackEndpointTest {
 
         final String invalidContextUri = "sonata:somethinginvalid:mikuuuu";
 
-        final WebTestClient.ResponseSpec responseSpec = sendResumeEndpointRequest(PlayResumePlaybackRequest.of(invalidContextUri));
+        final WebTestClient.ResponseSpec responseSpec = sendPlayOrResumeCommandRequest(PlayResumePlaybackRequest.of(invalidContextUri));
 
         final ReasonCodeAwareExceptionMessage body = responseSpec.expectBody(ReasonCodeAwareExceptionMessage.class).returnResult().getResponseBody();
 
@@ -180,7 +197,7 @@ public class PlayResumePlaybackEndpointTest {
     void shouldDoNothingIfPlayerWasJustCreated() {
         final PlayerStateDto beforeRequest = getCurrentState();
 
-        final WebTestClient.ResponseSpec ignored = sendResumeCurrentPlaybackEndpointRequest();
+        final WebTestClient.ResponseSpec ignored = sendResumeCurrentPlaybackRequest();
 
         final PlayerStateDto afterRequest = getCurrentState();
 
@@ -190,7 +207,7 @@ public class PlayResumePlaybackEndpointTest {
 
     @Test
     void shouldReturn400StatusForEmptyState() {
-        WebTestClient.ResponseSpec responseSpec = sendResumeCurrentPlaybackEndpointRequest();
+        WebTestClient.ResponseSpec responseSpec = sendResumeCurrentPlaybackRequest();
 
         responseSpec.expectStatus().isBadRequest();
     }
@@ -202,7 +219,7 @@ public class PlayResumePlaybackEndpointTest {
         @Test
         void shouldReturnBadRequest() {
 
-            final WebTestClient.ResponseSpec responseSpec = sendResumeEndpointRequest(
+            final WebTestClient.ResponseSpec responseSpec = sendPlayOrResumeCommandRequest(
                     PlayResumePlaybackRequest.of(EXISTING_TRACK_CONTEXT_URI)
             );
 
@@ -211,7 +228,7 @@ public class PlayResumePlaybackEndpointTest {
 
         @Test
         void shouldReturnExceptionMessageInBody() {
-            final WebTestClient.ResponseSpec responseSpec = sendResumeEndpointRequest(
+            final WebTestClient.ResponseSpec responseSpec = sendPlayOrResumeCommandRequest(
                     PlayResumePlaybackRequest.of(EXISTING_TRACK_CONTEXT_URI)
             );
 
@@ -225,7 +242,7 @@ public class PlayResumePlaybackEndpointTest {
         @Test
         void shouldReturnExceptionReasonInBody() {
 
-            final WebTestClient.ResponseSpec responseSpec = sendResumeEndpointRequest(
+            final WebTestClient.ResponseSpec responseSpec = sendPlayOrResumeCommandRequest(
                     PlayResumePlaybackRequest.of(EXISTING_TRACK_CONTEXT_URI)
             );
 
@@ -234,21 +251,25 @@ public class PlayResumePlaybackEndpointTest {
             ReasonCodeAwareExceptionMessageAssert.forMessage(body)
                     .reasonCode().isEqualTo("no_active_device");
         }
-    }
 
+    }
     private void connectDevice() {
         final ConnectDeviceRequest connectDeviceRequest = ConnectDeviceRequestFaker.create().get();
 
         testOperations.connectDevice(VALID_ACCESS_TOKEN, connectDeviceRequest);
     }
 
-    @NotNull
-    private WebTestClient.ResponseSpec sendResumeCurrentPlaybackEndpointRequest() {
-        return sendResumeEndpointRequest(null);
+    private void pausePlayback() {
+        testOperations.pause(VALID_ACCESS_TOKEN);
     }
 
     @NotNull
-    private WebTestClient.ResponseSpec sendResumeEndpointRequest(@Nullable PlayResumePlaybackRequest body) {
+    private WebTestClient.ResponseSpec sendResumeCurrentPlaybackRequest() {
+        return sendPlayOrResumeCommandRequest(null);
+    }
+
+    @NotNull
+    private WebTestClient.ResponseSpec sendPlayOrResumeCommandRequest(@Nullable PlayResumePlaybackRequest body) {
 
         final WebTestClient.RequestBodySpec builder = webTestClient.put()
                 .uri("/player/play")

@@ -18,6 +18,8 @@ public interface SonataTestHttpOperations {
 
     void playOrResumePlayback(String authorizationHeaderValue, PlayResumePlaybackRequest body);
 
+    void pause(String validAccessToken);
+
     void changeShuffle(String authorizationHeaderValue, boolean shuffleMode);
 
     void switchDevices(String authorizationHeaderValue, DeviceSwitchRequest body);
