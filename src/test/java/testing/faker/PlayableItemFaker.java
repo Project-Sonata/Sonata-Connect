@@ -2,15 +2,15 @@ package testing.faker;
 
 import com.github.javafaker.Faker;
 import com.odeyalo.sonata.common.context.ContextUri;
-import com.odeyalo.sonata.connect.model.PlayableItem;
-import com.odeyalo.sonata.connect.model.TrackItem;
-import com.odeyalo.sonata.connect.model.TrackItemSpec;
+import com.odeyalo.sonata.connect.model.*;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Duration;
 
 import static com.odeyalo.sonata.connect.model.PlayableItemDuration.ofMilliseconds;
 
@@ -19,6 +19,7 @@ import static com.odeyalo.sonata.connect.model.PlayableItemDuration.ofMillisecon
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PlayableItemFaker {
     protected String id;
+    protected PlayableItemDuration duration;
 
     public PlayableItemFaker() {
         this.id = RandomStringUtils.randomAlphanumeric(16);
@@ -29,7 +30,18 @@ public class PlayableItemFaker {
     }
 
     public PlayableItem get() {
-        return TrackItemFaker.create().get();
+        final TrackItemFaker builder = TrackItemFaker.create();
+
+        if (duration != null) {
+            builder.withDuration(duration);
+        }
+
+        return builder.get();
+    }
+
+    public PlayableItemFaker setDuration(final Duration itemDuration) {
+        this.duration = PlayableItemDuration.fromJavaDuration(itemDuration);
+        return this;
     }
 
     public static class TrackItemFaker extends PlayableItemFaker {
@@ -40,7 +52,6 @@ public class PlayableItemFaker {
             super();
             builder
                     .name(faker.internet().domainWord())
-                    .duration(ofMilliseconds(faker.random().nextLong(256_000L)))
                     .contextUri(ContextUri.forTrack(id))
                     .explicit(faker.random().nextBoolean())
                     .order(TrackItemSpec.Order.of(
@@ -72,9 +83,17 @@ public class PlayableItemFaker {
             return this;
         }
 
+        public PlayableItemFaker withDuration(final PlayableItemDuration duration) {
+            this.duration = duration;
+            builder.duration(duration);
+            return this;
+        }
+
         @Override
         public TrackItem get() {
-            return builder.id(id)
+            return builder
+                    .id(id)
+                    .duration(duration == null ? ofMilliseconds(faker.random().nextLong(256_000L)) : duration)
                     .build();
         }
     }
