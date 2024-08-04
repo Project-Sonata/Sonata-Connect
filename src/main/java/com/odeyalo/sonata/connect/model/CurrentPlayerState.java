@@ -112,12 +112,14 @@ public class CurrentPlayerState {
             return -1L;
         }
 
-        if (playableItem.getDuration().asMilliseconds() <= (progressMs + calculateProgress())) {
+        final long currentProgress = getCurrentProgressMs();
+
+        if ( playableItem.getDuration().isExceeded(currentProgress) ) {
             return playableItem.getDuration().asMilliseconds();
         }
 
         if ( isPlaying() ) {
-            return progressMs + calculateProgress();
+            return currentProgress;
         }
 
         return progressMs;
@@ -173,14 +175,18 @@ public class CurrentPlayerState {
             return this.toBuilder()
                     .playing(false)
                     .lastPauseTime(clock.currentTimeMillis())
-                    .progressMs(progressMs + calculateProgress())
+                    .progressMs(getCurrentProgressMs())
                     .build();
         }
 
         return this;
     }
 
-    private long calculateProgress() {
+    private long getCurrentProgressMs() {
+        return progressMs + computeElapsedTime();
+    }
+
+    private long computeElapsedTime() {
         if ( isPlaying() ) {
             return clock.currentTimeMillis() - playStartTime;
         } else {

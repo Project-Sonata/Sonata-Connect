@@ -42,4 +42,14 @@ public class PlayableItemDuration {
     public long asSeconds() {
         return durationMs / 1000;
     }
+
+    /**
+     * Check if the provided millis exceed the item duration
+     * @param millisToCompare - millis to compare with item duration
+     * @return {@code true} if provided millis exceed the playable item duration
+     * {@code false} otherwise
+     */
+    public boolean isExceeded(final long millisToCompare) {
+        return asMilliseconds() < millisToCompare;
+    }
 }

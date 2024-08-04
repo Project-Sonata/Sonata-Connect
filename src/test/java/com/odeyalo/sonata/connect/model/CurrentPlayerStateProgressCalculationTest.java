@@ -10,6 +10,10 @@ import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CurrentPlayerStateProgressCalculationTest {
+    static final PlayableItem SECONDS_30_PLAYABLE_ITEM = PlayableItemFaker.create()
+            .setDuration(Duration.ofSeconds(30))
+            .get();
+
     static final User USER = User.of("odeyalooo");
 
     @Test
@@ -24,7 +28,7 @@ class CurrentPlayerStateProgressCalculationTest {
     void shouldNotReturnDefaultValueIfSomethingIsPlaying() {
         final CurrentPlayerState initialState = CurrentPlayerState.emptyFor(USER);
 
-        final CurrentPlayerState updatedState = initialState.play(PlayableItemFaker.create().get());
+        final CurrentPlayerState updatedState = initialState.play(SECONDS_30_PLAYABLE_ITEM);
 
         assertThat(updatedState.getProgressMs()).isNotEqualTo(-1L);
     }
@@ -34,7 +38,7 @@ class CurrentPlayerStateProgressCalculationTest {
         final CurrentPlayerState testable = CurrentPlayerState.emptyFor(USER)
                 .withPlaying(false)
                 .withProgressMs(2000L)
-                .withPlayableItem(PlayableItemFaker.create().get());
+                .withPlayableItem(SECONDS_30_PLAYABLE_ITEM);
 
         assertThat(testable.getProgressMs()).isEqualTo(2000L);
         // check that the progress does not change every time when getProgressMs is called
@@ -50,7 +54,7 @@ class CurrentPlayerStateProgressCalculationTest {
         final CurrentPlayerState initialState = CurrentPlayerState.emptyFor(USER)
                 .useClock(clock);
 
-        final CurrentPlayerState testable = initialState.play(PlayableItemFaker.create().get());
+        final CurrentPlayerState testable = initialState.play(SECONDS_30_PLAYABLE_ITEM);
 
         clock.waitSeconds(2);
 
@@ -69,7 +73,7 @@ class CurrentPlayerStateProgressCalculationTest {
         final CurrentPlayerState initialState = CurrentPlayerState.emptyFor(USER)
                 .useClock(clock);
 
-        final CurrentPlayerState testable = initialState.play(PlayableItemFaker.create().get());
+        final CurrentPlayerState testable = initialState.play(SECONDS_30_PLAYABLE_ITEM);
 
         clock.waitSeconds(6);
 
@@ -90,7 +94,7 @@ class CurrentPlayerStateProgressCalculationTest {
         final CurrentPlayerState initialState = CurrentPlayerState.emptyFor(USER)
                 .useClock(clock);
 
-        final CurrentPlayerState testable = initialState.play(PlayableItemFaker.create().get());
+        final CurrentPlayerState testable = initialState.play(SECONDS_30_PLAYABLE_ITEM);
 
         clock.waitSeconds(6);
 
@@ -113,18 +117,9 @@ class CurrentPlayerStateProgressCalculationTest {
         final CurrentPlayerState initialState = CurrentPlayerState.emptyFor(USER)
                 .useClock(clock);
 
-        final CurrentPlayerState testable = initialState.play(PlayableItemFaker.create().get());
+        final CurrentPlayerState testable = initialState.play(SECONDS_30_PLAYABLE_ITEM);
 
         clock.waitMillis(60);
-
-        assertThat(testable.getProgressMs()).isEqualTo(60L);
-    }
-
-    @Test
-    void test1() {
-        final CurrentPlayerState initialState = CurrentPlayerState.emptyFor(USER);
-
-        final CurrentPlayerState testable = initialState.play(PlayableItemFaker.create().get());
 
         assertThat(testable.getProgressMs()).isEqualTo(60L);
     }
@@ -145,5 +140,25 @@ class CurrentPlayerStateProgressCalculationTest {
         clock.waitSeconds(240);
 
         assertThat(testable.getProgressMs()).isEqualTo(230_000L);
+    }
+
+    @Test
+    void shouldReturnEndOfTheProgressIfProgressIsEqualToItemDuration() {
+        final TestingClock clock = new TestingClock(Instant.now());
+
+        final CurrentPlayerState initialState = CurrentPlayerState.emptyFor(USER)
+                .useClock(clock);
+
+        final PlayableItem playableItem = PlayableItemFaker.create()
+                .setDuration(Duration.ofSeconds(230))
+                .get();
+
+        final CurrentPlayerState testable = initialState.play(playableItem);
+
+        clock.waitSeconds(230);
+
+        final CurrentPlayerState pausedPlayback = testable.pause();
+
+        assertThat(pausedPlayback.getProgressMs()).isEqualTo(230_000L);
     }
 }
