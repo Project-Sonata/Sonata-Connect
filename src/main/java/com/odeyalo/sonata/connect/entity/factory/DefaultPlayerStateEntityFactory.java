@@ -31,6 +31,7 @@ public final class DefaultPlayerStateEntityFactory implements PlayerStateEntityF
                 .shuffleState(state.getShuffleState())
                 .user(UserEntity.builder().id(state.getUser().getId()).build())
                 .devicesEntity(DevicesEntity.fromCollection(devices))
+                .progressMs(state.getProgressMs())
                 .lastPauseTime(state.getLastPauseTime())
                 .playStartTime(state.getPlayStartTime());
 

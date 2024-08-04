@@ -2,6 +2,8 @@ package com.odeyalo.sonata.connect.model;
 
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevice;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
+import com.odeyalo.sonata.connect.support.time.Clock;
+import com.odeyalo.sonata.connect.support.time.JavaClock;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
@@ -45,6 +47,9 @@ public class CurrentPlayerState {
     long lastPauseTime = 0;
     @Builder.Default
     long playStartTime = 0;
+    @NotNull
+    @Builder.Default
+    Clock clock = JavaClock.instance();
 
     @NotNull
     public static CurrentPlayerState emptyFor(@NotNull final User user) {
@@ -52,6 +57,11 @@ public class CurrentPlayerState {
                 .id(new Random().nextLong(0, Long.MAX_VALUE))
                 .user(user)
                 .build();
+    }
+
+    @NotNull
+    public CurrentPlayerState useClock(@NotNull final Clock clock) {
+        return withClock(clock);
     }
 
     @NotNull
@@ -102,9 +112,16 @@ public class CurrentPlayerState {
             return -1L;
         }
 
-        if ( isPlaying() ) {
-            return progressMs + calculateProgress();
+        final long currentProgress = getCurrentProgressMs();
+
+        if ( playableItem.getDuration().isExceeded(currentProgress) ) {
+            return playableItem.getDuration().asMilliseconds();
         }
+
+        if ( isPlaying() ) {
+            return currentProgress;
+        }
+
         return progressMs;
     }
 
@@ -139,7 +156,7 @@ public class CurrentPlayerState {
                 .playing(true)
                 .playableItem(item)
                 .playingType(PlayingType.valueOf(item.getItemType().name()))
-                .playStartTime(System.currentTimeMillis())
+                .playStartTime(clock.currentTimeMillis())
                 .progressMs(0L)
                 .build();
     }
@@ -148,7 +165,7 @@ public class CurrentPlayerState {
     public CurrentPlayerState resumePlayback() {
         return this.toBuilder()
                 .playing(true)
-                .playStartTime(System.currentTimeMillis())
+                .playStartTime(clock.currentTimeMillis())
                 .build();
     }
 
@@ -157,17 +174,21 @@ public class CurrentPlayerState {
         if ( isPlaying() ) {
             return this.toBuilder()
                     .playing(false)
-                    .lastPauseTime(System.currentTimeMillis())
-                    .progressMs(progressMs + calculateProgress())
+                    .lastPauseTime(clock.currentTimeMillis())
+                    .progressMs(getCurrentProgressMs())
                     .build();
         }
 
         return this;
     }
 
-    private long calculateProgress() {
+    private long getCurrentProgressMs() {
+        return progressMs + computeElapsedTime();
+    }
+
+    private long computeElapsedTime() {
         if ( isPlaying() ) {
-            return System.currentTimeMillis() - playStartTime;
+            return clock.currentTimeMillis() - playStartTime;
         } else {
             return lastPauseTime - playStartTime;
         }

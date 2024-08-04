@@ -19,10 +19,12 @@ import org.jetbrains.annotations.Nullable;
 public class PlayerStateEntity {
     Long id;
     boolean playing;
-    @Nullable
-    RepeatState repeatState;
     @NotNull
-    ShuffleMode shuffleState;
+    @Builder.Default
+    RepeatState repeatState = RepeatState.OFF;
+    @NotNull
+    @Builder.Default
+    ShuffleMode shuffleState = ShuffleMode.OFF;
     @Builder.Default
     Long progressMs = 0L;
     @Nullable
@@ -36,21 +38,15 @@ public class PlayerStateEntity {
     PlayableItemEntity currentlyPlayingItem;
     @NotNull
     Volume volume;
-    @Getter(value = AccessLevel.PRIVATE)
-    @Setter(value = AccessLevel.PRIVATE)
     long playStartTime = 0;
-    @Getter(value = AccessLevel.PRIVATE)
-    @Setter(value = AccessLevel.PRIVATE)
     long lastPauseTime = 0;
-
-    public static final boolean SHUFFLE_ENABLED = true;
-    public static final boolean SHUFFLE_DISABLED = false;
 
     @NotNull
     public ShuffleMode getShuffleState() {
         return shuffleState;
     }
 
+    @Nullable
     public PlayingType getCurrentlyPlayingType() {
         return playingType;
     }
@@ -60,6 +56,7 @@ public class PlayerStateEntity {
         return currentlyPlayingItem;
     }
 
+    @NotNull
     public DevicesEntity getDevices() {
         return devicesEntity;
     }

@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 import testing.faker.PlayerStateFaker;
 
-import static com.odeyalo.sonata.connect.entity.PlayerStateEntity.SHUFFLE_ENABLED;
 import static com.odeyalo.sonata.connect.model.ShuffleMode.ENABLED;
 import static com.odeyalo.sonata.connect.model.ShuffleMode.OFF;
 import static testing.factory.DefaultPlayerOperationsTestableBuilder.testableBuilder;

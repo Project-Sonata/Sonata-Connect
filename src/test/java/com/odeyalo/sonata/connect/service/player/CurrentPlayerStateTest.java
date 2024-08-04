@@ -4,7 +4,6 @@ import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.User;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
@@ -79,22 +78,6 @@ class CurrentPlayerStateTest extends DefaultPlayerOperationsTest {
                 .map(CurrentPlayerState::getShuffleState)
                 .as(StepVerifier::create)
                 .expectNext(state.getShuffleState())
-                .verifyComplete();
-    }
-
-    @Test
-    @Disabled("Disabled for a while. Fragile test")
-    void shouldReturnProgressMs() {
-        PlayerStateEntity state = existingPlayerState();
-
-        DefaultPlayerOperations testable = testableBuilder()
-                .withState(state)
-                .build();
-
-        testable.currentState(EXISTING_USER)
-                .map(CurrentPlayerState::getProgressMs)
-                .as(StepVerifier::create)
-                .expectNext(state.getProgressMs())
                 .verifyComplete();
     }
 
