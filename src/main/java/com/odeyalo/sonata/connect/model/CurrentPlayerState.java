@@ -1,5 +1,8 @@
 package com.odeyalo.sonata.connect.model;
 
+import com.odeyalo.sonata.connect.exception.MissingPlayableItemException;
+import com.odeyalo.sonata.connect.exception.SeekPositionExceedDurationException;
+import com.odeyalo.sonata.connect.service.player.SeekPosition;
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevice;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
 import com.odeyalo.sonata.connect.support.time.Clock;
@@ -192,5 +195,20 @@ public class CurrentPlayerState {
         } else {
             return lastPauseTime - playStartTime;
         }
+    }
+
+    @NotNull
+    public CurrentPlayerState seekTo(@NotNull final SeekPosition seekPosition) {
+
+        if ( playableItem == null ) {
+            throw new MissingPlayableItemException("Seek command requires playable active");
+        }
+
+        if ( seekPosition.exceeds(playableItem) ) {
+            throw new SeekPositionExceedDurationException("Position cannot be greater than item duration");
+        }
+
+        return withProgressMs(seekPosition.posMs())
+                .withPlayStartTime(clock.currentTimeMillis());
     }
 }
