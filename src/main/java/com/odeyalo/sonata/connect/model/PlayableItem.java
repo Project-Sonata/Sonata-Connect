@@ -3,7 +3,7 @@ package com.odeyalo.sonata.connect.model;
 import com.odeyalo.sonata.common.context.ContextUri;
 import org.jetbrains.annotations.NotNull;
 
-public interface PlayableItem {
+public interface PlayableItem extends TimedItem {
     /**
      * Get the id of the item that can be played
      * @return - id of the item, never null
@@ -17,6 +17,4 @@ public interface PlayableItem {
     @NotNull
     ContextUri getContextUri();
 
-    @NotNull
-    PlayableItemDuration getDuration();
 }
