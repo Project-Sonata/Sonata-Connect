@@ -1,10 +1,8 @@
-package com.odeyalo.sonata.connect.service.player;
+package com.odeyalo.sonata.connect.model;
 
 import com.odeyalo.sonata.connect.exception.MissingPlayableItemException;
 import com.odeyalo.sonata.connect.exception.SeekPositionExceedDurationException;
-import com.odeyalo.sonata.connect.model.CurrentPlayerState;
-import com.odeyalo.sonata.connect.model.PlayableItem;
-import com.odeyalo.sonata.connect.model.User;
+import com.odeyalo.sonata.connect.service.player.SeekPosition;
 import org.junit.jupiter.api.Test;
 import testing.faker.PlayableItemFaker;
 import testing.time.TestingClock;
@@ -12,7 +10,8 @@ import testing.time.TestingClock;
 import java.time.Duration;
 import java.time.Instant;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public final class SeekToPositionTest {
 
