@@ -17,14 +17,12 @@ import static reactor.core.publisher.Mono.defer;
 @Component
 @RequiredArgsConstructor
 public final class DefaultPlayerOperations implements BasicPlayerOperations {
-    private final DeviceOperations deviceOperations;
     private final PlayCommandHandlerDelegate playCommandHandlerDelegate;
     private final PauseCommandHandlerDelegate pauseCommandHandlerDelegate;
     private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter;
     private final PlayerStateService playerStateService;
 
     private final Logger logger = LoggerFactory.getLogger(DefaultPlayerOperations.class);
-
 
     @Override
     @NotNull
@@ -48,12 +46,6 @@ public final class DefaultPlayerOperations implements BasicPlayerOperations {
         return playerStateService.loadPlayerState(user)
                 .map(playerState -> playerState.switchShuffleMode(shuffleMode))
                 .flatMap(playerStateService::save);
-    }
-
-    @Override
-    @NotNull
-    public DeviceOperations getDeviceOperations() {
-        return deviceOperations;
     }
 
     @Override

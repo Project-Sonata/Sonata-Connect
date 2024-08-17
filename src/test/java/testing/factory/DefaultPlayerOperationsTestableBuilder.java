@@ -9,7 +9,6 @@ import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.DefaultPlayerOperations;
-import com.odeyalo.sonata.connect.service.player.DeviceOperations;
 import com.odeyalo.sonata.connect.service.player.PlayerStateService;
 import com.odeyalo.sonata.connect.service.player.handler.PauseCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
@@ -22,14 +21,12 @@ import com.odeyalo.sonata.connect.service.player.support.validation.HardcodedPla
 import com.odeyalo.sonata.connect.service.support.mapper.CurrentPlayerState2CurrentlyPlayingPlayerStateConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
 import org.jetbrains.annotations.NotNull;
-import testing.stub.NullDeviceOperations;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class DefaultPlayerOperationsTestableBuilder {
     private final PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
-    private final DeviceOperations deviceOperations = new NullDeviceOperations();
 
     private final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport = new Converters().playerState2CurrentPlayerStateConverter();
     private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter = new Converters().currentPlayerStateConverter();
@@ -59,7 +56,6 @@ public final class DefaultPlayerOperationsTestableBuilder {
 
     public DefaultPlayerOperations build() {
         return new DefaultPlayerOperations(
-                deviceOperations,
                 PlayCommandHandlerBuilder.builder()
                         .withState(playerStateRepository)
                         .withPlayableItems(existingItems)

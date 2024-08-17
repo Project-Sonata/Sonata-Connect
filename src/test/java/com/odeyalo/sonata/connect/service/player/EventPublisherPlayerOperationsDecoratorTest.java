@@ -21,7 +21,6 @@ import testing.faker.CurrentPlayerStateFaker;
 import testing.faker.DeviceEntityFaker;
 import testing.faker.PlayableItemFaker.TrackItemFaker;
 import testing.faker.PlayerStateFaker;
-import testing.stub.NullDeviceOperations;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -349,7 +348,6 @@ class EventPublisherPlayerOperationsDecoratorTest {
         private final DefaultPlayerOperationsTestableBuilder delegateBuilder = DefaultPlayerOperationsTestableBuilder.testableBuilder();
         private BasicPlayerOperations delegate;
         private PlayerSynchronizationManager synchronizationManager = new DefaultPlayerSynchronizationManager(new InMemoryRoomHolder());
-        private final DeviceOperations deviceOperations = new NullDeviceOperations();
 
         public static TestableBuilder testableBuilder() {
             return new TestableBuilder();
@@ -367,7 +365,7 @@ class EventPublisherPlayerOperationsDecoratorTest {
 
         public EventPublisherPlayerOperationsDecorator build() {
             delegate = delegate == null ? delegateBuilder.build() : delegate;
-            return new EventPublisherPlayerOperationsDecorator(delegate, synchronizationManager, deviceOperations);
+            return new EventPublisherPlayerOperationsDecorator(delegate, synchronizationManager);
         }
 
         public TestableBuilder withPlayerState(PlayerStateEntity playerState) {

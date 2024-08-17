@@ -53,9 +53,6 @@ public interface BasicPlayerOperations {
     @NotNull
     Mono<CurrentPlayerState> changeShuffle(@NotNull User user, @NotNull ShuffleMode shuffleMode);
 
-    @NotNull
-    DeviceOperations getDeviceOperations();
-
     /**
      * Start or resume the track.
      * If track not specified then currently playing track starts to play
