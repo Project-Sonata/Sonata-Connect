@@ -1,6 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
-import com.odeyalo.sonata.connect.model.TimedItem;
+import com.odeyalo.sonata.connect.model.PlayableItemDuration;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.Assert;
 
@@ -20,7 +20,7 @@ public record SeekPosition(int posMs) {
         return new SeekPosition(seconds * 1000);
     }
 
-    public boolean exceeds(@NotNull final TimedItem item) {
-        return item.getDuration().isExceeded(posMs);
+    public boolean exceeds(@NotNull final PlayableItemDuration duration) {
+        return duration.isExceeded(posMs);
     }
 }

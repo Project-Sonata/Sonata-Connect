@@ -185,6 +185,21 @@ public class CurrentPlayerState {
         return this;
     }
 
+    @NotNull
+    public CurrentPlayerState seekTo(@NotNull final SeekPosition seekPosition) {
+
+        if ( playableItem == null ) {
+            throw new MissingPlayableItemException("Seek command requires playable active");
+        }
+
+        if ( seekPosition.exceeds(playableItem.getDuration()) ) {
+            throw new SeekPositionExceedDurationException("Position cannot be greater than item duration");
+        }
+
+        return withProgressMs(seekPosition.posMs())
+                .withPlayStartTime(clock.currentTimeMillis());
+    }
+
     private long getCurrentProgressMs() {
         return progressMs + computeElapsedTime();
     }
@@ -195,20 +210,5 @@ public class CurrentPlayerState {
         } else {
             return lastPauseTime - playStartTime;
         }
-    }
-
-    @NotNull
-    public CurrentPlayerState seekTo(@NotNull final SeekPosition seekPosition) {
-
-        if ( playableItem == null ) {
-            throw new MissingPlayableItemException("Seek command requires playable active");
-        }
-
-        if ( seekPosition.exceeds(playableItem) ) {
-            throw new SeekPositionExceedDurationException("Position cannot be greater than item duration");
-        }
-
-        return withProgressMs(seekPosition.posMs())
-                .withPlayStartTime(clock.currentTimeMillis());
     }
 }
