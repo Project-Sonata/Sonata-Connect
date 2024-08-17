@@ -46,7 +46,7 @@ public final class DefaultPlayerOperations implements BasicPlayerOperations {
     public Mono<CurrentPlayerState> changeShuffle(@NotNull final User user,
                                                   @NotNull final ShuffleMode shuffleMode) {
         return playerStateService.loadPlayerState(user)
-                .map(state -> state.withShuffleState(shuffleMode))
+                .map(playerState -> playerState.switchShuffleMode(shuffleMode))
                 .flatMap(playerStateService::save);
     }
 

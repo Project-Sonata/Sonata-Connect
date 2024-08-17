@@ -7,10 +7,7 @@ import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevice;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
 import com.odeyalo.sonata.connect.support.time.Clock;
 import com.odeyalo.sonata.connect.support.time.JavaClock;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Value;
-import lombok.With;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,6 +28,7 @@ public class CurrentPlayerState {
     RepeatState repeatState = RepeatState.OFF;
     @NotNull
     @Builder.Default
+    @With(value = AccessLevel.PRIVATE)
     ShuffleMode shuffleState = ShuffleMode.OFF;
     @Builder.Default
     long progressMs = -1L;
@@ -183,6 +181,11 @@ public class CurrentPlayerState {
         }
 
         return this;
+    }
+
+    @NotNull
+    public CurrentPlayerState switchShuffleMode(@NotNull final ShuffleMode shuffleMode) {
+        return withShuffleState(shuffleMode);
     }
 
     @NotNull
