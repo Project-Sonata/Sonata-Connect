@@ -72,6 +72,7 @@ public final class DefaultPlayerOperations implements BasicPlayerOperations {
                 .flatMap(playerStateService::save);
     }
 
+    @Override
     @NotNull
     public Mono<CurrentPlayerState> seekToPosition(@NotNull final User user,
                                                    @NotNull final SeekPosition position) {

@@ -81,10 +81,20 @@ public interface BasicPlayerOperations {
     Mono<CurrentPlayerState> changeVolume(@NotNull User user, @NotNull Volume volume);
 
     /**
+     * Seek the player's position to specified
+     * @param user - owner of the player
+     * @param position - position to seek position to
+     * @return - updated player state
+     */
+    @NotNull
+    Mono<CurrentPlayerState> seekToPosition(@NotNull User user,
+                                            @NotNull SeekPosition position);
+
+    /**
      * Alias for  #changeShuffle(User, true) method call
      */
     @NotNull
-    default Mono<CurrentPlayerState> enableShuffle(User user) {
+    default Mono<CurrentPlayerState> enableShuffle(@NotNull final User user) {
         return changeShuffle(user, ShuffleMode.ENABLED);
     }
 
@@ -92,7 +102,7 @@ public interface BasicPlayerOperations {
      * Alias for  #changeShuffle(User, false) method call
      */
     @NotNull
-    default Mono<CurrentPlayerState> disableShuffle(User user) {
+    default Mono<CurrentPlayerState> disableShuffle(@NotNull final User user) {
         return changeShuffle(user, ShuffleMode.OFF);
     }
 }

@@ -64,6 +64,14 @@ public final class EventPublisherPlayerOperationsDecorator implements BasicPlaye
                 .flatMap(state -> publishEvent(state, PLAYER_STATE_UPDATED, user));
     }
 
+    @Override
+    @NotNull
+    public Mono<CurrentPlayerState> seekToPosition(@NotNull final User user,
+                                                   @NotNull final SeekPosition position) {
+        return delegate.seekToPosition(user, position)
+                .flatMap(state -> publishEvent(state, PLAYER_STATE_UPDATED, user));
+    }
+
     @NotNull
     private Mono<CurrentPlayerState> publishEvent(@NotNull CurrentPlayerState currentPlayerState,
                                                   @NotNull PlayerEvent.EventType eventType,
