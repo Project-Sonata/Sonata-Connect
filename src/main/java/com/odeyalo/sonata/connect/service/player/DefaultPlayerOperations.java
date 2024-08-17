@@ -82,6 +82,14 @@ public final class DefaultPlayerOperations implements BasicPlayerOperations {
     }
 
     @NotNull
+    public Mono<CurrentPlayerState> seekToPosition(@NotNull final User user,
+                                                   @NotNull final SeekPosition position) {
+        return playerStateService.loadPlayerState(user)
+                .map(playerState -> playerState.seekTo(position))
+                .flatMap(playerStateService::save);
+    }
+
+    @NotNull
     private static Mono<CurrentPlayerState> executeChangeVolumeCommand(@NotNull final CurrentPlayerState playerState,
                                                                        @NotNull final Volume volume) {
 
