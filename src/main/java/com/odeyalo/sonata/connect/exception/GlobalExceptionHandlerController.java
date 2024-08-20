@@ -93,4 +93,12 @@ public class GlobalExceptionHandlerController {
         return ResponseEntity.badRequest()
                 .body(body);
     }
+
+    @ExceptionHandler(SeekPositionExceedDurationException.class)
+    public ResponseEntity<?> handleSeekPositionExceedDurationException(final SeekPositionExceedDurationException ex) {
+        final var body = ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), "Player command error: position cannot be greater than track duration");
+
+        return ResponseEntity.badRequest()
+                .body(body);
+    }
 }

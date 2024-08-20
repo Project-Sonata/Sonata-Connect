@@ -123,6 +123,19 @@ class SeekPositionEndpointTest {
                 .value(message -> assertThat(message.getDescription()).isEqualTo("Player command error: position must be positive"));
     }
 
+    @Test
+    void shouldReturnErrorIfPositionIsGreaterThanTrackDuration() {
+        connectDevice();
+
+        startPlayTrack();
+
+        WebTestClient.ResponseSpec responseSpec = seekPositionRequest(Integer.MAX_VALUE);
+
+        responseSpec.expectBody(ReasonCodeAwareExceptionMessage.class)
+                .value(message -> assertThat(message.getReasonCode()).isEqualTo("seek_position_exceed"))
+                .value(message -> assertThat(message.getDescription()).isEqualTo("Player command error: position cannot be greater than track duration"));
+    }
+
     @NotNull
     private WebTestClient.ResponseSpec seekPositionRequest(final int position) {
         return webClient.put().uri(b -> b.path("/player/seek")
