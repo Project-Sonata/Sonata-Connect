@@ -8,6 +8,7 @@ import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.model.Volume;
 import com.odeyalo.sonata.connect.service.player.BasicPlayerOperations;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
+import com.odeyalo.sonata.connect.service.player.SeekPosition;
 import com.odeyalo.sonata.connect.service.support.mapper.Converter;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.CurrentPlayerState2PlayerStateDtoConverter;
 import com.odeyalo.sonata.connect.support.web.HttpStatus;
@@ -15,10 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -76,5 +74,12 @@ public final class PlayerController {
         return playerOperations.changeVolume(user, volume)
                 .subscribeOn(Schedulers.boundedElastic())
                 .map(it -> HttpStatus.default204Response());
+    }
+
+    @PutMapping(value = "/seek", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<ResponseEntity<?>> seekPlaybackPosition(@NotNull final User user,
+                                                        @RequestParam("position") final long position) {
+        return playerOperations.seekToPosition(user, SeekPosition.ofMillis(position))
+                .thenReturn(HttpStatus.default204Response());
     }
 }

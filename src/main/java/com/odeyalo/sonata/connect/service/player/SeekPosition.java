@@ -1,23 +1,25 @@
 package com.odeyalo.sonata.connect.service.player;
 
+import com.odeyalo.sonata.connect.exception.InvalidSeekPositionException;
 import com.odeyalo.sonata.connect.model.PlayableItemDuration;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.util.Assert;
 
-public record SeekPosition(int posMs) {
+public record SeekPosition(long posMs) {
 
     public SeekPosition {
-        Assert.state(posMs >= 0, "Position must be positive!");
+        if ( posMs < 0 ) {
+            throw InvalidSeekPositionException.defaultException();
+        }
     }
 
     @NotNull
-    public static SeekPosition ofMillis(int millis) {
+    public static SeekPosition ofMillis(long millis) {
         return new SeekPosition(millis);
     }
 
     @NotNull
     public static SeekPosition ofSeconds(int seconds) {
-        return new SeekPosition(seconds * 1000);
+        return new SeekPosition(seconds * 1000L);
     }
 
     public boolean exceeds(@NotNull final PlayableItemDuration duration) {

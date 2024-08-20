@@ -77,4 +77,20 @@ public class GlobalExceptionHandlerController {
         return ResponseEntity.badRequest()
                 .body(ExceptionMessage.of(ex.getMessage()));
     }
+
+    @ExceptionHandler(MissingPlayableItemException.class)
+    public ResponseEntity<?> handleMissingPlayableItemException(final MissingPlayableItemException ex) {
+        final var body = ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), "Player command error: no item is playing");
+
+        return ResponseEntity.badRequest()
+                .body(body);
+    }
+
+    @ExceptionHandler(InvalidSeekPositionException.class)
+    public ResponseEntity<?> handleInvalidSeekPositionException(final InvalidSeekPositionException ex) {
+        final var body = ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), "Player command error: position must be positive");
+
+        return ResponseEntity.badRequest()
+                .body(body);
+    }
 }
