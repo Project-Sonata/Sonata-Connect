@@ -5,6 +5,7 @@ import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
 import com.odeyalo.sonata.connect.dto.PlayResumePlaybackRequest;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.dto.ReasonCodeAwareExceptionMessage;
+import com.odeyalo.sonata.connect.model.PlayableItemDuration;
 import com.odeyalo.sonata.connect.model.TrackItem;
 import com.odeyalo.sonata.connect.service.player.support.PlayableItemLoader;
 import com.odeyalo.sonata.connect.service.player.support.PredefinedPlayableItemLoader;
@@ -63,6 +64,7 @@ class SeekPositionEndpointTest {
         @Primary
         public PlayableItemLoader testablePlayableItemLoader() {
             final TrackItem trackItem = PlayableItemFaker.TrackItemFaker.create()
+                    .withDuration(PlayableItemDuration.ofSeconds(180))
                     .withContextUri(PLAYABLE_ITEM_CONTEXT_URI)
                     .get();
 
