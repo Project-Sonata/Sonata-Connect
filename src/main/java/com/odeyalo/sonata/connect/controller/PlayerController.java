@@ -2,7 +2,6 @@ package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.connect.dto.CurrentlyPlayingPlayerStateDto;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
-import com.odeyalo.sonata.connect.exception.UnsupportedSeekPositionPrecisionException;
 import com.odeyalo.sonata.connect.model.CurrentlyPlayingPlayerState;
 import com.odeyalo.sonata.connect.model.ShuffleMode;
 import com.odeyalo.sonata.connect.model.User;
@@ -14,11 +13,13 @@ import com.odeyalo.sonata.connect.service.support.mapper.Converter;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.CurrentPlayerState2PlayerStateDtoConverter;
 import com.odeyalo.sonata.connect.support.web.HttpStatus;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.EnumUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -80,16 +81,9 @@ public final class PlayerController {
 
     @PutMapping(value = "/seek", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<?>> seekPlaybackPosition(@NotNull final User user,
-                                                        @RequestParam("position") final long position,
-                                                        @RequestParam(value = "precision", defaultValue = "millis") String precisionStr) {
+                                                        @NotNull final SeekPosition seekPosition) {
 
-        SeekPosition.Precision precision = EnumUtils.getEnumIgnoreCase(SeekPosition.Precision.class, precisionStr);
-
-        if ( precision == null ) {
-            throw new UnsupportedSeekPositionPrecisionException(precisionStr);
-        }
-
-        return playerOperations.seekToPosition(user, SeekPosition.fromPrecision(position, precision))
+        return playerOperations.seekToPosition(user, seekPosition)
                 .thenReturn(HttpStatus.default204Response());
     }
 }
