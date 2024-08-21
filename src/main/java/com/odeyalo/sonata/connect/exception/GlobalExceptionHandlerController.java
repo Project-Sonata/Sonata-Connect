@@ -101,4 +101,12 @@ public class GlobalExceptionHandlerController {
         return ResponseEntity.badRequest()
                 .body(body);
     }
+
+    @ExceptionHandler(UnsupportedSeekPositionPrecisionException.class)
+    public ResponseEntity<?> handleUnsupportedSeekPositionPrecisionException(final UnsupportedSeekPositionPrecisionException ex) {
+        final var body = ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), "Player command error: unsupported precision used. Supported case insensitive: MILLIS, SECONDS.");
+
+        return ResponseEntity.badRequest()
+                .body(body);
+    }
 }

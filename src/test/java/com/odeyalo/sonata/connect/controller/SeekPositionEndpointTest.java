@@ -8,7 +8,6 @@ import com.odeyalo.sonata.connect.dto.ReasonCodeAwareExceptionMessage;
 import com.odeyalo.sonata.connect.model.TrackItem;
 import com.odeyalo.sonata.connect.service.player.support.PlayableItemLoader;
 import com.odeyalo.sonata.connect.service.player.support.PredefinedPlayableItemLoader;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -77,7 +76,7 @@ class SeekPositionEndpointTest {
 
         startPlayTrack();
 
-        final WebTestClient.ResponseSpec responseSpec = seekPositionRequest(100);
+        final WebTestClient.ResponseSpec responseSpec = seekPositionRequest(100, "millis");
 
         responseSpec.expectStatus().isNoContent();
     }
@@ -88,7 +87,7 @@ class SeekPositionEndpointTest {
 
         startPlayTrack();
 
-        final WebTestClient.ResponseSpec ignored = seekPositionRequest(10_000);
+        final WebTestClient.ResponseSpec ignored = seekPositionRequest(10_000, "millis");
 
         final PlayerStateDto currentState = sonataTestHttpOperations.getCurrentState(VALID_ACCESS_TOKEN);
 
@@ -96,10 +95,38 @@ class SeekPositionEndpointTest {
     }
 
     @Test
+    void shouldProperlyUpdatePositionIfSecondPrecisionIsUsed() {
+        connectDevice();
+
+        startPlayTrack();
+
+        final WebTestClient.ResponseSpec ignored = seekPositionRequest(20, "seconds");
+
+        final PlayerStateDto currentState = sonataTestHttpOperations.getCurrentState(VALID_ACCESS_TOKEN);
+
+        assertThat(currentState.getProgressMs()).isGreaterThanOrEqualTo(20_000);
+    }
+
+    @Test
+    void shouldReturnErrorIfInvalidPrecisionIsUsed() {
+        connectDevice();
+
+        startPlayTrack();
+
+        final WebTestClient.ResponseSpec responseSpec = seekPositionRequest(20, "invalid");
+
+        responseSpec.expectStatus().isBadRequest();
+
+        responseSpec.expectBody(ReasonCodeAwareExceptionMessage.class)
+                .value(message -> assertThat(message.getReasonCode()).isEqualTo("unsupported_precision"))
+                .value(message -> assertThat(message.getDescription()).isEqualTo("Player command error: unsupported precision used. Supported case insensitive: MILLIS, SECONDS."));
+    }
+
+    @Test
     void shouldReturnErrorIfNothingIsPlaying() {
         connectDevice();
 
-        final WebTestClient.ResponseSpec responseSpec = seekPositionRequest(10_000);
+        final WebTestClient.ResponseSpec responseSpec = seekPositionRequest(10_000, "millis");
 
         responseSpec.expectStatus().isBadRequest();
 
@@ -114,7 +141,7 @@ class SeekPositionEndpointTest {
 
         startPlayTrack();
 
-        final WebTestClient.ResponseSpec responseSpec = seekPositionRequest(-10);
+        final WebTestClient.ResponseSpec responseSpec = seekPositionRequest(-10, "millis");
 
         responseSpec.expectStatus().isBadRequest();
 
@@ -129,17 +156,17 @@ class SeekPositionEndpointTest {
 
         startPlayTrack();
 
-        WebTestClient.ResponseSpec responseSpec = seekPositionRequest(Integer.MAX_VALUE);
+        WebTestClient.ResponseSpec responseSpec = seekPositionRequest(Integer.MAX_VALUE, "millis");
 
         responseSpec.expectBody(ReasonCodeAwareExceptionMessage.class)
                 .value(message -> assertThat(message.getReasonCode()).isEqualTo("seek_position_exceed"))
                 .value(message -> assertThat(message.getDescription()).isEqualTo("Player command error: position cannot be greater than track duration"));
     }
 
-    @NotNull
-    private WebTestClient.ResponseSpec seekPositionRequest(final int position) {
+    private WebTestClient.ResponseSpec seekPositionRequest(final int position, final String precision) {
         return webClient.put().uri(b -> b.path("/player/seek")
                         .queryParam("position", position)
+                        .queryParam("precision", precision)
                         .build())
                 .header(AUTHORIZATION, VALID_ACCESS_TOKEN)
                 .exchange();
