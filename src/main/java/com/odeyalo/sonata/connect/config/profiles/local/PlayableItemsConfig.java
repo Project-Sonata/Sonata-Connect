@@ -1,4 +1,4 @@
-package com.odeyalo.sonata.connect.config;
+package com.odeyalo.sonata.connect.config.profiles.local;
 
 import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.model.*;
