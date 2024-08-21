@@ -45,4 +45,9 @@ public final class TrackItemEntityFaker {
                 .contextUri(ContextUri.forTrack(id));
         return this;
     }
+
+    public TrackItemEntityFaker withDuration(final PlayableItemDuration duration) {
+        builder.duration(duration);
+        return this;
+    }
 }

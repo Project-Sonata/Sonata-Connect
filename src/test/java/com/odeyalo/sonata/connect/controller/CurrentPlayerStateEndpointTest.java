@@ -4,10 +4,12 @@ import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.dto.ExceptionMessage;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.entity.*;
-import com.odeyalo.sonata.connect.model.*;
+import com.odeyalo.sonata.connect.model.DeviceType;
+import com.odeyalo.sonata.connect.model.PlayingType;
+import com.odeyalo.sonata.connect.model.RepeatState;
+import com.odeyalo.sonata.connect.model.TrackItemSpec;
 import com.odeyalo.sonata.connect.model.track.AlbumSpec;
 import com.odeyalo.sonata.connect.model.track.ArtistSpec;
-import com.odeyalo.sonata.connect.model.track.Image;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,7 +112,7 @@ class CurrentPlayerStateEndpointTest {
                                                                             .height(300)
                                                                             .width(300)
                                                                             .build()
-                                                    ))
+                                                            ))
                                                     .build()
                                     )
                                     .build())
@@ -181,14 +183,11 @@ class CurrentPlayerStateEndpointTest {
 
 
         @Test
-        @Disabled("Test class must be rewritten to black box. Wrong progress is returned")
         void shouldContainProgressMs() {
             WebTestClient.ResponseSpec responseSpec = sendCurrentPlayerStateRequest();
 
-            PlayerStateDto body = responseSpec.expectBody(PlayerStateDto.class).returnResult().getResponseBody();
-
-            PlayerStateDtoAssert.forState(body)
-                    .progressMs(0L);
+            responseSpec.expectBody(PlayerStateDto.class)
+                    .value(body -> assertThat(body.getProgressMs()).isGreaterThanOrEqualTo(0L));
         }
 
         @Test

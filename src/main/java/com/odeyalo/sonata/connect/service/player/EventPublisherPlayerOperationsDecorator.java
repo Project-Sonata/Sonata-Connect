@@ -16,12 +16,10 @@ import static com.odeyalo.sonata.connect.service.player.sync.event.PlayerEvent.E
 public final class EventPublisherPlayerOperationsDecorator implements BasicPlayerOperations {
     private final BasicPlayerOperations delegate;
     private final PlayerSynchronizationManager synchronizationManager;
-    private final DeviceOperations deviceOperations;
 
-    public EventPublisherPlayerOperationsDecorator(BasicPlayerOperations delegate, PlayerSynchronizationManager synchronizationManager, DeviceOperations deviceOperations) {
+    public EventPublisherPlayerOperationsDecorator(BasicPlayerOperations delegate, PlayerSynchronizationManager synchronizationManager) {
         this.delegate = delegate;
         this.synchronizationManager = synchronizationManager;
-        this.deviceOperations = deviceOperations;
     }
 
     @Override
@@ -44,14 +42,8 @@ public final class EventPublisherPlayerOperationsDecorator implements BasicPlaye
 
     @Override
     @NotNull
-    public DeviceOperations getDeviceOperations() {
-        return deviceOperations;
-    }
-
-    @Override
-    @NotNull
     public Mono<CurrentPlayerState> playOrResume(@NotNull final User user,
-                                                 @Nullable final PlayCommandContext context,
+                                                 @NotNull final PlayCommandContext context,
                                                  @Nullable final TargetDevice targetDevice) {
         return delegate.playOrResume(user, context, targetDevice)
                 .flatMap(it -> publishEvent(it, PLAYER_STATE_UPDATED, user));
@@ -69,6 +61,15 @@ public final class EventPublisherPlayerOperationsDecorator implements BasicPlaye
     public Mono<CurrentPlayerState> changeVolume(@NotNull final User user,
                                                  @NotNull final Volume volume) {
         return delegate.changeVolume(user, volume)
+                .flatMap(state -> publishEvent(state, PLAYER_STATE_UPDATED, user));
+    }
+
+    @Override
+    @NotNull
+    public Mono<CurrentPlayerState> seekToPosition(@NotNull final User user,
+                                                   @NotNull final SeekPosition position) {
+        return delegate.seekToPosition(user, position)
+                .map(playerState -> playerState.seekTo(position))
                 .flatMap(state -> publishEvent(state, PLAYER_STATE_UPDATED, user));
     }
 

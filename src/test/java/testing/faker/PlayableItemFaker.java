@@ -83,7 +83,7 @@ public class PlayableItemFaker {
             return this;
         }
 
-        public PlayableItemFaker withDuration(final PlayableItemDuration duration) {
+        public TrackItemFaker withDuration(final PlayableItemDuration duration) {
             this.duration = duration;
             builder.duration(duration);
             return this;

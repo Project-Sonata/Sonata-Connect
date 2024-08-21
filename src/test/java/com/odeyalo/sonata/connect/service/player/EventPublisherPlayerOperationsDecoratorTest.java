@@ -5,6 +5,7 @@ import com.odeyalo.sonata.connect.entity.DeviceEntity;
 import com.odeyalo.sonata.connect.entity.DevicesEntity;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.exception.NoActiveDeviceException;
+import com.odeyalo.sonata.connect.exception.PlayerCommandException;
 import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.service.player.sync.DefaultPlayerSynchronizationManager;
 import com.odeyalo.sonata.connect.service.player.sync.InMemoryRoomHolder;
@@ -21,7 +22,7 @@ import testing.faker.CurrentPlayerStateFaker;
 import testing.faker.DeviceEntityFaker;
 import testing.faker.PlayableItemFaker.TrackItemFaker;
 import testing.faker.PlayerStateFaker;
-import testing.stub.NullDeviceOperations;
+import testing.faker.TrackItemEntityFaker;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -259,7 +260,7 @@ class EventPublisherPlayerOperationsDecoratorTest {
     }
 
     @Nested
-    class ChangeVolumeCommandTest  {
+    class ChangeVolumeCommandTest {
 
         @Test
         void shouldSendEventOnVolumeChange() {
@@ -345,11 +346,77 @@ class EventPublisherPlayerOperationsDecoratorTest {
         }
     }
 
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    class SeekPositionTest {
+
+        @Test
+        void shouldPublishEventWithSeekPosition() {
+            PlayerStateEntity playerState = PlayerStateFaker
+                    .forUser(USER)
+                    .currentlyPlayingItem(TrackItemEntityFaker.create().withDuration(PlayableItemDuration.ofSeconds(180)).get())
+                    .get();
+
+            EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+
+            EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                    .withPlayerState(playerState)
+                    .withSynchronizationManager(synchronizationManagerMock)
+                    .build();
+
+            testable.seekToPosition(USER, SeekPosition.ofMillis(25_000)).block();
+
+            assertThat(synchronizationManagerMock.getOccurredEvents()).hasSize(1)
+                    .first().matches(event -> event.getCurrentPlayerState().getProgressMs() >= 25_000);
+        }
+
+        @Test
+        void shouldInvokeDelegateSeekToMethod() {
+            CurrentPlayerState playerState = CurrentPlayerStateFaker.create().withUser(USER).get();
+            SeekPosition seekPosition = SeekPosition.ofMillis(25_000);
+
+            BasicPlayerOperations delegateMock = mock(BasicPlayerOperations.class);
+
+            when(delegateMock.seekToPosition(USER, seekPosition)).thenReturn(Mono.just(playerState));
+
+            EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                    .withDelegate(delegateMock)
+                    .build();
+
+            testable.seekToPosition(USER, seekPosition).block();
+
+            verify(delegateMock, times(1)).seekToPosition(eq(USER), eq(seekPosition));
+        }
+
+        @Test
+        void shouldNotSendEventIfErrorOccurred() {
+            // given
+            PlayerStateEntity playerState = PlayerStateFaker
+                    .forUser(USER)
+                    .currentlyPlayingItem(null)
+                    .get();
+
+            EventCollectorPlayerSynchronizationManager synchronizationManagerMock = new EventCollectorPlayerSynchronizationManager();
+
+            EventPublisherPlayerOperationsDecorator testable = testableBuilder()
+                    .withPlayerState(playerState)
+                    .withSynchronizationManager(synchronizationManagerMock)
+                    .build();
+
+            // when, then
+            testable.seekToPosition(USER, SeekPosition.ofSeconds(10))
+                    .as(StepVerifier::create)
+                    .expectError(PlayerCommandException.class)
+                    .verify();
+
+            assertThat(synchronizationManagerMock.getOccurredEvents()).isEmpty();
+        }
+    }
+
     static class TestableBuilder {
         private final DefaultPlayerOperationsTestableBuilder delegateBuilder = DefaultPlayerOperationsTestableBuilder.testableBuilder();
         private BasicPlayerOperations delegate;
         private PlayerSynchronizationManager synchronizationManager = new DefaultPlayerSynchronizationManager(new InMemoryRoomHolder());
-        private final DeviceOperations deviceOperations = new NullDeviceOperations();
 
         public static TestableBuilder testableBuilder() {
             return new TestableBuilder();
@@ -367,7 +434,7 @@ class EventPublisherPlayerOperationsDecoratorTest {
 
         public EventPublisherPlayerOperationsDecorator build() {
             delegate = delegate == null ? delegateBuilder.build() : delegate;
-            return new EventPublisherPlayerOperationsDecorator(delegate, synchronizationManager, deviceOperations);
+            return new EventPublisherPlayerOperationsDecorator(delegate, synchronizationManager);
         }
 
         public TestableBuilder withPlayerState(PlayerStateEntity playerState) {

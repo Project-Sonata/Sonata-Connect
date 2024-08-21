@@ -8,6 +8,7 @@ import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.model.Volume;
 import com.odeyalo.sonata.connect.service.player.BasicPlayerOperations;
 import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
+import com.odeyalo.sonata.connect.service.player.SeekPosition;
 import com.odeyalo.sonata.connect.service.support.mapper.Converter;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.CurrentPlayerState2PlayerStateDtoConverter;
 import com.odeyalo.sonata.connect.support.web.HttpStatus;
@@ -76,5 +77,13 @@ public final class PlayerController {
         return playerOperations.changeVolume(user, volume)
                 .subscribeOn(Schedulers.boundedElastic())
                 .map(it -> HttpStatus.default204Response());
+    }
+
+    @PutMapping(value = "/seek", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<ResponseEntity<?>> seekPlaybackPosition(@NotNull final User user,
+                                                        @NotNull final SeekPosition seekPosition) {
+
+        return playerOperations.seekToPosition(user, seekPosition)
+                .thenReturn(HttpStatus.default204Response());
     }
 }

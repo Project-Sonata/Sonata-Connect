@@ -77,4 +77,36 @@ public class GlobalExceptionHandlerController {
         return ResponseEntity.badRequest()
                 .body(ExceptionMessage.of(ex.getMessage()));
     }
+
+    @ExceptionHandler(MissingPlayableItemException.class)
+    public ResponseEntity<?> handleMissingPlayableItemException(final MissingPlayableItemException ex) {
+        final var body = ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), "Player command error: no item is playing");
+
+        return ResponseEntity.badRequest()
+                .body(body);
+    }
+
+    @ExceptionHandler(InvalidSeekPositionException.class)
+    public ResponseEntity<?> handleInvalidSeekPositionException(final InvalidSeekPositionException ex) {
+        final var body = ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), "Player command error: position must be positive");
+
+        return ResponseEntity.badRequest()
+                .body(body);
+    }
+
+    @ExceptionHandler(SeekPositionExceedDurationException.class)
+    public ResponseEntity<?> handleSeekPositionExceedDurationException(final SeekPositionExceedDurationException ex) {
+        final var body = ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), "Player command error: position cannot be greater than track duration");
+
+        return ResponseEntity.badRequest()
+                .body(body);
+    }
+
+    @ExceptionHandler(UnsupportedSeekPositionPrecisionException.class)
+    public ResponseEntity<?> handleUnsupportedSeekPositionPrecisionException(final UnsupportedSeekPositionPrecisionException ex) {
+        final var body = ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), "Player command error: unsupported precision used. Supported case insensitive: MILLIS, SECONDS.");
+
+        return ResponseEntity.badRequest()
+                .body(body);
+    }
 }

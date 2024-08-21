@@ -17,6 +17,9 @@ public interface PlayableItem {
     @NotNull
     ContextUri getContextUri();
 
+    /**
+     * @return duration of this item
+     */
     @NotNull
     PlayableItemDuration getDuration();
 }
