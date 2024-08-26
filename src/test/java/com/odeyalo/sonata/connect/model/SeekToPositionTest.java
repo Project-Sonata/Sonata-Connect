@@ -10,24 +10,36 @@ import testing.time.TestingClock;
 import java.time.Duration;
 import java.time.Instant;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static com.odeyalo.sonata.connect.model.DeviceSpec.DeviceStatus.ACTIVE;
+import static org.assertj.core.api.Assertions.*;
 
 public final class SeekToPositionTest {
 
-    public static final PlayableItem SIMPLE_TRACK = PlayableItemFaker.create()
+    static final PlayableItem SIMPLE_TRACK = PlayableItemFaker.create()
             .setDuration(Duration.ofSeconds(200))
             .get();
-    public static final User USER = User.of("123");
+
+    static final User USER = User.of("123");
+
+    static final Device DEVICE = Device.builder()
+            .deviceId("miku")
+            .deviceName("Odeyalo-PC")
+            .deviceType(DeviceType.COMPUTER)
+            .status(ACTIVE)
+            .volume(Volume.fromInt(35))
+            .build();
+
 
     @Test
     void shouldProperlySeekPlayerProgressToPosition() {
         final TestingClock timer = new TestingClock(Instant.now());
 
-        final CurrentPlayerState initialPlayer = CurrentPlayerState.emptyFor(User.of("123"))
+        final CurrentPlayerState initialPlayer = CurrentPlayerState.emptyFor(USER)
                 .useClock(timer);
 
-        final CurrentPlayerState afterPlay = initialPlayer.play(SIMPLE_TRACK);
+        final CurrentPlayerState withConnectedDevices = initialPlayer.connectDevice(DEVICE);
+
+        final CurrentPlayerState afterPlay = withConnectedDevices.play(SIMPLE_TRACK);
 
         timer.waitSeconds(5);
 
@@ -40,7 +52,10 @@ public final class SeekToPositionTest {
     void shouldThrowExceptionIfSeekPositionIsGreaterThanTrackDuration() {
         final CurrentPlayerState initialPlayer = CurrentPlayerState.emptyFor(USER);
 
-        final CurrentPlayerState afterPlay = initialPlayer.play(SIMPLE_TRACK);
+        final CurrentPlayerState withConnectedDevices = initialPlayer.connectDevice(DEVICE);
+
+        final CurrentPlayerState afterPlay = withConnectedDevices.play(SIMPLE_TRACK);
+
 
         assertThatThrownBy(() -> afterPlay.seekTo(SeekPosition.ofMillis(Integer.MAX_VALUE)))
                 .isInstanceOf(SeekPositionExceedDurationException.class);

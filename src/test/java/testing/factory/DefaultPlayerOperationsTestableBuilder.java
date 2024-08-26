@@ -17,7 +17,6 @@ import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePlayCo
 import com.odeyalo.sonata.connect.service.player.support.PlayableItemLoader;
 import com.odeyalo.sonata.connect.service.player.support.PredefinedPlayableItemLoader;
 import com.odeyalo.sonata.connect.service.player.support.validation.HardCodedPauseCommandPreExecutingIntegrityValidator;
-import com.odeyalo.sonata.connect.service.player.support.validation.HardcodedPlayCommandPreExecutingIntegrityValidator;
 import com.odeyalo.sonata.connect.service.support.mapper.CurrentPlayerState2CurrentlyPlayingPlayerStateConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
 import org.jetbrains.annotations.NotNull;
@@ -89,7 +88,6 @@ public final class DefaultPlayerOperationsTestableBuilder {
         public PlayCommandHandlerDelegate build() {
             return new PlayerStateUpdatePlayCommandHandlerDelegate(
                     itemLoader,
-                    new HardcodedPlayCommandPreExecutingIntegrityValidator(),
                     new PlayerStateService(playerStateRepository, testableBuilder().playerStateConverterSupport, new DefaultPlayerStateEntityFactory(
                             new DeviceEntity.Factory(), new TrackItemEntity.Factory()
                     )));

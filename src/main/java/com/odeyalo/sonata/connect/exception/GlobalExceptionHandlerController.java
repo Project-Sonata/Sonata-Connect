@@ -78,6 +78,11 @@ public class GlobalExceptionHandlerController {
                 .body(ExceptionMessage.of(ex.getMessage()));
     }
 
+    @ExceptionHandler(IllegalCommandStateException.class)
+    public ResponseEntity<ReasonCodeAwareExceptionMessage> handleIllegalCommandStateException(IllegalCommandStateException ex) {
+        return badRequest().body(ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), "Player command failed: Nothing is playing now and context is null!"));
+    }
+
     @ExceptionHandler(MissingPlayableItemException.class)
     public ResponseEntity<?> handleMissingPlayableItemException(final MissingPlayableItemException ex) {
         final var body = ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), "Player command error: no item is playing");
