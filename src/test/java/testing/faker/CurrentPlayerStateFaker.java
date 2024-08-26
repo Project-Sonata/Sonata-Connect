@@ -5,6 +5,7 @@ import com.odeyalo.sonata.connect.model.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.util.Collections;
 
 public final class CurrentPlayerStateFaker {
@@ -12,7 +13,8 @@ public final class CurrentPlayerStateFaker {
     Faker faker = Faker.instance();
 
     public CurrentPlayerStateFaker() {
-        PlayableItem playableItem = PlayableItemFaker.create().get();
+        Integer seconds = faker.random().nextInt(100, 500);
+        PlayableItem playableItem = PlayableItemFaker.create().setDuration(Duration.ofSeconds(seconds)).get();
         builder.playableItem(playableItem)
                 .playingType(PlayingType.TRACK)
                 .repeatState(faker.options().option(RepeatState.class))

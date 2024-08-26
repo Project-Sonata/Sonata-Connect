@@ -10,9 +10,7 @@ import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.DefaultPlayerOperations;
 import com.odeyalo.sonata.connect.service.player.PlayerStateService;
-import com.odeyalo.sonata.connect.service.player.handler.PauseCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
-import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePauseCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.support.PlayableItemLoader;
 import com.odeyalo.sonata.connect.service.player.support.PredefinedPlayableItemLoader;
@@ -28,12 +26,6 @@ public final class DefaultPlayerOperationsTestableBuilder {
 
     private final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport = new Converters().playerState2CurrentPlayerStateConverter();
     private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter = new Converters().currentPlayerStateConverter();
-
-    private final PauseCommandHandlerDelegate pauseCommandHandlerDelegate =
-            new PlayerStateUpdatePauseCommandHandlerDelegate(
-                    new PlayerStateService(playerStateRepository, playerStateConverterSupport, new DefaultPlayerStateEntityFactory(
-                            new DeviceEntity.Factory(), new TrackItemEntity.Factory()
-                    )));
 
     public static DefaultPlayerOperationsTestableBuilder testableBuilder() {
         return new DefaultPlayerOperationsTestableBuilder();
@@ -57,7 +49,6 @@ public final class DefaultPlayerOperationsTestableBuilder {
                         .withState(playerStateRepository)
                         .withPlayableItems(existingItems)
                         .build(),
-                pauseCommandHandlerDelegate,
                 playerStateConverter,
                 new PlayerStateService(playerStateRepository, playerStateConverterSupport,
                 new DefaultPlayerStateEntityFactory(new DeviceEntity.Factory(), new TrackItemEntity.Factory())));
