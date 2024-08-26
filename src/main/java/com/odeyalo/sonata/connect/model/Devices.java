@@ -147,7 +147,7 @@ public class Devices implements Iterable<Device> {
     @NotNull
     private Device findDeviceToActivate(@NotNull final TargetDevice searchTarget) {
         return findById(searchTarget)
-                .orElseThrow(() -> DeviceNotFoundException.withCustomMessage(String.format("Device with ID: %s not found", searchTarget.getId())));
+                .orElseThrow(() -> DeviceNotFoundException.withCustomMessage(String.format("Device with ID: %s not found!", searchTarget.getId())));
     }
 
     @Nullable

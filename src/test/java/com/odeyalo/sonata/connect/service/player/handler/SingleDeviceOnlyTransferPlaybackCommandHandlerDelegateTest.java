@@ -95,7 +95,7 @@ class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegateTest {
                 .expectErrorSatisfies(err -> {
                     assertThat(err)
                             .isInstanceOf(DeviceNotFoundException.class)
-                            .hasMessage("Device with provided ID was not found!")
+                            .hasMessage("Device with ID: not_exist not found!")
                             .is(reasonCodeEqual("device_not_found"));
                 })
                 .verify();
