@@ -38,12 +38,6 @@ public class EventPublisherDeviceOperationsDecorator implements DeviceOperations
 
     @NotNull
     @Override
-    public Mono<Boolean> containsById(User user, String deviceId) {
-        return delegate.containsById(user, deviceId);
-    }
-
-    @NotNull
-    @Override
     public Mono<CurrentPlayerState> transferPlayback(User user, SwitchDeviceCommandArgs args, TargetDeactivationDevices deactivationDevices, TargetDevices targetDevices) {
         return delegate.transferPlayback(user, args, deactivationDevices, targetDevices);
     }

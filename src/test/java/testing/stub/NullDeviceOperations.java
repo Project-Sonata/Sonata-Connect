@@ -22,12 +22,6 @@ public class NullDeviceOperations implements DeviceOperations {
 
     @NotNull
     @Override
-    public Mono<Boolean> containsById(User user, String deviceId) {
-        return Mono.empty();
-    }
-
-    @NotNull
-    @Override
     public Mono<CurrentPlayerState> transferPlayback(User user, SwitchDeviceCommandArgs args, TargetDeactivationDevices deactivationDevices, TargetDevices targetDevices) {
         return Mono.empty();
     }

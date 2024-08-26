@@ -16,9 +16,6 @@ public interface DeviceOperations {
     @NotNull
     Mono<CurrentPlayerState> addDevice(User user, Device device);
 
-    @NotNull
-    Mono<Boolean> containsById(User user, String deviceId);
-
     /**
      * Transfer the playback to given devices
      * @param user - user that owns player state

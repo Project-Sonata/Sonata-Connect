@@ -25,13 +25,13 @@ import testing.faker.PlayerStateFaker;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DefaultStorageDeviceOperationsTest {
+class DefaultDeviceOperationsTest {
 
     PlayerStateRepository playerStateRepository = new InMemoryPlayerStateRepository();
 
     PlayerState2CurrentPlayerStateConverter playerStateConverter = new Converters().playerState2CurrentPlayerStateConverter();
 
-    DefaultStorageDeviceOperations operations = new DefaultStorageDeviceOperations(
+    DefaultDeviceOperations operations = new DefaultDeviceOperations(
             new PlayerStateService(playerStateRepository, playerStateConverter,
                     new DefaultPlayerStateEntityFactory(new DeviceEntity.Factory(), new TrackItemEntity.Factory())
             ),
