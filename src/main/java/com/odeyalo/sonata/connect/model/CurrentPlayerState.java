@@ -12,7 +12,6 @@ import com.odeyalo.sonata.connect.support.time.JavaClock;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import reactor.core.publisher.Mono;
 
 import java.util.Random;
 
@@ -185,6 +184,11 @@ public class CurrentPlayerState {
 
     @NotNull
     public CurrentPlayerState pause() {
+
+        if ( missingActiveDevice() ) {
+            throw NoActiveDeviceException.defaultException();
+        }
+
         if ( isPlaying() ) {
             return this.toBuilder()
                     .playing(false)

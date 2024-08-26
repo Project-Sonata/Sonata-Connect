@@ -16,7 +16,6 @@ import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePauseC
 import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.support.PlayableItemLoader;
 import com.odeyalo.sonata.connect.service.player.support.PredefinedPlayableItemLoader;
-import com.odeyalo.sonata.connect.service.player.support.validation.HardCodedPauseCommandPreExecutingIntegrityValidator;
 import com.odeyalo.sonata.connect.service.support.mapper.CurrentPlayerState2CurrentlyPlayingPlayerStateConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +31,6 @@ public final class DefaultPlayerOperationsTestableBuilder {
 
     private final PauseCommandHandlerDelegate pauseCommandHandlerDelegate =
             new PlayerStateUpdatePauseCommandHandlerDelegate(
-                    new HardCodedPauseCommandPreExecutingIntegrityValidator(),
                     new PlayerStateService(playerStateRepository, playerStateConverterSupport, new DefaultPlayerStateEntityFactory(
                             new DeviceEntity.Factory(), new TrackItemEntity.Factory()
                     )));
