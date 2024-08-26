@@ -1,6 +1,5 @@
 package com.odeyalo.sonata.connect.service.player.handler;
 
-import com.odeyalo.sonata.connect.exception.PlayableItemNotFoundException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.User;
@@ -50,7 +49,6 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
         }
 
         return playableItemLoader.loadPlayableItem(playback.getContextUri())
-                .switchIfEmpty(Mono.defer(() -> Mono.error(PlayableItemNotFoundException.defaultException())))
                 .flatMap(item -> play(state, item));
     }
 
