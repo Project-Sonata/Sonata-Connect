@@ -10,14 +10,10 @@ import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import com.odeyalo.sonata.connect.service.player.DefaultPlayerOperations;
 import com.odeyalo.sonata.connect.service.player.PlayerStateService;
-import com.odeyalo.sonata.connect.service.player.handler.PauseCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
-import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePauseCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayerStateUpdatePlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.support.PlayableItemLoader;
 import com.odeyalo.sonata.connect.service.player.support.PredefinedPlayableItemLoader;
-import com.odeyalo.sonata.connect.service.player.support.validation.HardCodedPauseCommandPreExecutingIntegrityValidator;
-import com.odeyalo.sonata.connect.service.player.support.validation.HardcodedPlayCommandPreExecutingIntegrityValidator;
 import com.odeyalo.sonata.connect.service.support.mapper.CurrentPlayerState2CurrentlyPlayingPlayerStateConverter;
 import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
 import org.jetbrains.annotations.NotNull;
@@ -30,13 +26,6 @@ public final class DefaultPlayerOperationsTestableBuilder {
 
     private final PlayerState2CurrentPlayerStateConverter playerStateConverterSupport = new Converters().playerState2CurrentPlayerStateConverter();
     private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter = new Converters().currentPlayerStateConverter();
-
-    private final PauseCommandHandlerDelegate pauseCommandHandlerDelegate =
-            new PlayerStateUpdatePauseCommandHandlerDelegate(
-                    new HardCodedPauseCommandPreExecutingIntegrityValidator(),
-                    new PlayerStateService(playerStateRepository, playerStateConverterSupport, new DefaultPlayerStateEntityFactory(
-                            new DeviceEntity.Factory(), new TrackItemEntity.Factory()
-                    )));
 
     public static DefaultPlayerOperationsTestableBuilder testableBuilder() {
         return new DefaultPlayerOperationsTestableBuilder();
@@ -60,7 +49,6 @@ public final class DefaultPlayerOperationsTestableBuilder {
                         .withState(playerStateRepository)
                         .withPlayableItems(existingItems)
                         .build(),
-                pauseCommandHandlerDelegate,
                 playerStateConverter,
                 new PlayerStateService(playerStateRepository, playerStateConverterSupport,
                 new DefaultPlayerStateEntityFactory(new DeviceEntity.Factory(), new TrackItemEntity.Factory())));
@@ -89,7 +77,6 @@ public final class DefaultPlayerOperationsTestableBuilder {
         public PlayCommandHandlerDelegate build() {
             return new PlayerStateUpdatePlayCommandHandlerDelegate(
                     itemLoader,
-                    new HardcodedPlayCommandPreExecutingIntegrityValidator(),
                     new PlayerStateService(playerStateRepository, testableBuilder().playerStateConverterSupport, new DefaultPlayerStateEntityFactory(
                             new DeviceEntity.Factory(), new TrackItemEntity.Factory()
                     )));

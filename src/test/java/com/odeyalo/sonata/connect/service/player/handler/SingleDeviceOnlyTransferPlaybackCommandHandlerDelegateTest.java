@@ -14,11 +14,11 @@ import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.repository.InMemoryPlayerStateRepository;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
+import com.odeyalo.sonata.connect.service.TargetDevices;
 import com.odeyalo.sonata.connect.service.player.PlayerStateService;
 import com.odeyalo.sonata.connect.service.player.SwitchDeviceCommandArgs;
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevices;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
-import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import com.odeyalo.sonata.connect.service.support.mapper.PlayerState2CurrentPlayerStateConverter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -95,7 +95,7 @@ class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegateTest {
                 .expectErrorSatisfies(err -> {
                     assertThat(err)
                             .isInstanceOf(DeviceNotFoundException.class)
-                            .hasMessage("Device with provided ID was not found!")
+                            .hasMessage("Device with ID: not_exist not found!")
                             .is(reasonCodeEqual("device_not_found"));
                 })
                 .verify();

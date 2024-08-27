@@ -1,6 +1,5 @@
 package com.odeyalo.sonata.connect.service.player.handler;
 
-import com.odeyalo.sonata.connect.exception.PlayableItemNotFoundException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import com.odeyalo.sonata.connect.model.User;
@@ -8,7 +7,6 @@ import com.odeyalo.sonata.connect.service.player.PlayCommandContext;
 import com.odeyalo.sonata.connect.service.player.PlayerStateService;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
 import com.odeyalo.sonata.connect.service.player.support.PlayableItemLoader;
-import com.odeyalo.sonata.connect.service.player.support.validation.PlayCommandPreExecutingIntegrityValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -21,13 +19,10 @@ import reactor.core.publisher.Mono;
 public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandHandlerDelegate {
     private final PlayerStateService playerStateService;
     private final PlayableItemLoader playableItemLoader;
-    private final PlayCommandPreExecutingIntegrityValidator integrityValidator;
 
     public PlayerStateUpdatePlayCommandHandlerDelegate(final PlayableItemLoader playableItemLoader,
-                                                       final PlayCommandPreExecutingIntegrityValidator integrityValidator,
                                                        final PlayerStateService playerStateService) {
         this.playableItemLoader = playableItemLoader;
-        this.integrityValidator = integrityValidator;
         this.playerStateService = playerStateService;
     }
 
@@ -37,7 +32,6 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
                                                  @NotNull final PlayCommandContext context,
                                                  @Nullable final TargetDevice targetDevice) {
         return playerStateService.loadPlayerState(user)
-                .flatMap(state -> validateCommand(context, state))
                 .flatMap(state -> executeCommand(context, state));
     }
 
@@ -50,7 +44,6 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
         }
 
         return playableItemLoader.loadPlayableItem(playback.getContextUri())
-                .switchIfEmpty(Mono.defer(() -> Mono.error(PlayableItemNotFoundException.defaultException())))
                 .flatMap(item -> play(state, item));
     }
 
@@ -71,10 +64,4 @@ public class PlayerStateUpdatePlayCommandHandlerDelegate implements PlayCommandH
         );
     }
 
-    @NotNull
-    private Mono<CurrentPlayerState> validateCommand(@NotNull final PlayCommandContext context,
-                                                     @NotNull final CurrentPlayerState state) {
-        return integrityValidator.validate(context, state)
-                .thenReturn(state);
-    }
 }

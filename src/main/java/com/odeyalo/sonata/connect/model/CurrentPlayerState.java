@@ -1,6 +1,8 @@
 package com.odeyalo.sonata.connect.model;
 
+import com.odeyalo.sonata.connect.exception.IllegalCommandStateException;
 import com.odeyalo.sonata.connect.exception.MissingPlayableItemException;
+import com.odeyalo.sonata.connect.exception.NoActiveDeviceException;
 import com.odeyalo.sonata.connect.exception.SeekPositionExceedDurationException;
 import com.odeyalo.sonata.connect.service.player.SeekPosition;
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevice;
@@ -153,6 +155,11 @@ public class CurrentPlayerState {
 
     @NotNull
     public CurrentPlayerState play(@NotNull final PlayableItem item) {
+
+        if ( missingActiveDevice() ) {
+            throw NoActiveDeviceException.defaultException();
+        }
+
         return this.toBuilder()
                 .playing(true)
                 .playableItem(item)
@@ -164,6 +171,11 @@ public class CurrentPlayerState {
 
     @NotNull
     public CurrentPlayerState resumePlayback() {
+
+        if ( missingPlayingItem() ) {
+            throw IllegalCommandStateException.withCustomMessage("Player command failed: Nothing is playing now and context is null!");
+        }
+
         return this.toBuilder()
                 .playing(true)
                 .playStartTime(clock.currentTimeMillis())
@@ -172,6 +184,11 @@ public class CurrentPlayerState {
 
     @NotNull
     public CurrentPlayerState pause() {
+
+        if ( missingActiveDevice() ) {
+            throw NoActiveDeviceException.defaultException();
+        }
+
         if ( isPlaying() ) {
             return this.toBuilder()
                     .playing(false)

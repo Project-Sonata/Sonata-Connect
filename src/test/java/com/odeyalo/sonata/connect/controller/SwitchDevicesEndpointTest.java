@@ -112,7 +112,7 @@ public class SwitchDevicesEndpointTest {
 
             ExceptionMessage message = responseSpec.expectBody(ExceptionMessage.class).returnResult().getResponseBody();
 
-            ExceptionMessageAssert.forMessage(message).isDescriptionEqualTo("Device with provided ID was not found!");
+            ExceptionMessageAssert.forMessage(message).isDescriptionEqualTo("Device with ID: not_existing not found!");
         }
 
         @NotNull

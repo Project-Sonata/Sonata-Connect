@@ -7,6 +7,7 @@ import testing.time.TestingClock;
 import java.time.Duration;
 import java.time.Instant;
 
+import static com.odeyalo.sonata.connect.model.DeviceSpec.DeviceStatus.ACTIVE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CurrentPlayerStateProgressCalculationTest {
@@ -15,6 +16,14 @@ class CurrentPlayerStateProgressCalculationTest {
             .get();
 
     static final User USER = User.of("odeyalooo");
+
+    static final Device DEVICE = Device.builder()
+            .deviceId("miku")
+            .deviceName("Odeyalo-PC")
+            .deviceType(DeviceType.COMPUTER)
+            .status(ACTIVE)
+            .volume(Volume.fromInt(35))
+            .build();
 
     @Test
     void shouldReturnDefaultValueIfNothingIsPlaying() {
@@ -28,7 +37,9 @@ class CurrentPlayerStateProgressCalculationTest {
     void shouldNotReturnDefaultValueIfSomethingIsPlaying() {
         final CurrentPlayerState initialState = CurrentPlayerState.emptyFor(USER);
 
-        final CurrentPlayerState updatedState = initialState.play(SECONDS_30_PLAYABLE_ITEM);
+        final CurrentPlayerState withConnectedDevice = initialState.connectDevice(DEVICE);
+
+        final CurrentPlayerState updatedState = withConnectedDevice.play(SECONDS_30_PLAYABLE_ITEM);
 
         assertThat(updatedState.getProgressMs()).isNotEqualTo(-1L);
     }
@@ -54,7 +65,9 @@ class CurrentPlayerStateProgressCalculationTest {
         final CurrentPlayerState initialState = CurrentPlayerState.emptyFor(USER)
                 .useClock(clock);
 
-        final CurrentPlayerState testable = initialState.play(SECONDS_30_PLAYABLE_ITEM);
+        final CurrentPlayerState withConnectedDevice = initialState.connectDevice(DEVICE);
+
+        final CurrentPlayerState testable = withConnectedDevice.play(SECONDS_30_PLAYABLE_ITEM);
 
         clock.waitSeconds(2);
 
@@ -73,7 +86,9 @@ class CurrentPlayerStateProgressCalculationTest {
         final CurrentPlayerState initialState = CurrentPlayerState.emptyFor(USER)
                 .useClock(clock);
 
-        final CurrentPlayerState testable = initialState.play(SECONDS_30_PLAYABLE_ITEM);
+        final CurrentPlayerState withConnectedDevice = initialState.connectDevice(DEVICE);
+
+        final CurrentPlayerState testable = withConnectedDevice.play(SECONDS_30_PLAYABLE_ITEM);
 
         clock.waitSeconds(6);
 
@@ -94,7 +109,9 @@ class CurrentPlayerStateProgressCalculationTest {
         final CurrentPlayerState initialState = CurrentPlayerState.emptyFor(USER)
                 .useClock(clock);
 
-        final CurrentPlayerState testable = initialState.play(SECONDS_30_PLAYABLE_ITEM);
+        final CurrentPlayerState withConnectedDevice = initialState.connectDevice(DEVICE);
+
+        final CurrentPlayerState testable = withConnectedDevice.play(SECONDS_30_PLAYABLE_ITEM);
 
         clock.waitSeconds(6);
 
@@ -117,7 +134,9 @@ class CurrentPlayerStateProgressCalculationTest {
         final CurrentPlayerState initialState = CurrentPlayerState.emptyFor(USER)
                 .useClock(clock);
 
-        final CurrentPlayerState testable = initialState.play(SECONDS_30_PLAYABLE_ITEM);
+        final CurrentPlayerState withConnectedDevice = initialState.connectDevice(DEVICE);
+
+        final CurrentPlayerState testable = withConnectedDevice.play(SECONDS_30_PLAYABLE_ITEM);
 
         clock.waitMillis(60);
 
@@ -135,7 +154,10 @@ class CurrentPlayerStateProgressCalculationTest {
                 .setDuration(Duration.ofSeconds(230))
                 .get();
 
-        final CurrentPlayerState testable = initialState.play(playableItem);
+
+        final CurrentPlayerState withConnectedDevice = initialState.connectDevice(DEVICE);
+
+        final CurrentPlayerState testable = withConnectedDevice.play(playableItem);
 
         clock.waitSeconds(240);
 
@@ -153,7 +175,9 @@ class CurrentPlayerStateProgressCalculationTest {
                 .setDuration(Duration.ofSeconds(230))
                 .get();
 
-        final CurrentPlayerState testable = initialState.play(playableItem);
+        final CurrentPlayerState withConnectedDevice = initialState.connectDevice(DEVICE);
+
+        final CurrentPlayerState testable = withConnectedDevice.play(playableItem);
 
         clock.waitSeconds(230);
 

@@ -4,7 +4,7 @@ import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.Device;
 import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.User;
-import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
+import com.odeyalo.sonata.connect.service.TargetDevices;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
@@ -14,10 +14,7 @@ import reactor.core.publisher.Mono;
 public interface DeviceOperations {
 
     @NotNull
-    Mono<CurrentPlayerState> addDevice(User user, Device device);
-
-    @NotNull
-    Mono<Boolean> containsById(User user, String deviceId);
+    Mono<CurrentPlayerState> connectDevice(User user, Device device);
 
     /**
      * Transfer the playback to given devices

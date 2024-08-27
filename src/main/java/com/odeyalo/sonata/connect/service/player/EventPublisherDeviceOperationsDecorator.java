@@ -4,8 +4,8 @@ import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.Device;
 import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.User;
+import com.odeyalo.sonata.connect.service.TargetDevices;
 import com.odeyalo.sonata.connect.service.player.sync.PlayerSynchronizationManager;
-import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import com.odeyalo.sonata.connect.service.player.sync.event.DeviceConnectedPlayerEvent;
 import com.odeyalo.sonata.connect.service.player.sync.event.DeviceDisconnectedPlayerEvent;
 import org.jetbrains.annotations.NotNull;
@@ -25,8 +25,8 @@ public class EventPublisherDeviceOperationsDecorator implements DeviceOperations
 
     @NotNull
     @Override
-    public Mono<CurrentPlayerState> addDevice(User user, Device device) {
-        return delegate.addDevice(user, device)
+    public Mono<CurrentPlayerState> connectDevice(User user, Device device) {
+        return delegate.connectDevice(user, device)
                 .flatMap(state -> synchronizationManager.publishUpdatedState(user,
                                 DeviceConnectedPlayerEvent.builder()
                                         .playerState(state)
@@ -34,12 +34,6 @@ public class EventPublisherDeviceOperationsDecorator implements DeviceOperations
                                         .build())
                         .thenReturn(state));
 
-    }
-
-    @NotNull
-    @Override
-    public Mono<Boolean> containsById(User user, String deviceId) {
-        return delegate.containsById(user, deviceId);
     }
 
     @NotNull

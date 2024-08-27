@@ -1,6 +1,7 @@
 package com.odeyalo.sonata.connect.service.player.support;
 
 import com.odeyalo.sonata.common.context.ContextUri;
+import com.odeyalo.sonata.connect.exception.PlayableItemNotFoundException;
 import com.odeyalo.sonata.connect.model.PlayableItem;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -35,8 +36,7 @@ public final class PredefinedPlayableItemLoader implements PlayableItemLoader {
     @Override
     @NotNull
     public Mono<PlayableItem> loadPlayableItem(@NotNull final ContextUri contextUri) {
-        return Mono.justOrEmpty(
-                cache.get(contextUri)
-        );
+        return Mono.justOrEmpty(cache.get(contextUri))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(PlayableItemNotFoundException.defaultException())));
     }
 }

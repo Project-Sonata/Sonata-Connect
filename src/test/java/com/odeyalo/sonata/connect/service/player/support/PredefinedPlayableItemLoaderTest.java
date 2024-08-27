@@ -1,6 +1,7 @@
 package com.odeyalo.sonata.connect.service.player.support;
 
 import com.odeyalo.sonata.common.context.ContextUri;
+import com.odeyalo.sonata.connect.exception.PlayableItemNotFoundException;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 import testing.faker.PlayableItemFaker.TrackItemFaker;
@@ -24,11 +25,12 @@ class PredefinedPlayableItemLoaderTest {
     }
 
     @Test
-    void shouldReturnNothingIfItemDoesNotExist() {
+    void shouldReturnErrorIfNoTrackAssociatedWithProvidedContextUri() {
         final var testable = new PredefinedPlayableItemLoader();
 
         testable.loadPlayableItem(ContextUri.forTrack("123"))
                 .as(StepVerifier::create)
-                .verifyComplete();
+                .expectError(PlayableItemNotFoundException.class)
+                .verify();
     }
 }

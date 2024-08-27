@@ -1,10 +1,9 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.model.*;
-import com.odeyalo.sonata.connect.service.player.handler.PauseCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.player.handler.PlayCommandHandlerDelegate;
 import com.odeyalo.sonata.connect.service.support.mapper.CurrentPlayerState2CurrentlyPlayingPlayerStateConverter;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -15,10 +14,9 @@ import reactor.core.publisher.Mono;
 import static reactor.core.publisher.Mono.defer;
 
 @Component
-@RequiredArgsConstructor
+@AllArgsConstructor
 public final class DefaultPlayerOperations implements BasicPlayerOperations {
     private final PlayCommandHandlerDelegate playCommandHandlerDelegate;
-    private final PauseCommandHandlerDelegate pauseCommandHandlerDelegate;
     private final CurrentPlayerState2CurrentlyPlayingPlayerStateConverter playerStateConverter;
     private final PlayerStateService playerStateService;
 
@@ -59,7 +57,9 @@ public final class DefaultPlayerOperations implements BasicPlayerOperations {
     @Override
     @NotNull
     public Mono<CurrentPlayerState> pause(@NotNull User user) {
-        return pauseCommandHandlerDelegate.pause(user);
+        return playerStateService.loadPlayerState(user)
+                .map(CurrentPlayerState::pause)
+                .flatMap(playerStateService::save);
     }
 
     @Override

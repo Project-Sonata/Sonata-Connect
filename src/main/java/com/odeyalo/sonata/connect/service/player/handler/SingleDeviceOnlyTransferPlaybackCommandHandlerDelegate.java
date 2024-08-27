@@ -1,16 +1,15 @@
 package com.odeyalo.sonata.connect.service.player.handler;
 
-import com.odeyalo.sonata.connect.exception.DeviceNotFoundException;
 import com.odeyalo.sonata.connect.exception.MultipleTargetDevicesNotSupportedException;
 import com.odeyalo.sonata.connect.exception.SingleTargetDeactivationDeviceRequiredException;
 import com.odeyalo.sonata.connect.exception.TargetDeviceRequiredException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.User;
+import com.odeyalo.sonata.connect.service.TargetDevices;
 import com.odeyalo.sonata.connect.service.player.PlayerStateService;
 import com.odeyalo.sonata.connect.service.player.SwitchDeviceCommandArgs;
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevices;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
-import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,11 +50,7 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
 
         final TargetDevice transferPlaybackTarget = targetDevices.peekFirst();
 
-        if ( playerState.hasDevice(transferPlaybackTarget) ) {
-            return doTransferPlayback(playerState, transferPlaybackTarget);
-        }
-
-        return Mono.error(DeviceNotFoundException.defaultException());
+        return doTransferPlayback(playerState, transferPlaybackTarget);
     }
 
     @NotNull
@@ -87,7 +82,7 @@ public class SingleDeviceOnlyTransferPlaybackCommandHandlerDelegate implements T
                 return Pair.of(false, SingleTargetDeactivationDeviceRequiredException.defaultException());
             }
 
-            if ( targetDevices.size() < 1 ) {
+            if ( targetDevices.isEmpty() ) {
                 return Pair.of(false, TargetDeviceRequiredException.defaultException());
             }
 

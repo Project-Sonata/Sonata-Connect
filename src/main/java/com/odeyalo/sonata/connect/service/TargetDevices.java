@@ -1,4 +1,4 @@
-package com.odeyalo.sonata.connect.service.player.sync;
+package com.odeyalo.sonata.connect.service;
 
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
 import lombok.AllArgsConstructor;

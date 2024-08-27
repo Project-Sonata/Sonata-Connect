@@ -51,7 +51,6 @@ public class PlayResumePlaybackEndpointTest {
     PlayerStateRepository playerStateRepository;
 
     @Autowired
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     SonataTestHttpOperations testOperations;
 
     final String EXISTING_TRACK_CONTEXT_URI = "sonata:track:cassie";
