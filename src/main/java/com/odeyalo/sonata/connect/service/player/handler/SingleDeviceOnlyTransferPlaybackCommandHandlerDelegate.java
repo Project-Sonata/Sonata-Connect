@@ -5,11 +5,11 @@ import com.odeyalo.sonata.connect.exception.SingleTargetDeactivationDeviceRequir
 import com.odeyalo.sonata.connect.exception.TargetDeviceRequiredException;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.User;
+import com.odeyalo.sonata.connect.service.TargetDevices;
 import com.odeyalo.sonata.connect.service.player.PlayerStateService;
 import com.odeyalo.sonata.connect.service.player.SwitchDeviceCommandArgs;
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevices;
 import com.odeyalo.sonata.connect.service.player.TargetDevice;
-import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

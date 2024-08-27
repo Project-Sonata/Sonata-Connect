@@ -1,7 +1,7 @@
 package com.odeyalo.sonata.connect.support.web.resolver;
 
 import com.odeyalo.sonata.connect.dto.DeviceSwitchRequest;
-import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
+import com.odeyalo.sonata.connect.service.TargetDevices;
 import com.odeyalo.sonata.connect.support.web.annotation.TransferPlaybackTargets;
 import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;

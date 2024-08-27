@@ -2,10 +2,10 @@ package com.odeyalo.sonata.connect.service.player.handler;
 
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.User;
+import com.odeyalo.sonata.connect.service.TargetDevices;
 import com.odeyalo.sonata.connect.service.player.BasicPlayerOperations;
 import com.odeyalo.sonata.connect.service.player.SwitchDeviceCommandArgs;
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevices;
-import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 

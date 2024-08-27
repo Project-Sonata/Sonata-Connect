@@ -4,7 +4,7 @@ import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.Device;
 import com.odeyalo.sonata.connect.model.Devices;
 import com.odeyalo.sonata.connect.model.User;
-import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
+import com.odeyalo.sonata.connect.service.TargetDevices;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 

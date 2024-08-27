@@ -2,11 +2,11 @@ package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.connect.model.Device;
 import com.odeyalo.sonata.connect.model.User;
+import com.odeyalo.sonata.connect.service.TargetDevices;
 import com.odeyalo.sonata.connect.service.player.DeviceOperations;
 import com.odeyalo.sonata.connect.service.player.DisconnectDeviceArgs;
 import com.odeyalo.sonata.connect.service.player.SwitchDeviceCommandArgs;
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevices;
-import com.odeyalo.sonata.connect.service.player.sync.TargetDevices;
 import com.odeyalo.sonata.connect.service.support.mapper.dto.AvailableDevicesResponseDtoConverter;
 import com.odeyalo.sonata.connect.support.web.HttpStatus;
 import com.odeyalo.sonata.connect.support.web.annotation.ConnectionTarget;
