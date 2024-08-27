@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class DefaultDeviceOperations implements DeviceOperations {
+public final class DefaultDeviceOperations implements DeviceOperations {
     private final PlayerStateService playerStateService;
     private final TransferPlaybackCommandHandlerDelegate transferPlaybackCommandHandlerDelegate;
 
