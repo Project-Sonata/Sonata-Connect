@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 public interface DeviceOperations {
 
     @NotNull
-    Mono<CurrentPlayerState> addDevice(User user, Device device);
+    Mono<CurrentPlayerState> connectDevice(User user, Device device);
 
     /**
      * Transfer the playback to given devices

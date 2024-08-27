@@ -26,8 +26,8 @@ public class DefaultDeviceOperations implements DeviceOperations {
 
     @NotNull
     @Override
-    public Mono<CurrentPlayerState> addDevice(@NotNull final User user,
-                                              @NotNull final Device device) {
+    public Mono<CurrentPlayerState> connectDevice(@NotNull final User user,
+                                                  @NotNull final Device device) {
         return playerStateService.loadPlayerState(user)
                 .map(playerState -> playerState.connectDevice(device))
                 .flatMap(playerStateService::save);

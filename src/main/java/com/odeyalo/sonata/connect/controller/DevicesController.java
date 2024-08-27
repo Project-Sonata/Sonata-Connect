@@ -39,7 +39,7 @@ public class DevicesController {
     public Mono<ResponseEntity<?>> addDevice(@NotNull final User user,
                                              @NotNull @ConnectionTarget final Device device) {
 
-        return deviceOperations.addDevice(user, device)
+        return deviceOperations.connectDevice(user, device)
                 .subscribeOn(Schedulers.boundedElastic())
                 .thenReturn(HttpStatus.default204Response());
     }

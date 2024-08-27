@@ -25,8 +25,8 @@ public class EventPublisherDeviceOperationsDecorator implements DeviceOperations
 
     @NotNull
     @Override
-    public Mono<CurrentPlayerState> addDevice(User user, Device device) {
-        return delegate.addDevice(user, device)
+    public Mono<CurrentPlayerState> connectDevice(User user, Device device) {
+        return delegate.connectDevice(user, device)
                 .flatMap(state -> synchronizationManager.publishUpdatedState(user,
                                 DeviceConnectedPlayerEvent.builder()
                                         .playerState(state)

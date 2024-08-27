@@ -34,6 +34,11 @@ public class Devices implements Iterable<Device> {
         return builder().build();
     }
 
+    @NotNull
+    public static Devices of(final Device... devices) {
+        return fromCollection(Arrays.asList(devices));
+    }
+
     public boolean isEmpty() {
         return devices.isEmpty();
     }
@@ -129,6 +134,7 @@ public class Devices implements Iterable<Device> {
 
     /**
      * Change the volume for ACTIVE device
+     *
      * @param volume - volume to set for active deivce
      * @return - updated {@link Devices}
      * @throws NoActiveDeviceException - if there is no active device present
@@ -150,18 +156,18 @@ public class Devices implements Iterable<Device> {
                 .orElseThrow(() -> DeviceNotFoundException.withCustomMessage(String.format("Device with ID: %s not found!", searchTarget.getId())));
     }
 
-    @Nullable
-    private Device findCurrentlyActiveDevice() {
-        return getActiveDevices().stream()
-                .findFirst()
-                .orElse(null);
-    }
-
     @NotNull
     private Devices removeDevice(@NotNull final String deviceId) {
         return getDevices().stream()
                 .filter(device -> !Objects.equals(device.getId(), deviceId))
                 .collect(CollectorImpl.instance());
+    }
+
+    @Nullable
+    private Device findCurrentlyActiveDevice() {
+        return getActiveDevices().stream()
+                .findFirst()
+                .orElse(null);
     }
 
     @NotNull
