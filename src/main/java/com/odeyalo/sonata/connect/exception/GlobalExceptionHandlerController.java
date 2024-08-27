@@ -11,12 +11,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
 
-import static org.springframework.http.ResponseEntity.*;
+import static org.springframework.http.ResponseEntity.badRequest;
+import static org.springframework.http.ResponseEntity.unprocessableEntity;
 
 @RestControllerAdvice
 public class GlobalExceptionHandlerController {
-
-    public static final String NO_ACTIVE_DEVICE_ERROR_DESCRIPTION = "Player command failed: No active device found";
 
     @ExceptionHandler(WebExchangeBindException.class)
     public ResponseEntity<ExceptionMessages> handleWebExchangeBindException(WebExchangeBindException ex) {
@@ -37,7 +36,7 @@ public class GlobalExceptionHandlerController {
 
     @ExceptionHandler(NoActiveDeviceException.class)
     public ResponseEntity<ReasonCodeAwareExceptionMessage> handleNoActiveDeviceException(NoActiveDeviceException ex) {
-        return badRequest().body(ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), NO_ACTIVE_DEVICE_ERROR_DESCRIPTION));
+        return badRequest().body(ReasonCodeAwareExceptionMessage.of(ex.getReasonCode(), "Player command failed: No active device found"));
     }
 
 
