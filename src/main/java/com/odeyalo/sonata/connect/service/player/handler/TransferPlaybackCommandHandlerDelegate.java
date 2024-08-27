@@ -3,7 +3,7 @@ package com.odeyalo.sonata.connect.service.player.handler;
 import com.odeyalo.sonata.connect.model.CurrentPlayerState;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.TargetDevices;
-import com.odeyalo.sonata.connect.service.player.BasicPlayerOperations;
+import com.odeyalo.sonata.connect.service.player.DeviceOperations;
 import com.odeyalo.sonata.connect.service.player.SwitchDeviceCommandArgs;
 import com.odeyalo.sonata.connect.service.player.TargetDeactivationDevices;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +21,7 @@ public interface TransferPlaybackCommandHandlerDelegate {
      * @param targetDevices - devices to transfer playback.
      * @return - Mono with updated player state
      *
-     * @see BasicPlayerOperations#getDeviceOperations()#transferPlayback(User, SwitchDeviceCommandArgs, TargetDeactivationDevices, TargetDevices)
+     * @see DeviceOperations()#transferPlayback(User, SwitchDeviceCommandArgs, TargetDeactivationDevices, TargetDevices)
      */
     @NotNull
     Mono<CurrentPlayerState> transferPlayback(User user, SwitchDeviceCommandArgs args, TargetDeactivationDevices deactivationDevices, TargetDevices targetDevices);
