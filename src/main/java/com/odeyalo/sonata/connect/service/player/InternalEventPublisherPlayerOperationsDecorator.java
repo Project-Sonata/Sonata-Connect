@@ -1,10 +1,10 @@
 package com.odeyalo.sonata.connect.service.player;
 
 import com.odeyalo.sonata.connect.model.*;
+import com.odeyalo.sonata.connect.service.messaging.MessageSendingTemplate;
 import com.odeyalo.sonata.suite.brokers.events.SonataEvent;
-import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackPlayedEvent;
+import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackResumedEvent;
 import com.odeyalo.sonata.suite.brokers.events.activity.player.payload.TrackPlayedPayload;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -13,22 +13,20 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-import reactor.kafka.sender.KafkaSender;
-import reactor.kafka.sender.SenderRecord;
 
 @Component
 @Primary
 public final class InternalEventPublisherPlayerOperationsDecorator implements BasicPlayerOperations {
     private final BasicPlayerOperations delegate;
-    private final KafkaSender<String, SonataEvent> kafkaSender;
+    private final MessageSendingTemplate<String, SonataEvent> messageSendingTemplate;
     private final Logger logger = LoggerFactory.getLogger(InternalEventPublisherPlayerOperationsDecorator.class);
 
     public InternalEventPublisherPlayerOperationsDecorator(@Qualifier("eventPublisherPlayerOperationsDecorator") final BasicPlayerOperations delegate,
-                                                           final KafkaSender<String, SonataEvent> kafkaSender) {
+                                                           final MessageSendingTemplate<String, SonataEvent> messageSendingTemplate) {
         this.delegate = delegate;
-        this.kafkaSender = kafkaSender;
+        this.messageSendingTemplate = messageSendingTemplate;
     }
-//  TODO: finish integration with Kafka
+
     @Override
     public @NotNull Mono<CurrentPlayerState> currentState(@NotNull final User user) {
         return delegate.currentState(user);
@@ -56,18 +54,32 @@ public final class InternalEventPublisherPlayerOperationsDecorator implements Ba
                         return Mono.just(state);
                     }
 
-                    System.out.println(state.getProgressMs());
+                    Mono<Void> send = sendPlayerPlayCommand(user, context, state);
 
-                    final TrackPlayedEvent event = new TrackPlayedEvent(
-                            new TrackPlayedPayload(
-                                    user.getId(),
-                                    state.getPlayableItem().getId(),
-                                    (int) state.getProgressMs()
-                            )
-                    );
-
-                    return send(event).thenReturn(state);
+                    return send.thenReturn(state);
                 });
+    }
+
+    @NotNull
+    private Mono<Void> sendPlayerPlayCommand(@NotNull final User user,
+                                             @NotNull final PlayCommandContext context,
+                                             @NotNull final CurrentPlayerState state) {
+
+        if ( state.getPlayableItem() == null ) {
+            throw new IllegalStateException("To send 'PLAY' or 'RESUME' player command playable item is required");
+        }
+
+        final TrackPlayedPayload payload = new TrackPlayedPayload(
+                user.getId(),
+                state.getPlayableItem().getId(),
+                (int) state.getProgressMs()
+        );
+
+        if ( context.shouldBeResumed() ) {
+            return send(new TrackResumedEvent(payload));
+        }
+
+        return Mono.empty();
     }
 
     @Override
@@ -93,15 +105,14 @@ public final class InternalEventPublisherPlayerOperationsDecorator implements Ba
     @NotNull
     private Mono<Void> send(@NotNull final SonataEvent event) {
         logger.info("Send event: [{}, {}] to Kafka cluster ", event.id(), event.getEventType());
+
         var toSend = Mono.just(
-                SenderRecord.create(
-                        new ProducerRecord<String, SonataEvent>("activity.player", event),
-                        "correlationId"+event.id()
+                MessageSendingTemplate.Record.<String, SonataEvent>create(
+                        "activity.player", event
                 )
         );
 
-        return kafkaSender.send(toSend)
-                .doOnNext(res -> logger.info("Sent successfully: {}", event.id()))
+        return messageSendingTemplate.send(toSend)
                 .then();
     }
 

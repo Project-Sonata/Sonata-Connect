@@ -69,6 +69,21 @@ public interface BasicPlayerOperations {
                                           @Nullable TargetDevice targetDevice);
 
     /**
+     * Start or resume the track.
+     * If track not specified then currently playing track starts to play
+     *
+     * @param user    - owner of the player state
+     * @param context - context to start playing, if null then current context should be used
+     * @return - {@link Mono} with {@link CurrentPlayerState}
+     * @throws IllegalStateException - if the state is empty and PlayableItem is null and nothing was specified in PlayContext
+     */
+    @NotNull
+    default Mono<CurrentPlayerState> playOrResume(@NotNull User user,
+                                                  @NotNull PlayCommandContext context) {
+        return playOrResume(user, context, CURRENT_DEVICE);
+    }
+
+    /**
      * Pause the player playback, if playback is already paused, then do nothing
      *
      * @param user - owner of the player state
@@ -82,7 +97,8 @@ public interface BasicPlayerOperations {
 
     /**
      * Seek the player's position to specified
-     * @param user - owner of the player
+     *
+     * @param user     - owner of the player
      * @param position - position to seek position to
      * @return - updated player state
      */
