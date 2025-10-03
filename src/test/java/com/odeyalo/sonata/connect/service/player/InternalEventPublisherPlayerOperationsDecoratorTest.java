@@ -8,6 +8,7 @@ import com.odeyalo.sonata.connect.model.TrackItem;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.messaging.SpyMessageSendingTemplate;
 import com.odeyalo.sonata.suite.brokers.events.SonataEvent;
+import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackPausedEvent;
 import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackPlayedEvent;
 import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackResumedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -117,6 +118,78 @@ class InternalEventPublisherPlayerOperationsDecoratorTest {
             assertThat(event.getBody().getUserId()).isEqualTo(EXISTING_USER.getId());
             assertThat(event.getBody().getTrackId()).isEqualTo("cassie");
             assertThat(event.getBody().getPosition()).isEqualTo(0);
+        }
+    }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    class PauseCommandTest {
+
+        @NotNull
+        private static PlayerStateEntity prepareState() {
+            return existingPlayerState()
+                    .setPlaying(false)
+                    .setCurrentlyPlayingItem(null);
+        }
+
+        @Test
+        void shouldSendEvent() {
+            // given
+            final PlayerStateEntity playerState = prepareState();
+
+            final SpyMessageSendingTemplate<String, SonataEvent> template = new SpyMessageSendingTemplate<>();
+
+            final DefaultPlayerOperations delegate = DefaultPlayerOperationsTestableBuilder.testableBuilder()
+                    .withState(playerState)
+                    .withPlayableItems(TRACK_1)
+                    .build();
+
+            delegate.playOrResume(EXISTING_USER, PlayCommandContext.of(ContextUri.forTrack("cassie"))).block();
+
+            final var testable = new InternalEventPublisherPlayerOperationsDecorator(
+                    delegate, template
+            );
+
+            // when
+            testable.pause(EXISTING_USER)
+                    .as(StepVerifier::create)
+                    .expectNextCount(1)
+                    .verifyComplete();
+
+            // then
+            assertThat(template.getRecords()).hasSize(1);
+            var record = template.getRecords().get(0);
+
+            assertThat(record.getValue()).isInstanceOf(TrackPausedEvent.class);
+
+            final TrackPausedEvent event = (TrackPausedEvent) record.getValue();
+
+            assertThat(event.getBody().getUserId()).isEqualTo(EXISTING_USER.getId());
+            assertThat(event.getBody().getTrackId()).isEqualTo("cassie");
+            assertThat(event.getBody().getPosition()).isGreaterThan(0);
+        }
+
+        @Test
+        void shouldNotSendAnyEventIfCommandDidntWork() {
+            // given
+            final PlayerStateEntity playerState = prepareState();
+
+            final SpyMessageSendingTemplate<String, SonataEvent> template = new SpyMessageSendingTemplate<>();
+
+            final var testable = new InternalEventPublisherPlayerOperationsDecorator(
+                    DefaultPlayerOperationsTestableBuilder.testableBuilder()
+                            .withState(playerState)
+                            .build(), template
+            );
+
+            // when
+            testable.pause(EXISTING_USER)
+                    .as(StepVerifier::create)
+                    .expectNextCount(1)
+                    .verifyComplete();
+
+            // then
+            assertThat(template.getRecords()).isEmpty();
         }
     }
 }

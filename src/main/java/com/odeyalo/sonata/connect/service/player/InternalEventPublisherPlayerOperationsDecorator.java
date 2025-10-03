@@ -3,8 +3,10 @@ package com.odeyalo.sonata.connect.service.player;
 import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.service.messaging.MessageSendingTemplate;
 import com.odeyalo.sonata.suite.brokers.events.SonataEvent;
+import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackPausedEvent;
 import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackPlayedEvent;
 import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackResumedEvent;
+import com.odeyalo.sonata.suite.brokers.events.activity.player.payload.TrackPausedPayload;
 import com.odeyalo.sonata.suite.brokers.events.activity.player.payload.TrackPlayedPayload;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -84,35 +86,8 @@ public final class InternalEventPublisherPlayerOperationsDecorator implements Ba
     @Override
     public @NotNull Mono<CurrentPlayerState> pause(@NotNull final User user) {
 
-        return delegate.pause(user);
-
-//        return delegate.pause(user)
-//                .flatMap(state -> {
-//                    TrackPausedEvent event = new TrackPausedEvent(
-//                            user.getId(),
-//                            UUID.randomUUID().toString(),
-//                            Instant.now(),
-//                            (int) state.getProgressMs()
-//                    );
-//
-//                   return send(event).thenReturn(state);
-//                });
-//
-//        ;
-    }
-
-    @NotNull
-    private Mono<Void> send(@NotNull final SonataEvent event) {
-        logger.info("Send event: [{}, {}] to Kafka cluster ", event.id(), event.getEventType());
-
-        var toSend = Mono.just(
-                MessageSendingTemplate.Record.<String, SonataEvent>create(
-                        "activity.player", event
-                )
-        );
-
-        return messageSendingTemplate.send(toSend)
-                .then();
+        return delegate.pause(user)
+                .flatMap(state -> sendPlaybackPausedEvent(user, state));
     }
 
     @Override
@@ -123,5 +98,37 @@ public final class InternalEventPublisherPlayerOperationsDecorator implements Ba
     @Override
     public @NotNull Mono<CurrentPlayerState> seekToPosition(@NotNull final User user, @NotNull final SeekPosition position) {
         return delegate.seekToPosition(user, position);
+    }
+
+    @NotNull
+    private Mono<CurrentPlayerState> sendPlaybackPausedEvent(@NotNull final User user,
+                                                             @NotNull final CurrentPlayerState state) {
+
+        if ( state.getPlayableItem() == null ) {
+            return Mono.just(state);
+        }
+
+        final TrackPausedEvent event = new TrackPausedEvent(
+                new TrackPausedPayload(
+                        user.getId(),
+                        state.getPlayableItem().getId(),
+                        (int) state.getProgressMs()
+
+                )
+        );
+
+        return send(event).thenReturn(state);
+    }
+
+    @NotNull
+    private Mono<Void> send(@NotNull final SonataEvent event) {
+        var toSend = Mono.just(
+                MessageSendingTemplate.Record.<String, SonataEvent>create(
+                        "activity.player", event
+                )
+        );
+
+        return messageSendingTemplate.send(toSend)
+                .then();
     }
 }
