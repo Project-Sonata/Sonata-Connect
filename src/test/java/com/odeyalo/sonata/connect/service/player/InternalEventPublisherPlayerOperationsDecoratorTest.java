@@ -1,5 +1,6 @@
 package com.odeyalo.sonata.connect.service.player;
 
+import com.odeyalo.sonata.common.context.ContextUri;
 import com.odeyalo.sonata.connect.entity.PlayerStateEntity;
 import com.odeyalo.sonata.connect.entity.TrackItemEntity;
 import com.odeyalo.sonata.connect.model.PlayingType;
@@ -7,7 +8,9 @@ import com.odeyalo.sonata.connect.model.TrackItem;
 import com.odeyalo.sonata.connect.model.User;
 import com.odeyalo.sonata.connect.service.messaging.SpyMessageSendingTemplate;
 import com.odeyalo.sonata.suite.brokers.events.SonataEvent;
+import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackPlayedEvent;
 import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackResumedEvent;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -70,6 +73,50 @@ class InternalEventPublisherPlayerOperationsDecoratorTest {
             assertThat(event.getBody().getUserId()).isEqualTo(EXISTING_USER.getId());
             assertThat(event.getBody().getTrackId()).isEqualTo("cassie");
             assertThat(event.getBody().getPosition()).isGreaterThan(0);
+        }
+    }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    class PlayCommandTest {
+
+        @NotNull
+        private static PlayerStateEntity prepareState() {
+            return existingPlayerState()
+                    .setPlaying(false);
+        }
+
+        @Test
+        void shouldSendEvent() {
+            // given
+            final PlayerStateEntity playerState = prepareState();
+
+            final SpyMessageSendingTemplate<String, SonataEvent> template = new SpyMessageSendingTemplate<>();
+
+            final var testable = new InternalEventPublisherPlayerOperationsDecorator(
+                    DefaultPlayerOperationsTestableBuilder.testableBuilder()
+                            .withState(playerState)
+                            .withPlayableItems(TRACK_1)
+                            .build(), template
+            );
+
+            // when
+            testable.playOrResume(EXISTING_USER, PlayCommandContext.of(ContextUri.forTrack("cassie")))
+                    .as(StepVerifier::create)
+                    .expectNextCount(1)
+                    .verifyComplete();
+
+            // then
+            assertThat(template.getRecords()).hasSize(1);
+            var record = template.getRecords().get(0);
+
+            assertThat(record.getValue()).isInstanceOf(TrackPlayedEvent.class);
+
+            final TrackPlayedEvent event = (TrackPlayedEvent) record.getValue();
+
+            assertThat(event.getBody().getUserId()).isEqualTo(EXISTING_USER.getId());
+            assertThat(event.getBody().getTrackId()).isEqualTo("cassie");
+            assertThat(event.getBody().getPosition()).isEqualTo(0);
         }
     }
 }

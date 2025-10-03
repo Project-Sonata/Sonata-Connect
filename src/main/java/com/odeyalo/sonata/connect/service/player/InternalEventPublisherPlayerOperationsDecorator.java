@@ -3,6 +3,7 @@ package com.odeyalo.sonata.connect.service.player;
 import com.odeyalo.sonata.connect.model.*;
 import com.odeyalo.sonata.connect.service.messaging.MessageSendingTemplate;
 import com.odeyalo.sonata.suite.brokers.events.SonataEvent;
+import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackPlayedEvent;
 import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackResumedEvent;
 import com.odeyalo.sonata.suite.brokers.events.activity.player.payload.TrackPlayedPayload;
 import org.jetbrains.annotations.NotNull;
@@ -72,14 +73,12 @@ public final class InternalEventPublisherPlayerOperationsDecorator implements Ba
         final TrackPlayedPayload payload = new TrackPlayedPayload(
                 user.getId(),
                 state.getPlayableItem().getId(),
-                (int) state.getProgressMs()
+                context.shouldBeResumed() ? (int) state.getProgressMs() : 0
         );
 
-        if ( context.shouldBeResumed() ) {
-            return send(new TrackResumedEvent(payload));
-        }
-
-        return Mono.empty();
+        return context.shouldBeResumed() ?
+                send(new TrackResumedEvent(payload)) :
+                send(new TrackPlayedEvent(payload));
     }
 
     @Override
