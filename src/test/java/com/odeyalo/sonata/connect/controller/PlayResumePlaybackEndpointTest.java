@@ -55,6 +55,7 @@ public class PlayResumePlaybackEndpointTest extends AbstractIntegrationTest {
 
     @TestConfiguration
     static class Config {
+        // TODO: https://github.com/Project-Sonata/Sonata-Connect/issues/80
         @Bean
         @Primary
         public PlayableItemLoader testablePlayableItemLoader() {
