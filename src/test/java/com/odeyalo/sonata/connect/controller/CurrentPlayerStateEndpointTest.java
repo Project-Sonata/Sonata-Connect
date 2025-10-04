@@ -1,6 +1,7 @@
 package com.odeyalo.sonata.connect.controller;
 
 import com.odeyalo.sonata.common.context.ContextUri;
+import com.odeyalo.sonata.connect.AbstractIntegrationTest;
 import com.odeyalo.sonata.connect.dto.ExceptionMessage;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.entity.*;
@@ -13,12 +14,8 @@ import com.odeyalo.sonata.connect.model.track.ArtistSpec;
 import com.odeyalo.sonata.connect.repository.PlayerStateRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
 import testing.asserts.PlayerStateDtoAssert;
@@ -32,16 +29,8 @@ import static com.odeyalo.sonata.connect.model.PlayableItemDuration.ofMillisecon
 import static com.odeyalo.sonata.connect.model.ShuffleMode.OFF;
 import static com.odeyalo.sonata.connect.model.track.AlbumSpec.AlbumType.SINGLE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode.REMOTE;
 
-@SpringBootTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@AutoConfigureWebTestClient
-@AutoConfigureStubRunner(stubsMode = REMOTE,
-        repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
-        ids = "com.odeyalo.sonata:authorization:+")
-@TestPropertySource(locations = "classpath:application-test.properties")
-class CurrentPlayerStateEndpointTest {
+class CurrentPlayerStateEndpointTest extends AbstractIntegrationTest {
 
     @Autowired
     WebTestClient webTestClient;
