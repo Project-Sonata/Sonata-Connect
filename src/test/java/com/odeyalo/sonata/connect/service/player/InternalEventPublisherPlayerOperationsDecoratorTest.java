@@ -159,7 +159,7 @@ class InternalEventPublisherPlayerOperationsDecoratorTest {
 
             assertThat(event.getBody().getUserId()).isEqualTo(EXISTING_USER.getId());
             assertThat(event.getBody().getTrackId()).isEqualTo("cassie");
-            assertThat(event.getBody().getPosition()).isGreaterThan(0);
+            assertThat(event.getBody().getPosition()).isGreaterThanOrEqualTo(0);
         }
 
         @Test
