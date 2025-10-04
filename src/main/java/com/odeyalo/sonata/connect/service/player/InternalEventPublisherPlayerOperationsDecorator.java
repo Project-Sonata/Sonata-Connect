@@ -6,12 +6,12 @@ import com.odeyalo.sonata.suite.brokers.events.SonataEvent;
 import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackPausedEvent;
 import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackPlayedEvent;
 import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackResumedEvent;
+import com.odeyalo.sonata.suite.brokers.events.activity.player.TrackSeekEvent;
 import com.odeyalo.sonata.suite.brokers.events.activity.player.payload.TrackPausedPayload;
 import com.odeyalo.sonata.suite.brokers.events.activity.player.payload.TrackPlayedPayload;
+import com.odeyalo.sonata.suite.brokers.events.activity.player.payload.TrackSeekPayload;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,6 @@ import reactor.core.publisher.Mono;
 public final class InternalEventPublisherPlayerOperationsDecorator implements BasicPlayerOperations {
     private final BasicPlayerOperations delegate;
     private final MessageSendingTemplate<String, SonataEvent> messageSendingTemplate;
-    private final Logger logger = LoggerFactory.getLogger(InternalEventPublisherPlayerOperationsDecorator.class);
 
     public InternalEventPublisherPlayerOperationsDecorator(@Qualifier("eventPublisherPlayerOperationsDecorator") final BasicPlayerOperations delegate,
                                                            final MessageSendingTemplate<String, SonataEvent> messageSendingTemplate) {
@@ -36,19 +35,22 @@ public final class InternalEventPublisherPlayerOperationsDecorator implements Ba
     }
 
     @Override
-    public @NotNull Mono<CurrentlyPlayingPlayerState> currentlyPlayingState(@NotNull final User user) {
+    @NotNull
+    public Mono<CurrentlyPlayingPlayerState> currentlyPlayingState(@NotNull final User user) {
         return delegate.currentlyPlayingState(user);
     }
 
     @Override
-    public @NotNull Mono<CurrentPlayerState> changeShuffle(@NotNull final User user, @NotNull final ShuffleMode shuffleMode) {
+    @NotNull
+    public Mono<CurrentPlayerState> changeShuffle(@NotNull final User user, @NotNull final ShuffleMode shuffleMode) {
         return delegate.changeShuffle(user, shuffleMode);
     }
 
     @Override
-    public @NotNull Mono<CurrentPlayerState> playOrResume(@NotNull final User user,
-                                                          @NotNull final PlayCommandContext context,
-                                                          @Nullable final TargetDevice targetDevice) {
+    @NotNull
+    public Mono<CurrentPlayerState> playOrResume(@NotNull final User user,
+                                                 @NotNull final PlayCommandContext context,
+                                                 @Nullable final TargetDevice targetDevice) {
 
 
         return delegate.playOrResume(user, context, targetDevice)
@@ -61,6 +63,30 @@ public final class InternalEventPublisherPlayerOperationsDecorator implements Ba
 
                     return send.thenReturn(state);
                 });
+    }
+
+    @Override
+    @NotNull
+    public Mono<CurrentPlayerState> pause(@NotNull final User user) {
+
+        return delegate.pause(user)
+                .flatMap(state -> sendPlaybackPausedEvent(user, state));
+    }
+
+    @Override
+    @NotNull
+    public Mono<CurrentPlayerState> changeVolume(@NotNull final User user,
+                                                 @NotNull final Volume volume) {
+        return delegate.changeVolume(user, volume);
+    }
+
+    @Override
+    @NotNull
+    public Mono<CurrentPlayerState> seekToPosition(@NotNull final User user,
+                                                   @NotNull final SeekPosition position) {
+        return delegate.currentState(user)
+                .flatMap(oldState -> delegate.seekToPosition(user, position)
+                         .flatMap(newState -> sendPlayerSeekEvent(user, oldState, newState)));
     }
 
     @NotNull
@@ -83,23 +109,6 @@ public final class InternalEventPublisherPlayerOperationsDecorator implements Ba
                 send(new TrackPlayedEvent(payload));
     }
 
-    @Override
-    public @NotNull Mono<CurrentPlayerState> pause(@NotNull final User user) {
-
-        return delegate.pause(user)
-                .flatMap(state -> sendPlaybackPausedEvent(user, state));
-    }
-
-    @Override
-    public @NotNull Mono<CurrentPlayerState> changeVolume(@NotNull final User user, @NotNull final Volume volume) {
-        return delegate.changeVolume(user, volume);
-    }
-
-    @Override
-    public @NotNull Mono<CurrentPlayerState> seekToPosition(@NotNull final User user, @NotNull final SeekPosition position) {
-        return delegate.seekToPosition(user, position);
-    }
-
     @NotNull
     private Mono<CurrentPlayerState> sendPlaybackPausedEvent(@NotNull final User user,
                                                              @NotNull final CurrentPlayerState state) {
@@ -118,6 +127,27 @@ public final class InternalEventPublisherPlayerOperationsDecorator implements Ba
         );
 
         return send(event).thenReturn(state);
+    }
+
+    @NotNull
+    private Mono<CurrentPlayerState> sendPlayerSeekEvent(@NotNull final User user,
+                                                         @NotNull final CurrentPlayerState oldState,
+                                                         @NotNull final CurrentPlayerState newState) {
+
+        if (newState.getPlayableItem() == null) {
+            return Mono.just(newState);
+        }
+
+        final TrackSeekEvent event = new TrackSeekEvent(
+                new TrackSeekPayload(
+                        user.getId(),
+                        newState.getPlayableItem().getId(),
+                        (int) oldState.getProgressMs(),
+                        (int) newState.getProgressMs()
+                )
+        );
+
+        return send(event).thenReturn(newState);
     }
 
     @NotNull

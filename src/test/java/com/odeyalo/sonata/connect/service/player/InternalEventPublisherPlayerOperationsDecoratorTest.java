@@ -81,12 +81,6 @@ class InternalEventPublisherPlayerOperationsDecoratorTest {
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class PlayCommandTest {
 
-        @NotNull
-        private static PlayerStateEntity prepareState() {
-            return existingPlayerState()
-                    .setPlaying(false);
-        }
-
         @Test
         void shouldSendEvent() {
             // given
@@ -119,18 +113,17 @@ class InternalEventPublisherPlayerOperationsDecoratorTest {
             assertThat(event.getBody().getTrackId()).isEqualTo("cassie");
             assertThat(event.getBody().getPosition()).isEqualTo(0);
         }
+
+        @NotNull
+        private static PlayerStateEntity prepareState() {
+            return existingPlayerState()
+                    .setPlaying(false);
+        }
     }
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class PauseCommandTest {
-
-        @NotNull
-        private static PlayerStateEntity prepareState() {
-            return existingPlayerState()
-                    .setPlaying(false)
-                    .setCurrentlyPlayingItem(null);
-        }
 
         @Test
         void shouldSendEvent() {
@@ -190,6 +183,13 @@ class InternalEventPublisherPlayerOperationsDecoratorTest {
 
             // then
             assertThat(template.getRecords()).isEmpty();
+        }
+
+        @NotNull
+        private static PlayerStateEntity prepareState() {
+            return existingPlayerState()
+                    .setPlaying(false)
+                    .setCurrentlyPlayingItem(null);
         }
     }
 }
