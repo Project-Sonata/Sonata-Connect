@@ -5,6 +5,7 @@ import com.odeyalo.sonata.connect.service.player.DeviceOperations;
 import com.odeyalo.sonata.connect.service.player.EventPublisherDeviceOperationsDecorator;
 import com.odeyalo.sonata.connect.service.player.EventPublisherPlayerOperationsDecorator;
 import com.odeyalo.sonata.connect.service.player.sync.PlayerSynchronizationManager;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -13,8 +14,7 @@ import org.springframework.context.annotation.Primary;
 public class PlayerOperationsConfiguration {
 
     @Bean
-    @Primary
-    public EventPublisherPlayerOperationsDecorator eventPublisherPlayerOperationsDecorator(BasicPlayerOperations delegate,
+    public EventPublisherPlayerOperationsDecorator eventPublisherPlayerOperationsDecorator(@Qualifier("defaultPlayerOperations") BasicPlayerOperations delegate,
                                                                                            PlayerSynchronizationManager synchronizationManager) {
         return new EventPublisherPlayerOperationsDecorator(delegate, synchronizationManager);
     }

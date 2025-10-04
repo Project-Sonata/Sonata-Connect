@@ -1,7 +1,7 @@
 package com.odeyalo.sonata.connect.controller;
 
 
-import com.odeyalo.sonata.connect.controller.SonataConnectDeviceAuthenticationEndpointTest.Configuration;
+import com.odeyalo.sonata.connect.AbstractIntegrationTest;
 import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
 import com.odeyalo.sonata.connect.dto.SonataConnectAuthenticationTokenResponseDto;
 import com.odeyalo.sonata.connect.service.connect.MockSonataConnectAccessTokenGenerator;
@@ -12,34 +12,19 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
 import testing.asserts.SonataConnectAuthenticationTokenResponseDtoAssert;
 import testing.faker.ConnectDeviceRequestFaker;
 import testing.shared.SonataTestHttpOperations;
-import testing.spring.autoconfigure.AutoConfigureSonataHttpClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode.REMOTE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@SpringBootTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@AutoConfigureWebTestClient
-@AutoConfigureSonataHttpClient
-@AutoConfigureStubRunner(stubsMode = REMOTE,
-        repositoryRoot = "git://https://github.com/Project-Sonata/Sonata-Contracts.git",
-        ids = "com.odeyalo.sonata:authorization:+")
-@TestPropertySource(locations = "classpath:application-test.properties")
-public class SonataConnectDeviceAuthenticationEndpointTest {
+public class SonataConnectDeviceAuthenticationEndpointTest extends AbstractIntegrationTest {
 
     @Autowired
     WebTestClient webTestClient;

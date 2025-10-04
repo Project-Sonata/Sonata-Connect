@@ -1,6 +1,7 @@
 package com.odeyalo.sonata.connect.controller;
 
 
+import com.odeyalo.sonata.connect.AbstractIntegrationTest;
 import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
 import com.odeyalo.sonata.connect.dto.PlayResumePlaybackRequest;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
@@ -11,36 +12,24 @@ import com.odeyalo.sonata.connect.service.player.support.PlayableItemLoader;
 import com.odeyalo.sonata.connect.service.player.support.PredefinedPlayableItemLoader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
 import testing.faker.ConnectDeviceRequestFaker;
 import testing.faker.PlayableItemFaker;
 import testing.shared.SonataTestHttpOperations;
-import testing.spring.autoconfigure.AutoConfigureSonataHttpClient;
 import testing.spring.callback.ClearPlayerState;
-import testing.spring.stubs.AutoConfigureSonataStubs;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@SpringBootTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@AutoConfigureWebTestClient
-@AutoConfigureSonataStubs
-@AutoConfigureSonataHttpClient
-@ActiveProfiles("test")
 @ClearPlayerState
-class SeekPositionEndpointTest {
+class SeekPositionEndpointTest extends AbstractIntegrationTest {
 
 
     @Autowired

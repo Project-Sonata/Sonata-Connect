@@ -1,37 +1,26 @@
 package com.odeyalo.sonata.connect.controller;
 
+import com.odeyalo.sonata.connect.AbstractIntegrationTest;
 import com.odeyalo.sonata.connect.dto.ConnectDeviceRequest;
 import com.odeyalo.sonata.connect.dto.PlayerStateDto;
 import com.odeyalo.sonata.connect.dto.ReasonCodeAwareExceptionMessage;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Hooks;
 import testing.faker.ConnectDeviceRequestFaker;
 import testing.shared.SonataTestHttpOperations;
-import testing.spring.autoconfigure.AutoConfigureSonataHttpClient;
 import testing.spring.callback.ClearPlayerState;
-import testing.spring.stubs.AutoConfigureSonataStubs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@SpringBootTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@AutoConfigureWebTestClient
-@AutoConfigureSonataStubs
-@AutoConfigureSonataHttpClient
-@ActiveProfiles("test")
 @ClearPlayerState
-class ChangePlayerVolumeEndpointTest {
+class ChangePlayerVolumeEndpointTest extends AbstractIntegrationTest {
 
     @Autowired
     WebTestClient webTestClient;
