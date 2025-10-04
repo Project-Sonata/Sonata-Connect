@@ -23,7 +23,7 @@ public class EventProducerConfiguration {
 
     @Bean
     @Profile("test")
-    public SpyMessageSendingTemplate<String, SonataEvent> messageSendingTemplate() {
+    public SpyMessageSendingTemplate<String, SonataEvent> localMessageSendingTemplate() {
         return new SpyMessageSendingTemplate<>();
     }
 }
